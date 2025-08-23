@@ -1,0 +1,176 @@
+﻿@using Practice_Store.Application.Services.Products.Queries.GetProductDetails_Admin
+@model GetProductDetail_AdminDto;
+
+@{
+    ViewData["Title"] = "GetProductDetails";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+        <div class="container-fluid">
+            <div class="row page-titles">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item active"><a href="javascript:void(0)">مدیریت محصولات</a></li>
+                    <li class="breadcrumb-item"><a href="javascript:void(0)">مشاهده جزئیات محصول</a></li>
+                </ol>
+            </div>
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-xl-3 col-lg-6 col-md-6 col-xxl-5 ">
+                                    <div class="tab-content">
+                                        <div role="tabpanel" class="tab-pane fade show active" id="first"><img class="img-fluid" src="~/@Model.Images[0].Src" alt=""></div>
+                                    </div>
+                                    <div class="tab-slide-content new-arrival-product mb-4 mb-xl-0">
+                                        <ul class="nav slide-item-list mt-3" role="tablist">
+                                            @foreach(var item in Model.Images){
+                                        <li role="presentation" class="show"><a href="#first" role="tab" data-bs-toggle="tab"><img class="img-fluid" src="~/@item.Src" alt="" width="50"></a></li>
+                                            }
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="col-xl-9 col-lg-6 col-md-6 col-xxl-7 col-sm-12">
+                                    <div class="product-detail-content">
+                                        <div class="new-arrival-content pr">
+                                            <h4>@Model.Name</h4>
+                                            <div class="d-table mb-2"><p class="price float-start d-block">@Model.Price ریال</p></div>
+                                            <p>کد محصول : <span class="item">@Model.Id</span></p>
+                                            <p>نام برند : <span class="item">@Model.Brand</span></p>
+                                            <p>درصد تخفیف : <span class="item">@Model.OffPercentage</span></p>
+                                            <p>دسته بندی : <span class="item">@Model.CategoryName</span></p>
+                                            <p>وضعیت نمایش محصول : <span class="item">@Model.Displayed</span></p>
+                                            <h4 class="m-b-10">توضیحات محصول</h4>
+                                            <p class="text-content">@Model.Description</p>
+                                            <div class="d-flex align-items-end flex-wrap mt-4">
+                                                <div class="filtaring-area me-3">
+                                                    <div class="size-filter">
+                                                        <h4 class="m-b-15">سایز های محصول</h4>
+                                                        <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
+                                                            @foreach(var item in Model.Sizes){
+                                                                <input type="radio" class="btn-check" name="btnradio" id="btnradio1" checked>
+                                                                <label class="btn btn-outline-primary" for="btnradio1">سایز : @item.SizeName<br />موجودی : @item.Inventory</label>
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                    <div class="card-body">
+                                        <button type="button" class="btn btn-sm btn-danger" onclick="DeleteProductFunc(@Model.Id)">حذف محصول</button>
+                                        <button type="button" class="btn btn-sm btn-secondary" onclick="ChangeProductDisplayedFunc(@Model.Id)">تغییر وضعیت نمایش</button>
+                                        <button type="button" class="btn btn-sm btn-secondary" onclick="window.location.href='/admin/product/EditProduct/@Model.Id'">ویرایش محصول</button>
+                                        <button type="button" class="btn btn-sm btn-primary" onclick="window.location.href='/admin/product/GetProductList'">بازگشت</button>
+                                    </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+@section Scripts {
+
+    <link href="~/sweetalert2/sweetalert2.min.css" rel="stylesheet" />
+    <script src="~/sweetalert2/sweetalert2.min.js"></script>
+
+    <script>
+        function DeleteProductFunc(Id) {
+            swal.fire({
+                title: 'حذف محصول',
+                text: "کاربر گرامی از حذف محصول مطمئن هستید؟",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#7cacbe',
+                confirmButtonText: 'بله ، محصول حذف شود',
+                cancelButtonText: 'خیر'
+            }).then((result) => {
+                if (result.value) {
+                    var postData = {
+                        'Id': Id,
+                    };
+                    $.ajax({
+                        contentType: 'application/x-www-form-urlencoded',
+                        dataType: 'json',
+                        type: "POST",
+                        url: "http://localhost:5215/admin/Product/DeleteProduct",
+                        data: postData,
+                        success: function (data) {
+                            if (data.isSuccess == true) {
+                                swal.fire(
+                                    'موفق!',
+                                    data.message,
+                                    'success'
+                                ).then(function (isConfirm) {
+                                    window.location.href='/admin/product/GetProductList'
+                                });
+                            }
+                            else {
+                                swal.fire(
+                                    'هشدار!',
+                                    data.message,
+                                    'warning'
+                                );
+                            }
+                        },
+                        error: function (request, status, error) {
+                            alert(request.responseText);
+                        }
+                    });
+                }
+            })
+        }
+        function ChangeProductDisplayedFunc(Id){
+            swal.fire({
+                title: 'تغییر وضعیت نمایش محصول',
+                text: "کاربر گرامی از تغییر وضعیت محصول مطمئن هستید؟",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#7cacbe',
+                confirmButtonText: 'بله ، تغییر اعمال شود',
+                cancelButtonText: 'خیر'
+            }).then((result) => {
+                if (result.value) {
+                    var postData = {
+                        'Id': Id,
+                    };
+                    $.ajax({
+                        contentType: 'application/x-www-form-urlencoded',
+                        dataType: 'json',
+                        type: "POST",
+                        url: "http://localhost:5215/admin/Product/ChangeProductDisplayed",
+                        data: postData,
+                        success: function (data) {
+                            if (data.isSuccess == true) {
+                                swal.fire(
+                                    'موفق!',
+                                    data.message,
+                                    'success'
+                                ).then(function (isConfirm) {
+                                    location.reload();
+                                });
+                            }
+                            else {
+                                swal.fire(
+                                    'هشدار!',
+                                    data.message,
+                                    'warning'
+                                );
+                            }
+                        },
+                        error: function (request, status, error) {
+                            alert(request.responseText);
+                        }
+                    });
+                }
+            })
+        }
+    </script>
+}
+@section Modals {
+
+}

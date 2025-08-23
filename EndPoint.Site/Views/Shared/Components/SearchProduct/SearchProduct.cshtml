@@ -1,0 +1,15 @@
+﻿@using Practice_Store.Application.Services.Common.GetProductMenu;
+@model List<GetProductMenuDto>;
+@{
+    Layout = null;
+}
+
+<div class="input-group">
+    <input id="SeachKeyInput" type="text" class="form-control"><button id="DropDownBtn" class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">بر اساس</button>
+    <div class="dropdown-menu" style="margin: 0px;">
+        <a class="dropdown-item" onclick="ChangeButtonValue('تمام محصولات')" href="#">تمام محصولات</a>
+        @foreach(var item in Model){
+            <a class="dropdown-item" id="SearchButtnoCat'@item.CategoryId'" onclick="ChangeButtonValue('@item.Name')" href="#@item.CategoryId">@item.Name</a>
+        }
+    </div>
+</div>

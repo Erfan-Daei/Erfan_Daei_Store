@@ -1,0 +1,192 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html dir="rtl" lang="en" class="h-100">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="keywords" content="">
+    <meta name="author" content="">
+    <meta name="robots" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Boltz : Crypto Admin Template">
+    <meta property="og:title" content="Boltz : Crypto Admin Template">
+    <meta property="og:description" content="Boltz : Crypto Admin Template">
+    <meta property="og:image" content="https://boltz.dexignzone.com/xhtml/social-image.png">
+    <meta name="format-detection" content="telephone=no">
+    <title>Boltz: الگوی مدیریت پرداخت</title>
+    <link rel="shortcut icon" type="image/png" href="~/Admin_Template/images/favicon.png">
+    <link href="~/Admin_Template/css/style.css" rel="stylesheet">
+</head>
+<body class="vh-100">
+    <div class="authincation h-100">
+        <div class="container h-100">
+            <div class="row justify-content-center h-100 align-items-center">
+                <div class="col-md-6">
+                    <div class="authincation-content">
+                        <div class="row no-gutters">
+                            <div class="col-xl-12">
+                                <div class="auth-form">
+                                    <div class="text-center mb-3"><a href="index.html"><img src="/user_template/assets/img/logo.svg" alt=""></a></div>
+                                    <h4 class="text-center mb-4">حساب کاربری خود را ثبت کنید</h4>
+                                    <div>
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label class="mb-1"><strong>نام</strong></label><input type="text" class="form-control" id="Name">
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label class="mb-1"><strong>نام خانوادگی</strong></label><input type="text" class="form-control" id="LastName">
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="mb-1"><strong>پست الکترونیک*</strong></label><input type="email" class="form-control" placeholder="user@example.com" id="Email">
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label class="mb-1"><strong>کلمه عبور*</strong></label><input type="password" class="form-control" id="Password">
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label class="mb-1"><strong>تکرار کلمه عبور*</strong></label><input type="password" class="form-control" id="ConPassword">
+                                            </div>
+                                        </div>
+                                        <div class="text-center mt-4"><button type="submit" class="btn btn-success btn-block" onclick="RegisterUserValidationFunc()">من را ثبت نام کن</button></div>
+                                    </div>
+                                    <div class="new-account mt-3"><p>از قبل حساب کاربری دارید؟<a class="text-primary" href="http://localhost:5215/Register/LogIn">ورود</a></p></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="~/Admin_Template/vendor/global/global.min.js"></script>
+    <script src="~/Admin_Template/js/custom.min.js"></script>
+    <script src="~/Admin_Template/js/deznav-init.js"></script>
+    <link href="~/sweetalert2/sweetalert2.min.css" rel="stylesheet" />
+    <script src="~/sweetalert2/sweetalert2.min.js"></script>
+
+    <script>
+        function RegisterUserValidationFunc() {
+            var Name = $("#Name").val();
+                    var LastName = $("#LastName").val();
+                    var Email = $("#Email").val();
+                    var Password = $("#Password").val();
+                    var ConPassword = $("#ConPassword").val();
+
+                    var postData = {
+                        'Name': Name,
+                        'LastName': LastName,
+                        'Email': Email,
+                        'Password': Password,
+                        'ConPassword': ConPassword,
+                    };
+                    $.ajax({
+                        contentType: 'application/x-www-form-urlencoded',
+                        dataType: 'json',
+                        type: "POST",
+                        url: "http://localhost:5215/Register/SignUpValiadation",
+                        data: postData,
+                        success: function (data) {
+                            if (data.isSuccess == true) {
+                                ShowEditUserModalFunc(data);
+                            }
+                            else {
+                                swal.fire(
+                                    'هشدار!',
+                                    data.message,
+                                    'warning'
+                                );
+                            }
+                        },
+                        error: function (request, status, error) {
+                            alert(request.responseText);
+                        }
+                    });
+        }
+
+        function ShowEditUserModalFunc(data) {
+            $('#ServerDigitCodeInput').val(data.data.digitCode);
+            var Email = $("#Email").val();
+            $('#Email_Label').text('کد تایید به حساب '+Email+' ارسال شد');
+            $('#GetDigitCode').modal('show');
+        }
+
+        function CloseEditUserModalFunc() {
+            $('#GetDigitCode').modal('hide');
+        }
+
+        function RegisterUserFunc() {
+            var Name = $("#Name").val();
+                    var LastName = $("#LastName").val();
+                    var Email = $("#Email").val();
+                    var Password = $("#Password").val();
+                    var ConPassword = $("#ConPassword").val();
+                    var ServerDigitCode = $("#ServerDigitCodeInput").val();
+                    var UserDigitCode = $("#UserDigitCodeInput").val();
+
+                    var postData = {
+                        'Name': Name,
+                        'LastName': LastName,
+                        'Email': Email,
+                        'Password': Password,
+                        'ConPassword': ConPassword,
+                        'ServerDigitCode': ServerDigitCode,
+                        'UserDigitCode': UserDigitCode
+                    };
+                    $.ajax({
+                        contentType: 'application/x-www-form-urlencoded',
+                        dataType: 'json',
+                        type: "POST",
+                        url: "/Register/SignUp",
+                        data: postData,
+                        success: function (data) {
+                            if (data.isSuccess == true) {
+                                swal.fire(
+                            'موفق!',
+                            data.message,
+                            'success'
+                        ).then(function (isConfirm) {
+                            window.loaction.href = "LogIn";
+                        });
+                            }
+                            else {
+                                swal.fire(
+                                    'هشدار!',
+                                    data.message,
+                                    'warning'
+                                );
+                            }
+                        },
+                        error: function (request, status, error) {
+                            alert(request.responseText);
+                        }
+                    });
+        }
+    </script>
+    <div class="modal fade" id="GetDigitCode" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">تاییدیه پست الکترونیک</h5>
+                </div>
+                <div class="modal-body">
+                    <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
+                        <label id="Email_Label"></label>
+                        <fieldset class="form-group">
+                            <input type="hidden" id="ServerDigitCodeInput" />
+                            <input type="text" class="form-control" placeholder="کد تایید را وارد کنید" id="UserDigitCodeInput">
+                        </fieldset>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <a class="btn btn-secondary" onclick="CloseEditUserModalFunc()">انصراف</a>
+                    <a class="btn btn-primary" onclick="RegisterUserFunc()">تایید</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

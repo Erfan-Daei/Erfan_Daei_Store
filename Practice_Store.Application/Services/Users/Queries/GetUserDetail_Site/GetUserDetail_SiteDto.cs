@@ -1,0 +1,13 @@
+﻿namespace Practice_Store.Application.Services.Users.Queries.GetUserDetail_Site
+{
+    public class GetUserDetail_SiteDto
+    {
+        public string Id { get; set; }
+        public string Name { get; set; }
+        public string LastName { get; set; }
+        public string? Address { get; set; }
+        public long? PostCode { get; set; }
+        public string? Mobile { get; set; }
+        public string Email { get; set; }
+    }
+}

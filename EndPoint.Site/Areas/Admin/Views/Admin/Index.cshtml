@@ -1,0 +1,216 @@
+﻿@using Practice_Store.Application.Services.Users.Queries.GetAdminDetail
+@model GetAdminDetailDto
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<section>
+    <div class="container-fluid">
+        <div class="row page-titles">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item active"><a href="javascript:void(0)">صفحه ادمین</a></li>
+                <li class="breadcrumb-item"><a href="javascript:void(0)">مشخصات ادمین</a></li>
+            </ol>
+        </div>
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-xl-3 col-lg-6 col-md-6 col-xxl-5 ">
+                                <div class="tab-content">
+                                    <div role="tabpanel" class="tab-pane fade show active" id="first"><img class="img-fluid" src="~/images/4213460-account-avatar-head-person-profile-user_115386.png" alt=""></div>
+                                </div>
+                            </div>
+                            <div class="col-xl-9 col-lg-6 col-md-6 col-xxl-7 col-sm-12">
+                                <div class="product-detail-content">
+                                    <div class="new-arrival-content pr">
+                                        <h4>@Model.Name @Model.LastName</h4>
+                                        <p>تلفن : <span class="item">@Model.Mobile</span></p>
+                                        <p>آدرس : <span class="item">@Model.Address</span></p>
+                                        <p>کد پستی : <span class="item">@Model.PostCode</span></p>
+                                        <p>نقش ها : 
+                                            <span class="item">
+                                                @foreach (var item in Model.Roles)
+                                                {
+                                                    if (item == Model.Roles[0])
+                                                    {
+                                                        <strong> @item</strong>
+                                                    }
+                                                    else
+                                                    {
+                                                        <strong>  |  @item</strong>
+                                                    }
+                                                }
+                                            </span>
+                                        </p>
+                                        <div class="card-body">
+                                            <button type="button" class="btn btn-sm btn-primary" onclick="window.location.href='/admin/admin/EditAdmindetail'">ویرایش حساب</button>
+                                            <button type="button" class="btn btn-sm btn-secondary" onclick="Next()">تغییر رمز عبور</button>
+                                            <button type="button" class="btn btn-sm btn-secondary" onclick="ShoweNewEmailmodalFunc()">تغییر ایمیل</button>
+                                            <button type="button" class="btn btn-sm btn-warning" onclick="window.location.href='/admin/admin/LogOut'">خروج از حساب</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <link href="~/sweetalert2/sweetalert2.min.css" rel="stylesheet" />
+    <script src="~/sweetalert2/sweetalert2.min.js"></script>
+
+    <script>
+        @*Change Password*@
+        function ForgetPasswordValidFunc() {
+            var UserId = "@Model.Id";
+            var NewPassword = $("#Forget_Password").val();
+            var ConPassword = $("#Forget_ConPassword").val();
+            var postData = {
+                'UserId': UserId,
+                'NewPassword': NewPassword,
+                'ConPassword': ConPassword,
+                
+            };
+            $.ajax({
+                contentType: 'application/x-www-form-urlencoded',
+                dataType: 'json',
+                type: "POST",
+                url: "/admin/admin/ChangeAdminPasswordValidation",
+                data: postData,
+                success: function (data) {
+                    if (data.isSuccess == true) {
+                        swal.fire(
+                            'موفق!',
+                            data.message,
+                            'success'
+                        ).then(function (isConfirm) {
+                            CloseForgetPasswordUpdatePassword(data);
+                        });
+                    }
+                    else {
+                        swal.fire(
+                            'هشدار!',
+                            data.message,
+                            'warning'
+                        );
+                    }
+                },
+                error: function (request, status, error) {
+                    alert(request.responseText);
+                }
+            });
+        }
+
+            function CloseForgetPasswordUpdatePassword() {
+                $('#ForgetPasswordUpdatePassword').modal('hide');
+            }
+            function Next(){
+            $('#ForgetPasswordUpdatePassword').modal('show');
+            }
+
+            @*Change Email*@
+            function CloseNewEmailmodalFunc() {
+                $('#NewEmailModal').modal('hide');
+            }
+
+            function ShoweNewEmailmodalFunc(){
+            $('#NewEmailModal').modal('show');
+            }
+
+            function CheckNewEmailFunc() {
+            var NewEmail = $("#NewEmail").val();
+            var LastEmail = "@Model.Email";
+            var postData = {
+                'PreviousEmail': LastEmail,
+                'NewEmail': NewEmail,
+            };
+            $.ajax({
+                contentType: 'application/x-www-form-urlencoded',
+                dataType: 'json',
+                type: "POST",
+                url: "/admin/admin/ChangeAdminEmail",
+                data: postData,
+                success: function (data) {
+                    if (data.isSuccess == true) {
+                        swal.fire(
+                            'موفق!',
+                            data.message,
+                            'success'
+                        ).then(function (isConfirm) {
+                            CloseNewEmailmodalFunc();
+                        });
+                    }
+                    else {
+                        swal.fire(
+                            'هشدار!',
+                            data.message,
+                            'warning'
+                        );
+                    }
+                },
+                error: function (request, status, error) {
+                    alert(request.responseText);
+                }
+            });
+        }
+    </script>
+}
+
+@section Modals {
+    @* ChangePassword Modals *@
+    <div class="modal fade" id="ForgetPasswordUpdatePassword" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">بروزرسانی رمزعبور</h5>
+                </div>
+                <div class="modal-body">
+                    <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
+                        <fieldset class="form-group">
+                            <label for="basicInput">رمزعبور</label>
+                            <input name="NewPassword" type="password" class="form-control" id="Forget_Password">
+                            <label for="basicInput">تکرار رمزعبور</label>
+                            <input name="ConPassword" type="password" class="form-control" id="Forget_ConPassword">
+                        </fieldset>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <a class="btn btn-secondary" onclick="CloseForgetPasswordUpdatePassword()">انصراف</a>
+                    <a class="btn btn-primary" onclick="ForgetPasswordValidFunc()">تایید</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    @* Change Email Modals*@
+    <div class="modal fade" id="NewEmailModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">بروزرسانی ایمیل</h5>
+                </div>
+                <div class="modal-body">
+                    <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
+                        <fieldset class="form-group">
+                            <label for="basicInput">ایمیل</label>
+                            <input type="text" class="form-control" id="NewEmail" placeholder="ایمیل جدید خود را وارد کنید">
+                        </fieldset>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <a class="btn btn-secondary" onclick="CloseNewEmailmodalFunc()">انصراف</a>
+                    <a class="btn btn-primary" onclick="CheckNewEmailFunc()">تایید</a>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+

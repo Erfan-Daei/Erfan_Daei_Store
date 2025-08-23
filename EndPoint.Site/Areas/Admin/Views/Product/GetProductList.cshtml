@@ -1,0 +1,214 @@
+﻿@using Practice_Store.Application.Services.Products.Queries.GetProductList_Admin
+@addTagHelper *, LazZiya.TagHelpers
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@model ResultGetProductList_AdminDto
+@{
+    ViewData["Title"] = "GetProductList";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="row page-titles">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item active"><a href="javascript:void(0)">مدیریت محصولات</a></li>
+            <li class="breadcrumb-item"><a href="javascript:void(0)">لیست محصولات</a></li>
+        </ol>
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-body">
+                    <form method="get" class="input-group search-area">
+                        <input type="text" class="form-control" id="srch" name="searchKey" placeholder="بین محصولات جست و جو کنید">
+                        <button class="input-group-text"><i class="flaticon-381-search-2"></i></button>
+                    </form>
+                    @if (Model.ProductList.Count != 0)
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-sm mb-0 table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>نام محصول</th>
+                                        <th>برند</th>
+                                        <th>دسته بندی</th>
+                                        <th>قیمت</th>
+                                        <th>تخفیف</th>
+                                        <th>وضعیت نمایش</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="customers">
+                                    @foreach (var item in Model.ProductList)
+                                    {
+                                        <tr class="btn-reveal-trigger">
+                                            <td class="py-3">
+                                                <a href="#">
+                                                    <div class="media d-flex align-items-center">
+                                                        <div class="avatar avatar-xl me-2"><div class=""><img class="rounded-circle img-fluid" src="~/@item.ProductImageSrc" width="30" alt=""></div></div>
+                                                        <div class="media-body"><h5 class="mb-0 fs--1">@item.Name</h5></div>
+                                                    </div>
+                                                </a>
+                                            </td>
+                                            <td class="py-2">@item.Brand</td>
+                                            <td class="py-2">@item.CategoryName</td>
+                                            <td class="py-2">@item.Price</td>
+                                            <td class="py-2">@item.OffPercentage</td>
+                                            <td class="py-2">@item.Displayed</td>
+                                            <td class="py-2 text-end">
+                                                <div class="dropdown">
+                                                    <button class="btn btn-primary tp-btn-light sharp" type="button" data-bs-toggle="dropdown"><span class="fs--1"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="18px" height="18px" viewBox="0 0 24 24" version="1.1"><g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"><rect x="0" y="0" width="24" height="24"></rect><circle fill="#000000" cx="5" cy="12" r="2"></circle><circle fill="#000000" cx="12" cy="12" r="2"></circle><circle fill="#000000" cx="19" cy="12" r="2"></circle></g></svg></span></button><div class="dropdown-menu dropdown-menu-end border py-0">
+                                                        <div class="py-2">
+                                                            <button class="dropdown-item" onclick="window.location.href='/admin/product/GetProductDetails/@item.Id'">اطلاعات محصول</button>
+                                                            <button class="dropdown-item" onclick="window.location.href='/admin/product/GetAllReviews/@item.Id'">نظرات محصول</button>
+                                                            <button class="dropdown-item" onclick="ChangeProductDisplayedFunc('@item.Id')">تغییر وضعبت نمایش</button>
+                                                            <button class="dropdown-item text-danger" onclick="DeleteProductFunc('@item.Id')">حذف</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    @if (Model.ProductList.Count == 0)
+    {
+        <div class="col-lg-12">
+            <div class="alert alert-danger left-icon-big alert-dismissible fade show">
+                <div class="media">
+                    <div class="alert-left-icon-big"><span><i class="mdi mdi-alert"></i></span></div>
+                    <div class="media-body">
+                        <h5 class="mt-1 mb-2">کاربری یافت نشد!</h5>
+                        <p class="mb-0">مجدد جست و جو کنید</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    <div class="text-center">
+        <paging total-records="Model.RowsCount"
+                page-no="Model.CurrentPage"
+                page-size="Model.PageSize"
+                max-displayed-pages="Convert.ToInt16(Model.RowsCount/Model.PageSize)+1"
+                show-first-last="true"
+                show-prev-next="true"
+                show-total-pages="false"
+                show-total-records="false"
+                show-page-size-nav="false"
+                show-gap="true"
+                query-string-key-page-no="Page"
+                query-string-key-page-size="PageSize">
+        </paging>
+
+    </div>
+</div>
+
+@section Scripts
+{
+    <link href="~/sweetalert2/sweetalert2.min.css" rel="stylesheet" />
+    <script src="~/sweetalert2/sweetalert2.min.js"></script>
+
+    <script>
+        function DeleteProductFunc(Id) {
+            swal.fire({
+                title: 'حذف محصول',
+                text: "کاربر گرامی از حذف محصول مطمئن هستید؟",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#7cacbe',
+                confirmButtonText: 'بله ، محصول حذف شود',
+                cancelButtonText: 'خیر'
+            }).then((result) => {
+                if (result.value) {
+                    var postData = {
+                        'Id': Id,
+                    };
+                    $.ajax({
+                        contentType: 'application/x-www-form-urlencoded',
+                        dataType: 'json',
+                        type: "DELETE",
+                        url: "DeleteProduct",
+                        data: postData,
+                        success: function (data) {
+                            if (data.isSuccess == true) {
+                                swal.fire(
+                                    'موفق!',
+                                    data.message,
+                                    'success'
+                                ).then(function (isConfirm) {
+                                    location.reload();
+                                });
+                            }
+                            else {
+                                swal.fire(
+                                    'هشدار!',
+                                    data.message,
+                                    'warning'
+                                );
+                            }
+                        },
+                        error: function (request, status, error) {
+                            alert(request.responseText);
+                        }
+                    });
+                }
+            })
+        }
+        function ChangeProductDisplayedFunc(Id){
+            swal.fire({
+                title: 'تغییر وضعیت نمایش محصول',
+                text: "کاربر گرامی از تغییر وضعیت محصول مطمئن هستید؟",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#7cacbe',
+                confirmButtonText: 'بله ، تغییر اعمال شود',
+                cancelButtonText: 'خیر'
+            }).then((result) => {
+                if (result.value) {
+                    var postData = {
+                        'Id': Id,
+                    };
+                    $.ajax({
+                        contentType: 'application/x-www-form-urlencoded',
+                        dataType: 'json',
+                        type: "PATCH",
+                        url: "ChangeProductDisplayed",
+                        data: postData,
+                        success: function (data) {
+                            if (data.isSuccess == true) {
+                                swal.fire(
+                                    'موفق!',
+                                    data.message,
+                                    'success'
+                                ).then(function (isConfirm) {
+                                    location.reload();
+                                });
+                            }
+                            else {
+                                swal.fire(
+                                    'هشدار!',
+                                    data.message,
+                                    'warning'
+                                );
+                            }
+                        },
+                        error: function (request, status, error) {
+                            alert(request.responseText);
+                        }
+                    });
+                }
+            })
+        }
+    </script>
+}
+@section Modals
+{
+}
+

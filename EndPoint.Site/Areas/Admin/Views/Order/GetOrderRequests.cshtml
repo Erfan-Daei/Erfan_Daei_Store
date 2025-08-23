@@ -1,0 +1,143 @@
+﻿@using Practice_Store.Application.Services.Orders.Queries.GetOrderRequest_Admin
+@model ResultGetOrderRequest_AdminDto
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@addTagHelper *, LazZiya.TagHelpers
+@{
+    ViewData["Title"] = "GetOrderRequests";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<section>
+    <div class="container-fluid">
+        <div class="row page-titles">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item active"><a href="javascript:void(0)">مدیریت درخواست سفارشات</a></li>
+                <li class="breadcrumb-item"><a href="javascript:void(0)">لیست درخواست سفارشات</a></li>
+            </ol>
+        </div>
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-body">
+                        <form method="get" class="input-group search-area" id="searchForm">
+                            <input type="text" class="form-control" id="srch" name="searchKey" placeholder="بین سفارشات جست و جو کنید">
+                            <button class="input-group-text" type="submit"><i class="flaticon-381-search-2"></i></button>
+                        </form>
+                        @if (Model.OrderRequestList.Count != 0)
+                        {
+                            <div class="table-responsive">
+                                <table class="table table-sm mb-0 table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>نام و نام خانوادگی</th>
+                                            <th>کد کاربری</th>
+                                            <th class=" ps-5" style="min-width: 200px;">آدرس</th>
+                                            <th>کد پستی</th>
+                                            <th>تلفن</th>
+                                            <th>مجموع</th>
+                                            <th>حمل و نقل</th>
+                                            <th>وضعیت</th>
+                                            <th>کد رهگیری</th>
+                                            <th>تاریخ ثیت</th>
+                                            <th>Authority</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="customers">
+                                        @foreach (var item in Model.OrderRequestList)
+                                        {
+                                            <tr class="btn-reveal-trigger">
+                                                <td class="py-3">
+                                                    <a href="#">
+                                                        <div class="media d-flex align-items-center">
+                                                            <div class="avatar avatar-xl me-2"><div class=""><img class="rounded-circle img-fluid" src="./images/avatar/5.png" width="30" alt=""></div></div>
+                                                            <div class="media-body"><h5 class="mb-0 fs--1">@item.Name @item.LastName </h5></div>
+                                                        </div>
+                                                    </a>
+                                                </td>
+                                                <td class="py-2">@item.UserId</td>
+                                                <td class="py-2 ps-5">@item.Address</td>
+                                                <td class="py-2">@item.PostCode</td>
+                                                <td class="py-2">@item.Mobile</td>
+                                                <td class="py-2">@((item.TotalSum + item.Shipping).ToString("n0"))</td>
+                                                <td class="py-2">@(item.Shipping.ToString("n0"))</td>
+
+                                                @switch (item.IsPayed)
+                                                {
+                                                    case true:
+                                                        <td class="py-2 text-end"><span class="badge badge-success">پرداخت شده<span class="ms-1 fa fa-check"></span></span></td>
+                                                        break;
+                                                    case false:
+                                                        <td class="py-2 text-end"><span class="badge badge-warning">پرداخت نشده<span class="ms-1 fa fa-redo"></span></span></td>
+                                                        break;
+                                                    default:
+                                                }
+                                                <td class="py-2">@item.RefId</td>
+                                                <td class="py-2">@item.PayDate</td>
+                                                <td class="py-2 ps-5">@item.Authority</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @if (Model.OrderRequestList.Count == 0)
+    {
+        <div class="col-lg-12">
+            <div class="alert alert-danger left-icon-big alert-dismissible fade show">
+                <div class="media">
+                    <div class="alert-left-icon-big"><span><i class="mdi mdi-alert"></i></span></div>
+                    <div class="media-body">
+                        <h5 class="mt-1 mb-2">سفارشی یافت نشد!</h5>
+                        <p class="mb-0">مجدد جست و جو کنید</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    <div class="text-center">
+        <paging total-records="Model.RowsCount"
+                page-no="Model.CurrentPage"
+                page-size="Model.PageSize"
+                max-displayed-pages="Convert.ToInt16(Model.RowsCount/Model.PageSize)+1"
+                show-first-last="true"
+                show-prev-next="true"
+                show-total-pages="false"
+                show-total-records="false"
+                show-page-size-nav="false"
+                show-gap="true"
+                query-string-key-page-no="Page"
+                query-string-key-page-size="PageSize">
+        </paging>
+    </div>
+</section>
+@section Scripts {
+
+    <script>
+        $(document).ready(function() {
+            $("#searchForm").submit(function(event){
+                event.preventDefault();
+                var params = new URLSearchParams(window.location.search.toLowerCase());
+                var orderStateValue = params.get("ispayed");
+                var searchKey = $("#srch").val();
+                var newUrl;
+                if (orderStateValue !== null) {
+                    newUrl = window.location.origin + window.location.pathname + "?searchkey=" + encodeURIComponent(searchKey) + "&ispayed=" + encodeURIComponent(orderStateValue); window.location.href = newUrl;
+                }
+                else {
+                    newUrl = window.location.origin + window.location.pathname + "?searchkey=" + encodeURIComponent(searchKey);
+                }
+                window.location.href = newUrl;
+            });
+        });
+    </script>
+}
+@section Modals {
+
+}
+

@@ -1,0 +1,242 @@
+﻿@using Practice_Store.Application.Services.Orders.Queries.GetUserOrders
+@using Practice_Store.Domain.Entities.Orders
+@model List<UserOrderDto>;
+@{
+    ViewData["Title"] = "GetOrders";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<section class="space-top space-extra-bottom">
+    <div class="container">
+        <div class="row">
+            <div class="col-xxl-8 col-lg-8">
+                <div class="page-single mb-30">
+                    <div class="page-content">
+                        <div class="service-feature-wrap">
+                            <div class="service-feature">
+                                <div class="box-icon"><img src="~/User_Template/assets/img/icon/service_feature_1.svg" alt="Icon"></div>
+                                <div class="media-body">
+                                    <h4 class="box-title">پیگ پیگیری سفارشات</h4>
+                                    <p class="box-text">میتوانید سفارشات خودرا در این پنل مشاهده کنید<br />تا 48 ساعت پس از ثبت سفارش مهلت دارید سفارش خود را لغو کنید</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion mt-40" id="faqAccordion">
+                            @for (int i = 0; i < Model.Count; i++)
+                            {
+                                <div class="accordion-card">
+                                    <div class="accordion-header" id="collapse-item-@(i+1)">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-@(i + 1)" aria-expanded="false" aria-controls="collapse-@(i+1)">@("سفارش به نام " + Model[i].Name + " " + Model[i].LastName + " با شماره: " + $"{Model[i].OrderRefId}")</button>
+                                    </div>
+                                    <div id="collapse-@(i+1)" class="accordion-collapse collapse" aria-labelledby="collapse-item-@(i+1)" data-bs-parent="#faqAccordion" style="">
+                                        <div class="accordion-body">
+                                            <div class="skill-feature">
+                                                
+                                                @if (Model[i].OrderState == OrderState.Processing)
+                                                {
+                                                    <h5 class="skill-feature_title">درحال بررسی</h5>
+                                                    <div class="progress"><div class="progress-bar" style="width: 33%;"><div class="progress-value">33%</div></div></div>
+                                                }
+                                                @if (Model[i].OrderState == OrderState.AdminCanceled)
+                                                {
+                                                    <h5 class="skill-feature_title">این سفارش توسط ادمین لغو شده است</h5>
+                                                }
+                                                @if (Model[i].OrderState == OrderState.UserCanceled)
+                                                {
+                                                    <h5 class="skill-feature_title">این سفارش توسط شما لغو شده است</h5>
+                                                }
+                                                @if (Model[i].OrderState == OrderState.Posted)
+                                                {
+                                                    <h5 class="skill-feature_title">ارسال به مشتری</h5>
+                                                    <div class="progress"><div class="progress-bar" style="width: 66%;"><div class="progress-value">66%</div></div></div>
+                                                }
+                                                @if (Model[i].OrderState == OrderState.Delivered)
+                                                {
+                                                    <h5 class="skill-feature_title">این سفارش دریافت شده است</h5>
+                                                    <div class="progress"><div class="progress-bar" style="width: 100%;"><div class="progress-value">100%</div></div></div>
+                                                }
+                                            </div>
+                                            <table class="cart_table">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="cart-col-image">تصویر</th>
+                                                        <th class="cart-col-productname">نام محصول</th>
+                                                        <th class="cart-col-productsize">سایز محصول</th>
+                                                        <th class="cart-col-price">قیمت</th>
+                                                        <th class="cart-col-quantity">تعداد</th>
+                                                        <th class="cart-col-total">جمع</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+
+                                                    @foreach (var item in Model[i].UserOrderDetails)
+                                                    {
+                                                        <tr class="cart_item">
+                                                            <td data-title="Product"><a class="cart-productimage" href="/product/GetProductDetail/@item.ProductId"><img width="91" height="91" src="~/@item.ProductImageSrc"></a></td>
+                                                            <td data-title="Name"><a class="cart-productname" href="/product/GetProductDetail/@item.ProductId">@item.ProductName</a></td>
+                                                            <td data-title="Size">
+                                                                <span>
+                                                                    @item.ProductSizeName
+                                                                </span>
+                                                            </td>
+                                                            <td data-title="Price"><span class="amount">@item.Price.ToString("n0")</span></td>
+                                                            <td data-title="Count"><span class="amount">@item.Count</span></td>
+                                                            <td data-title="Total">
+                                                                <span class="amount">
+                                                                    @((item.Price * item.Count).ToString("n0"))
+                                                                </span>
+                                                            </td>
+                                                        </tr>
+                                                    }
+
+                                                </tbody>
+                                            </table>
+                                            <div class="team-info">
+                                                <ul>
+                                                    <li>
+                                                        <b>زمان پرداخت:</b><a>@Model[i].PayDateTime</a>
+                                                    </li>
+                                                    @if (Model[i].Address != null && Model[i].Address != "-")
+                                                    {
+                                                        <li>
+                                                            <b>آدرس گیرنده:</b><a>@Model[i].Address</a>
+                                                        </li>
+                                                    }
+                                                    @if (Model[i].PostCode != 0 && Model[i].PostCode != null)
+                                                    {
+                                                        <li>
+                                                            <b>کدپستی گیرنده:</b><a>@Model[i].PostCode</a>
+                                                        </li>
+                                                    }
+                                                    <li>
+                                                        <b>هزینه ارسال:</b><a>@Model[i].Shipping.ToString("n0")</a>
+                                                    </li>
+                                                    <li>
+                                                        <b>مجموع قیمت سفارش:</b><a>@Model[i].TotalPrice.ToString("n0")</a>
+                                                    </li>
+                                                    @if (Model[i].OrderState != OrderState.AdminCanceled && Model[i].OrderState != OrderState.UserCanceled && Model[i].OrderState != OrderState.Delivered)
+                                                    {
+                                                        <li>
+                                                            <a class="th-btn rounded-10" style="color:white; margin-left: 10px;" onclick="DeliveredOrder('@Model[i].OrderId')">محصول را دریافت کردم</a>
+                                                            <a class="th-btn style4 rounded-10" onclick="CancelOrder('@Model[i].OrderId')">لغو سفارش</a>
+                                                        </li>
+                                                    }
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts{
+    <link href="~/sweetalert2/sweetalert2.min.css" rel="stylesheet" />
+    <script src="~/sweetalert2/sweetalert2.min.js"></script>
+
+    <script>
+        function DeliveredOrder(orderId){
+            Swal.fire({ title: 'تایید تحویل سفارش',
+                        text: "کاربر گرامی آیا تایید میکنید که سفارش خود را تحویل گرفته اید؟",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#7cacbe',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'بله، تحویل گرفتم',
+                        cancelButtonText: 'خیر'
+            }).then((result) => {
+                if (result.value) {
+                
+                    var OrderState = '@OrderState.Delivered';
+                    var OrderId = orderId;
+                    var postData = {
+                        'OrderId': OrderId,
+                        'OrderState': OrderState,
+                    };
+                    $.ajax({
+                        contentType: 'application/x-www-form-urlencoded',
+                        dataType: 'json',
+                        type: "PATCH",
+                        url: "ChangeOrderState",
+                        data: postData,
+                        success: function (data) {
+                            if (data.isSuccess == true) {
+                                swal.fire(
+                                    'موفق!',
+                                    data.message,
+                                    'success'
+                                ).then(function (isConfirm) {
+                                    location.reload();
+                                });
+                            }
+                            else {
+                                swal.fire(
+                                    'هشدار!',
+                                    data.message,
+                                    'warning'
+                                );
+                            }
+                        },
+                        error: function (request, status, error) {
+                            alert(request.responseText);
+                        }
+                    });
+                }
+            });
+        }
+        function CancelOrder(orderId){
+            Swal.fire({ title: 'لغو سفارش',
+                        text: "کاربر گرامی آیا از لغو سفارش خود مطمئن هستید؟",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#7cacbe',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'بله، سفارش لغو شود',
+                        cancelButtonText: 'خیر'
+            }).then((result) => {
+                if (result.value) {
+
+                    var OrderState = '@OrderState.UserCanceled';
+                    var OrderId = orderId;
+                    var postData = {
+                        'OrderId': OrderId,
+                        'OrderState': OrderState,
+                    };
+                    $.ajax({
+                        contentType: 'application/x-www-form-urlencoded',
+                        dataType: 'json',
+                        type: "PATCH",
+                        url: "ChangeOrderState",
+                        data: postData,
+                        success: function (data) {
+                            if (data.isSuccess == true) {
+                                swal.fire(
+                                    'موفق!',
+                                    data.message,
+                                    'success'
+                                ).then(function (isConfirm) {
+                                    location.reload();
+                                });
+                            }
+                            else {
+                                swal.fire(
+                                    'هشدار!',
+                                    data.message,
+                                    'warning'
+                                );
+                            }
+                        },
+                        error: function (request, status, error) {
+                            alert(request.responseText);
+                        }
+                    });
+                }
+            });
+        }
+    </script>
+}

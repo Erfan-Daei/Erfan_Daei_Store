@@ -1,0 +1,74 @@
+﻿@using Practice_Store.Application.Services.Users.Queries.GetUserDetail_Site
+@model GetUserDetail_SiteDto
+@{
+    ViewData["Title"] = "EditUserdetail";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="th-checkout-wrapper space-top space-extra-bottom">
+    <div class="container">
+            <div class="align-content-center">
+                <div class="col-lg-6">
+                    <h2 class="h4">مشخصات کاربر</h2>
+                    <div class="row">
+                        <div class="col-md-6 form-group"><input type="text" class="form-control" id="Name" placeholder="نام" value="@Model.Name"></div>
+                        <div class="col-md-6 form-group"><input type="text" class="form-control" id="LastName" placeholder="نام خانوادگی" value="@Model.LastName"></div>
+                        <div class="col-md-6 form-group"><input type="text" class="form-control" id="Email" value="@Model.Email" disabled></div>
+                        <div class="col-12 form-group"><input type="text" class="form-control" placeholder="آدرس" id="Address" value="@Model.Address"></div>
+                        <div class="col-md-6 form-group"><input type="text" class="form-control" id="PostCode" placeholder="کد پستی" value="@Model.PostCode"></div>
+                        <div class="col-12 form-group"><input type="text" class="form-control" id="Mobile" placeholder="شماره تلفن" value="@Model.Mobile"></div>
+                    </div>
+                    <br />
+                    <a class="th-btn" onclick="EditUserDetailFunc()" style="cursor:pointer;">ویرایش اطلاعات</a>
+                </div>
+            </div>
+    </div>
+</div>
+
+@section Scripts{
+    <link href="~/sweetalert2/sweetalert2.min.css" rel="stylesheet" />
+    <script src="~/sweetalert2/sweetalert2.min.js"></script>
+
+    <script>
+        function EditUserDetailFunc(){
+
+                    var Name = $("#Name").val();
+                    var LastName = $("#LastName").val();
+                    var Mobile = $("#Mobile").val();
+                    var Address = $("#Address").val();
+                    var PostCode = $("#PostCode").val();
+                    var UserId = '@Model.Id';
+
+                    var postData = {
+                        'UserId': UserId,
+                        'Name': Name,
+                        'LastName': LastName,
+                        'Mobile': Mobile,
+                        'PostCode': PostCode,
+                        'Address': Address,
+                    };
+                    $.ajax({
+                        contentType: 'application/x-www-form-urlencoded',
+                        dataType: 'json',
+                        type: "PUT",
+                        url: "/UserDetail/EditUserdetail",
+                        data: postData,
+                        success: function (data) {
+                            if (data.isSuccess == true) {
+                                window.location.href = '/UserDetail';
+                            }
+                            else {
+                                swal.fire(
+                                    'هشدار!',
+                                    data.message,
+                                    'warning'
+                                );
+                            }
+                        },
+                        error: function (request, status, error) {
+                            alert(request.responseText);
+                        }
+                    });
+        }
+    </script>
+}

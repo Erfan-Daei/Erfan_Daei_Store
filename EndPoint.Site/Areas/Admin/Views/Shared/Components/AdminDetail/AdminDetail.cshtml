@@ -1,0 +1,11 @@
+﻿@using Practice_Store.Application.Services.Users.Queries.GetAdminDetail
+@model GetAdminDetailDto
+@{
+    Layout = null;
+}
+
+<span class="font-w400 mb-0">@Model.Name @Model.LastName</span><small class="text-end font-w400">@Model.Email</small>
+@foreach (var item in Model.Roles)
+{
+    <span class="font-w400 mb-0">@item</span>
+}

@@ -1,0 +1,463 @@
+﻿@using EndPoint.Site.Models.ViewModels.LandingPage;
+@using Practice_Store.Domain.Entities.LandingPage
+@model LandingPageViewModel;
+@{
+    ViewData["Title"] = "Home Page";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="th-hero-wrapper hero-3" id="hero">
+    <div class="shape-mockup" data-top="0" data-left="0"><img src="~/user_template/assets/img/shape/vector_shape_8.png" alt="shape"></div>
+    <div class="shape-mockup" data-top="0" data-right="0"><img src="~/user_template/assets/img/shape/vector_shape_9.png" alt="shape"></div>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-xl-9">
+                <div class="swiper th-slider" id="heroSlider3" data-slider-options='{"effect":"fade"}'>
+                    <div class="swiper-wrapper">
+                        
+                        @foreach (var item in Model.SiteImages.Where(p=> p.ImageLocation == LandingPageImageLocation.Slider))
+                        {
+                            <div class="swiper-slide">
+                                <div class="hero-inner" data-bg-src="@item.Src">
+                                    <div class="hero-style3">
+                                        <h1 class="hero-title2">
+                                            <span class="title1" data-ani="slideinup" data-ani-delay="0.2s">@item.Title</span>
+                                        </h1>
+                                        <a href="@item.Link" class="th-btn style4" data-ani="slideinup" data-ani-delay="0.6s">اکنون خرید کنید<i class="fas fa-chevrons-right ms-2"></i></a>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                    </div>
+                    <div class="slider-pagination"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<section class="mt-4">
+    <div class="container">
+        <div class="feature-list-wrap">
+            <div class="feature-list">
+                <div class="box-icon"><img src="~/user_template/assets/img/icon/feature_list_1.svg" alt="icon"></div>
+                <div class="media-body">
+                    <h3 class="box-title">سیاست بازگشت</h3>
+                    <p class="box-text">تضمین بازگشت پول</p>
+                </div>
+            </div>
+            <div class="feature-list-line"></div>
+            <div class="feature-list">
+                <div class="box-icon"><img src="~/user_template/assets/img/icon/feature_list_2.svg" alt="icon"></div>
+                <div class="media-body">
+                    <h3 class="box-title">ارسال رایگان</h3>
+                    <p class="box-text">در تمام سفارشات بیش از 50.00 دلار</p>
+                </div>
+            </div>
+            <div class="feature-list-line"></div>
+            <div class="feature-list">
+                <div class="box-icon"><img src="~/user_template/assets/img/icon/feature_list_3.svg" alt="icon"></div>
+                <div class="media-body">
+                    <h3 class="box-title">فروشگاه یاب</h3>
+                    <p class="box-text">نزدیکترین فروشگاه خود را پیدا کنید</p>
+                </div>
+            </div>
+            <div class="feature-list-line"></div>
+            <div class="feature-list">
+                <div class="box-icon"><img src="~/user_template/assets/img/icon/feature_list_4.svg" alt="icon"></div>
+                <div class="media-body">
+                    <h3 class="box-title">پشتیبانی 24/7</h3>
+                    <p class="box-text">24 ساعت شبانه روز با ما تماس بگیرید</p>
+                </div>
+            </div>
+            <div class="feature-list-line"></div>
+        </div>
+    </div>
+</section>
+<section class="space-top" data-pos-for="#category-sec" data-sec-pos="bottom-half">
+    <div class="container z-index-common">
+        <div class="row gy-4 justify-content-center">
+
+            @foreach (var item in Model.SiteImages.Where(p => p.ImageLocation == LandingPageImageLocation.Row_1))
+            {
+                <div class="col-xl-4 col-md-6">
+                    <div class="offer-box mega-hover" data-bg-src="@item.Src">
+                        <span class="box-subtitle">تا 40% تخفیف</span><h3 class="box-title">@item.Title</h3>
+                        <a href="@item.Link" class="th-btn btn-sm">اکنون خرید کنید<i class="fas fa-chevrons-right ms-2"></i></a>
+                    </div>
+                </div>
+            }
+
+        </div>
+    </div>
+</section>
+<section class="space bg-smoke2" id="category-sec">
+    <div class="container">
+        <div class="title-area text-center">
+            <span class="sub-title"><img src="~/user_template/assets/img/theme-img/title_icon.svg" alt="Icon">دسته بندی محصولات</span><h2 class="sec-title">خرید بر اساس دسته بندی</h2>
+        </div>
+        <div class="swiper th-slider" data-slider-options='{"breakpoints":{"0":{"slidesPerView":2},"576":{"slidesPerView":"3"},"768":{"slidesPerView":"4"},"992":{"slidesPerView":"5"},"1200":{"slidesPerView":"6"}}}'>
+            <div class="swiper-wrapper">
+
+                @foreach (var item in Model.SiteImages.Where(p => p.ImageLocation == LandingPageImageLocation.Row_2))
+                {
+                    <div class="swiper-slide">
+                        <div class="category-box">
+                            <div class="box-icon"><img src="~/@item.Src" alt="Image"></div>
+                            <h3 class="box-title"><a href="@item.Link">@item.Title</a></h3>
+                        </div>
+                    </div>
+                }
+
+            </div>
+        </div>
+    </div>
+</section>
+<section class="space">
+    <div class="container">
+        <div class="row justify-content-lg-between justify-content-center align-items-end">
+            <div class="col-lg">
+                <div class="title-area text-center text-lg-start">
+                    <h2 class="sec-title">پربازدید ترین محصولات</h2>
+                </div>
+            </div>
+            <div class="col-auto mt-n2 mt-lg-0">
+                <div class="sec-btn">
+                    <div class="nav tab-menu1" role="tablist">
+                        @if(Model.MostViewed1.Count > 0){
+                            <button class="tab-btn active" id="nav-one-tab" data-bs-toggle="tab" data-bs-target="#nav-one" role="tab" aria-controls="nav-one" aria-selected="true">@Model.MostViewed1[0].ParentCategory</button>
+                        }
+                        @if (Model.MostViewed2.Count > 0){
+                            <button class="tab-btn" id="nav-two-tab" data-bs-toggle="tab" data-bs-target="#nav-two" role="tab" aria-controls="nav-two" aria-selected="false">@Model.MostViewed2[0].ParentCategory</button>
+                        }
+                        @if(Model.MostViewed3.Count > 0){
+                            <button class="tab-btn" id="nav-three-tab" data-bs-toggle="tab" data-bs-target="#nav-three" role="tab" aria-controls="nav-three" aria-selected="false">@Model.MostViewed3[0].ParentCategory</button>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="tab-content">
+            <div class="tab-pane fade show active" id="nav-one" role="tabpanel" aria-labelledby="nav-one-tab">
+                <div class="slider-area">
+                    <div class="swiper th-slider has-shadow productSlider1" data-slider-options='{"breakpoints":{"0":{"slidesPerView":1},"576":{"slidesPerView":"2"},"768":{"slidesPerView":"2"},"992":{"slidesPerView":"3"},"1200":{"slidesPerView":"4"}}}'>
+                        <div class="swiper-wrapper">
+
+                            @foreach (var item in Model.MostViewed1)
+                            {
+                                @if (item.OffPercentage > 0)
+                                {
+                                    <div class="swiper-slide">
+                                        <div class="th-product product-grid">
+                                            <div class="product-img">
+                                                <img src="~/@item.ImageSrc" alt="Product Image"><span class="product-tag">@item.OffPercentage%</span><div class="actions">
+                                                    <a href="#QuickView" class="icon-btn popup-content"><i class="far fa-eye"></i></a><a href="cart.html" class="icon-btn"><i class="far fa-cart-plus"></i></a><a href="wishlist.html" class="icon-btn"><i class="far fa-heart"></i></a>
+                                                </div>
+                                            </div>
+                                            <div class="product-content">
+                                                <a href="shop-details.html" class="product-category">@item.Brand</a><h3 class="product-title"><a href="/product/GetProductDetail/@item.Id">@item.Name</a></h3>
+                                                <span class="price">@((item.Price - (item.Price * item.OffPercentage / 100)).ToString("n0"))<del>@item.Price.ToString("n0")</del></span>
+                                                <div class="woocommerce-product-rating">
+                                                    <span class="count">(@item.ProductReviewCount نظر)</span><div class="star-rating" role="img" aria-label="Rated 5.00 out of 5">
+                                                        <span>
+                                                            @for (int i = 0; i < item.ProductScore; i++)
+                                                            {
+                                                                <a class="star active" href="#">30</a>
+                                                            }
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                }
+                                else
+                                {
+
+                                    <div class="swiper-slide">
+                                        <div class="th-product product-grid">
+                                            <div class="product-img">
+                                                <img src="~/@item.ImageSrc" alt="Product Image"><div class="actions">
+                                                    <a href="#QuickView" class="icon-btn popup-content"><i class="far fa-eye"></i></a><a href="cart.html" class="icon-btn"><i class="far fa-cart-plus"></i></a><a href="wishlist.html" class="icon-btn"><i class="far fa-heart"></i></a>
+                                                </div>
+                                            </div>
+                                            <div class="product-content">
+                                                <a href="shop-details.html" class="product-category">@item.Brand</a><h3 class="product-title"><a href="/product/GetProductDetail/@item.Id">@item.Name</a></h3>
+                                                <span class="price">@item.Price.ToString("n0")</span>
+                                                <div class="woocommerce-product-rating">
+                                                    <span class="count">(@item.ProductReviewCount نظر)</span><div class="star-rating" role="img" aria-label="Rated 5.00 out of 5">
+                                                        <span>
+                                                            @for (int i = 0; i < item.ProductScore; i++)
+                                                            {
+                                                                <a class="star active" href="#">30</a>
+                                                            }
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                }
+                            }
+
+                        </div>
+                    </div>
+                    <button data-slider-prev=".productSlider1" class="slider-arrow slider-prev"><i class="far fa-arrow-left"></i></button><button data-slider-next=".productSlider1" class="slider-arrow slider-next"><i class="far fa-arrow-right"></i></button>
+                </div>
+            </div>
+            <div class="tab-pane fade" id="nav-two" role="tabpanel" aria-labelledby="nav-two-tab">
+                <div class="slider-area">
+                    <div class="swiper th-slider has-shadow productSlider2" data-slider-options='{"breakpoints":{"0":{"slidesPerView":1},"576":{"slidesPerView":"2"},"768":{"slidesPerView":"2"},"992":{"slidesPerView":"3"},"1200":{"slidesPerView":"4"}}}'>
+                        <div class="swiper-wrapper">
+                            
+                            @foreach (var item in Model.MostViewed2)
+                            {
+                                @if (item.OffPercentage > 0)
+                                {
+                                    <div class="swiper-slide">
+                                        <div class="th-product product-grid">
+                                            <div class="product-img">
+                                                <img src="~/@item.ImageSrc" alt="Product Image"><span class="product-tag">@item.OffPercentage%</span><div class="actions">
+                                                    <a href="#QuickView" class="icon-btn popup-content"><i class="far fa-eye"></i></a><a href="cart.html" class="icon-btn"><i class="far fa-cart-plus"></i></a><a href="wishlist.html" class="icon-btn"><i class="far fa-heart"></i></a>
+                                                </div>
+                                            </div>
+                                            <div class="product-content">
+                                                <a href="shop-details.html" class="product-category">@item.Brand</a><h3 class="product-title"><a href="/product/GetProductDetail/@item.Id">@item.Name</a></h3>
+                                                <span class="price">@((item.Price - (item.Price * item.OffPercentage / 100)).ToString("n0"))<del>@item.Price.ToString("n0")</del></span>
+                                                <div class="woocommerce-product-rating">
+                                                    <span class="count">(@item.ProductReviewCount نظر)</span><div class="star-rating" role="img" aria-label="Rated 5.00 out of 5">
+                                                        <span>
+                                                            @for (int i = 0; i < item.ProductScore; i++)
+                                                            {
+                                                                <a class="star active" href="#">30</a>
+                                                            }
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                }
+                                else
+                                {
+
+                                    <div class="swiper-slide">
+                                        <div class="th-product product-grid">
+                                            <div class="product-img">
+                                                <img src="~/@item.ImageSrc" alt="Product Image"><div class="actions">
+                                                    <a href="#QuickView" class="icon-btn popup-content"><i class="far fa-eye"></i></a><a href="cart.html" class="icon-btn"><i class="far fa-cart-plus"></i></a><a href="wishlist.html" class="icon-btn"><i class="far fa-heart"></i></a>
+                                                </div>
+                                            </div>
+                                            <div class="product-content">
+                                                <a href="shop-details.html" class="product-category">@item.Brand</a><h3 class="product-title"><a href="/product/GetProductDetail/@item.Id">@item.Name</a></h3>
+                                                <span class="price">@item.Price.ToString("n0")</span>
+                                                <div class="woocommerce-product-rating">
+                                                    <span class="count">(@item.ProductReviewCount نظر)</span><div class="star-rating" role="img" aria-label="Rated 5.00 out of 5">
+                                                        <span>
+                                                            @for (int i = 0; i < item.ProductScore; i++)
+                                                            {
+                                                                <a class="star active" href="#">30</a>
+                                                            }
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                }
+                            }
+
+                        </div>
+                    </div>
+                    <button data-slider-prev=".productSlider2" class="slider-arrow slider-prev"><i class="far fa-arrow-left"></i></button><button data-slider-next=".productSlider2" class="slider-arrow slider-next"><i class="far fa-arrow-right"></i></button>
+                </div>
+            </div>
+            <div class="tab-pane fade" id="nav-three" role="tabpanel" aria-labelledby="nav-three-tab">
+                <div class="slider-area">
+                    <div class="swiper th-slider has-shadow productSlider3" data-slider-options='{"breakpoints":{"0":{"slidesPerView":1},"576":{"slidesPerView":"2"},"768":{"slidesPerView":"2"},"992":{"slidesPerView":"3"},"1200":{"slidesPerView":"4"}}}'>
+                        <div class="swiper-wrapper">
+                            
+                            @foreach (var item in Model.MostViewed3)
+                            {
+                                @if (item.OffPercentage > 0)
+                                {
+                                    <div class="swiper-slide">
+                                        <div class="th-product product-grid">
+                                            <div class="product-img">
+                                                <img src="~/@item.ImageSrc" alt="Product Image"><span class="product-tag">@item.OffPercentage%</span><div class="actions">
+                                                    <a href="#QuickView" class="icon-btn popup-content"><i class="far fa-eye"></i></a><a href="cart.html" class="icon-btn"><i class="far fa-cart-plus"></i></a><a href="wishlist.html" class="icon-btn"><i class="far fa-heart"></i></a>
+                                                </div>
+                                            </div>
+                                            <div class="product-content">
+                                                <a href="shop-details.html" class="product-category">@item.Brand</a><h3 class="product-title"><a href="/product/GetProductDetail/@item.Id">@item.Name</a></h3>
+                                                <span class="price">@((item.Price - (item.Price * item.OffPercentage / 100)).ToString("n0"))<del>@item.Price.ToString("n0")</del></span>
+                                                <div class="woocommerce-product-rating">
+                                                    <span class="count">(@item.ProductReviewCount نظر)</span><div class="star-rating" role="img" aria-label="Rated 5.00 out of 5">
+                                                        <span>
+                                                            @for (int i = 0; i < item.ProductScore; i++)
+                                                            {
+                                                                <a class="star active" href="#">30</a>
+                                                            }
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                }
+                                else
+                                {
+
+                                    <div class="swiper-slide">
+                                        <div class="th-product product-grid">
+                                            <div class="product-img">
+                                                <img src="~/@item.ImageSrc" alt="Product Image"><div class="actions">
+                                                    <a href="#QuickView" class="icon-btn popup-content"><i class="far fa-eye"></i></a><a href="cart.html" class="icon-btn"><i class="far fa-cart-plus"></i></a><a href="wishlist.html" class="icon-btn"><i class="far fa-heart"></i></a>
+                                                </div>
+                                            </div>
+                                            <div class="product-content">
+                                                <a href="shop-details.html" class="product-category">@item.Brand</a><h3 class="product-title"><a href="/product/GetProductDetail/@item.Id">@item.Name</a></h3>
+                                                <span class="price">@item.Price.ToString("n0")</span>
+                                                <div class="woocommerce-product-rating">
+                                                    <span class="count">(@item.ProductReviewCount نظر)</span><div class="star-rating" role="img" aria-label="Rated 5.00 out of 5">
+                                                        <span>
+                                                            @for (int i = 0; i < item.ProductScore; i++)
+                                                            {
+                                                                <a class="star active" href="#">30</a>
+                                                            }
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                }
+                            }
+
+                        </div>
+                    </div>
+                    <button data-slider-prev=".productSlider3" class="slider-arrow slider-prev"><i class="far fa-arrow-left"></i></button><button data-slider-next=".productSlider3" class="slider-arrow slider-next"><i class="far fa-arrow-right"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<section class="space">
+    <div class="container z-index-common">
+        <div class="row gy-30">
+            
+            @foreach (var item in Model.SiteImages.Where(p => p.ImageLocation == LandingPageImageLocation.Row_3))
+            {
+                <div class="col-xl-6">
+                    <div class="offer-block mega-hover" data-bg-color="#F3EEC1">
+                        <div class="box-img"><img src="~/@item.Src" alt="Image"></div>
+                        <div class="box-content" data-border="#F3EEC1">
+                            <h3 class="box-title">
+                                @item.Title
+                            </h3>
+                            <p class="box-text">30% تخفیف برای این ماه</p>
+                            <a href="@item.Link" class="th-btn btn-sm">اکنون خرید کنید<i class="fas fa-chevrons-right ms-2"></i></a>
+                        </div>
+                    </div>
+                </div>
+            }
+
+        </div>
+    </div>
+</section>
+<section class="space-bottom">
+    <div class="container">
+        <div class="row flex-row-reverse">
+            <div class="col-xl-3 col-lg-4 col-md-6 mb-40 mb-lg-0">
+                <div class="offer-grid mega-hover" data-bg-src="@(Model.SiteImages.Where(p => p.ImageLocation == LandingPageImageLocation.LastLeft)?.FirstOrDefault()?.Src?? "")">
+                    <span class="h6 box-subtitle fs-16 text-white"><span class="text-theme2">تا 60%</span>تخفیف</span>
+                    <h3 class="box-title text-white">@(Model.SiteImages.Where(p => p.ImageLocation == LandingPageImageLocation.LastLeft)?.FirstOrDefault()?.Title??"")</h3>
+                    <a href="@(Model.SiteImages.Where(p => p.ImageLocation == LandingPageImageLocation.LastLeft)?.FirstOrDefault()?.Link??"")" class="th-btn btn-sm style4">اکنون خرید کنید<i class="fas fa-chevrons-right ms-2"></i></a>
+                </div>
+            </div>
+            <div class="col-xl-9 col-lg-8 col-md-6">
+                <div class="row justify-content-lg-between justify-content-center align-items-center">
+                    <div class="col-md text-center text-md-start"><h2 class="sec-title mb-30">جدیدترین محصولات</h2></div>
+                    <div class="col-md-auto d-none d-lg-inline-block">
+                        <div class="sec-btn mb-35">
+                            <div class="icon-box">
+                                <button data-slider-prev="#productSlider7" class="slider-arrow default"><i class="far fa-arrow-left"></i></button><button data-slider-next="#productSlider7" class="slider-arrow default"><i class="far fa-arrow-right"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="swiper th-slider has-shadow" id="productSlider7" data-slider-options='{"breakpoints":{"0":{"slidesPerView":1},"576":{"slidesPerView":"2"},"768":{"slidesPerView":"1"},"992":{"slidesPerView":"2"},"1200":{"slidesPerView":"3"}}}'>
+                    <div class="swiper-wrapper">
+                        
+                        @foreach (var item in Model.Newest)
+                        {
+                            @if (item.OffPercentage > 0)
+                            {
+                                <div class="swiper-slide">
+                                    <div class="th-product product-grid">
+                                        <div class="product-img">
+                                            <img src="~/@item.ImageSrc" alt="Product Image"><span class="product-tag">@item.OffPercentage%</span><div class="actions">
+                                                <a href="#QuickView" class="icon-btn popup-content"><i class="far fa-eye"></i></a><a href="cart.html" class="icon-btn"><i class="far fa-cart-plus"></i></a><a href="wishlist.html" class="icon-btn"><i class="far fa-heart"></i></a>
+                                            </div>
+                                        </div>
+                                        <div class="product-content">
+                                            <a href="shop-details.html" class="product-category">@item.Brand</a><h3 class="product-title"><a href="/product/GetProductDetail/@item.Id">@item.Name</a></h3>
+                                            <span class="price">@((item.Price - (item.Price * item.OffPercentage / 100)).ToString("n0"))<del>@item.Price.ToString("n0")</del></span>
+                                            <div class="woocommerce-product-rating">
+                                                <span class="count">(@item.ProductReviewCount نظر)</span><div class="star-rating" role="img" aria-label="Rated 5.00 out of 5">
+                                                    <span>
+                                                        @for (int i = 0; i < item.ProductScore; i++)
+                                                        {
+                                                            <a class="star active" href="#">30</a>
+                                                        }
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            }
+                            else
+                            {
+
+                                <div class="swiper-slide">
+                                    <div class="th-product product-grid">
+                                        <div class="product-img">
+                                            <img src="~/@item.ImageSrc" alt="Product Image"><div class="actions">
+                                                <a href="#QuickView" class="icon-btn popup-content"><i class="far fa-eye"></i></a><a href="cart.html" class="icon-btn"><i class="far fa-cart-plus"></i></a><a href="wishlist.html" class="icon-btn"><i class="far fa-heart"></i></a>
+                                            </div>
+                                        </div>
+                                        <div class="product-content">
+                                            <a href="shop-details.html" class="product-category">@item.Brand</a><h3 class="product-title"><a href="/product/GetProductDetail/@item.Id">@item.Name</a></h3>
+                                            <span class="price">@item.Price.ToString("n0")</span>
+                                            <div class="woocommerce-product-rating">
+                                                <span class="count">(@item.ProductReviewCount نظر)</span><div class="star-rating" role="img" aria-label="Rated 5.00 out of 5">
+                                                    <span>
+                                                        @for (int i = 0; i < item.ProductScore; i++)
+                                                        {
+                                                            <a class="star active" href="#">30</a>
+                                                        }
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            }
+                            
+                        }
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+@section Scripts{}

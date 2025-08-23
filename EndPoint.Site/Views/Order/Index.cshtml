@@ -1,0 +1,147 @@
+﻿/@using EndPoint.Site.Models.ViewModels.CheckOut;
+@using System.Text.RegularExpressions
+@model CheckOutViewModel;
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    if (Model.UserDetail.Name == "کاربر")
+    {
+        Model.UserDetail.Name = "";
+    }
+
+    if (!Regex.IsMatch(Model.UserDetail.LastName, @"^[\u0600-\u06FF\s]+$"))
+    {
+        Model.UserDetail.LastName = "";
+    }
+
+    if (Model.UserDetail.Address == "-" || Model.UserDetail.Address == "")
+    {
+        Model.UserDetail.Address = "";
+    }
+}
+
+<div class="th-checkout-wrapper space-top space-extra-bottom">
+    <div class="container">
+        <form action="#" class="woocommerce-checkout mt-40">
+            <div class="align-content-center">
+                <div class="col-lg-6">
+                    <h2 class="h4">مشخصات کاربر</h2>
+                    <div class="row">
+                        <div class="col-md-6 form-group"><input type="text" class="form-control" id="Name" placeholder="نام" value="@Model.UserDetail.Name"></div>
+                        <div class="col-md-6 form-group"><input type="text" class="form-control" id="LastName" placeholder="نام خانوادگی" value="@Model.UserDetail.LastName"></div>
+                        <div class="col-12 form-group">
+                            <input type="text" class="form-control" placeholder="آدرس" id="Address" value="@Model.UserDetail.Address">
+                        </div>
+                        <div class="col-md-6 form-group"><input type="text" class="form-control" id="PostCode" placeholder="کد پستی" value="@Model.UserDetail.PostCode"></div>
+                        <div class="col-12 form-group">
+                            <input type="text" class="form-control" id="Mobile" placeholder="شماره تلفن" value="@Model.UserDetail.Mobile">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <h4 class="mt-4 pt-lg-2">سفارش شما</h4>
+        <form action="#" class="woocommerce-cart-form">
+            <table class="cart_table mb-20">
+                <thead>
+                    <tr>
+                        <th class="cart-col-image">تصویر</th>
+                        <th class="cart-col-productname">نام محصول</th>
+                        <th class="cart-col-productsize">سایز محصول</th>
+                        <th class="cart-col-price">قیمت</th>
+                        <th class="cart-col-quantity">تعداد</th>
+                        <th class="cart-col-total">جمع</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Cart.CartProducts)
+                    {
+                        <tr class="cart_item">
+                            <td data-title="Product"><a class="cart-productimage" href="/product/GetProductDetail/@item.ProductId"><img width="91" height="91" src="~/@item.ProductImageSrc" alt="Image"></a></td>
+                            <td data-title="Name"><a class="cart-productname" href="/product/GetProductDetail/@item.ProductId">@item.ProductName</a></td>
+                            <td data-title="Size"><span class="amount">@item.ProductSizeName</span></td>
+                            <td data-title="Price"><span class="amount">@item.ProductTotalSum.ToString("n0")</span></td>
+                            <td data-title="Quantity"><strong class="product-quantity">@item.Count</strong></td>
+                            <td data-title="Total"><span class="amount">@((item.ProductTotalSum * item.Count).ToString("n0"))</span></td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot class="checkout-ordertable">
+                    <tr class="cart-subtotal">
+                        <th>جمع محصولات</th>
+                        <td data-title="Subtotal" colspan="6"><span class="woocommerce-Price-amount amount">@Model.Cart.TotalSum.ToString("n0")</span></td>
+                    </tr>
+                    <tr class="woocommerce-shipping-totals shipping">
+                        <th>هزینه حمل و نقل</th>
+                        <td data-title="Shipping" colspan="6">@Model.ShippingPrice.ToString("n0")</td>
+                    </tr>
+                    <tr class="order-total">
+                        <th>جمع کل</th>
+                        <td data-title="Total" colspan="6"><strong><span class="woocommerce-Price-amount amount">@((Model.Cart.TotalSum + Model.ShippingPrice).ToString("n0"))</span></strong></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </form>
+        <div class="mt-lg-3 mb-30">
+            <div class="woocommerce-checkout-payment">
+                <ul class="wc_payment_methods payment_methods methods">
+                    <li class="wc_payment_method payment_method_bacs">
+                        <input id="payment_method_bacs" type="radio" class="input-radio" name="payment_method" value="bacs" checked><label for="payment_method_bacs">پرداخت با درگاه پرداخت زرین پال</label>
+                    </li>
+                </ul>
+                <div class="form-row place-order"><button type="submit" onclick="ZarinPal()" class="th-btn">ثبت سفارش</button></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+
+    <link href="~/sweetalert2/sweetalert2.min.css" rel="stylesheet" />
+    <script src="~/sweetalert2/sweetalert2.min.js"></script>
+
+    <script>
+        function ZarinPal(){
+
+            var Name = $("#Name").val();
+                    var LastName = $("#LastName").val();
+                    var Mobile = $("#Mobile").val();
+                    var Address = $("#Address").val();
+                    var PostCode = $("#PostCode").val();
+                    var Shipping = @Model.ShippingPrice;
+
+                    var postData = {
+                        'Name': Name,
+                        'LastName': LastName,
+                        'Mobile': Mobile,
+                        'PostCode': PostCode,
+                        'Address': Address,
+                        'Shipping': Shipping,
+                    };
+                    $.ajax({
+                        contentType: 'application/x-www-form-urlencoded',
+                        dataType: 'json',
+                        type: "POST",
+                        url: "/order/AddRequestOrder/",
+                        data: postData,
+                        success: function (data) {
+                            if (data.isSuccess == true) {
+                                var authority = data.data.authority;
+                                window.location.href = "https://sandbox.zarinpal.com/pg/StartPay/"+authority;
+                            }
+                            if(data.isSuccess == false) {
+                                swal.fire(
+                                    'هشدار!',
+                                    data.message,
+                                    'warning'
+                                );
+                            }
+                        },
+                        error: function (request, status, error) {
+                            alert(request.responseText);
+                        }
+                    });
+        }
+    </script>
+    
+}

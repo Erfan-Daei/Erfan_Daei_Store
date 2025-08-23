@@ -1,0 +1,325 @@
+﻿@using Practice_Store.Application.Services.Products.Queries.GetProductDetails_Site;
+@model GetProductDetails_SiteDto;
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    ViewData["Title"] = "GetProductDetail";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var isAuthenticated = User.Identity.IsAuthenticated;
+}
+
+<section class="product-details space-top space-extra-bottom">
+    <div class="container">
+        <div class="row gx-60">
+            <div class="col-lg-6">
+                <div class="img"><img id="productImage" src="~/@Model.ImagesSrc[0]" alt=""></div>
+                <div class="th-hero-wrapper hero-3" id="hero">
+                    <div class="container">
+                        <div class="row justify-content-end">
+                            <div class="col-xl-9">
+                                <div class="swiper th-slider" id="heroSlider3" data-slider-options='{"effect":"fade"}'>
+                                    <div class="swiper-wrapper">
+                                        @foreach (var item in Model.ImagesSrc)
+                                        {
+                                            <div class="swiper-slide">
+                                                <div class="hero-inner">
+                                                    <img src="~/@item" alt="">
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                    <div class="slider-pagination"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 align-self-center">
+                <div class="product-about">
+                    @if (Model.OffPercentage > 0){
+                        <p class="price">@((Model.Price - (Model.Price * Model.OffPercentage / 100)).ToString("n0"))<del>@Model.Price.ToString("n0")</del></p>
+                    }
+                    else{
+                        <p class="price">@Model.Price.ToString("n0")</p>
+                    }
+                    <h2 class="product-title">@Model.Name</h2>
+                    <div class="product-rating">
+                        <div class="star-rating" role="img" aria-label="Rated 5.00 out of 5">
+                            <span>
+                                @for (int i = 0; i < Model.ProductScore; i++)
+                                {
+                                    <a class="star active" href="#">30</a>
+                                }
+                            </span>
+                        </div>
+                        <a href="shop-details.html" class="woocommerce-review-link">(<span class="count"> @Model.ProductReviewCount </span>نظر)</a>
+                    </div>
+                    <h4 class="m-b-15">اندازه را انتخاب کنید</h4>
+                    @for (int i = 0; i < Model.Sizes.Count; i++)
+                    {
+                        var radioId = "btnradio" + i;
+                        var sizeid = "sizeid" + Model.Sizes[i].SizeId;
+                        if(Model.Sizes[i].Inventory == 0){
+                            <input type="radio" class="btn-check" name="@sizeid" id="@radioId" disabled>
+                            <label class="btn btn-outline-primary" for="@radioId">سایز : @Model.Sizes[i].SizeName<br />ناموجود</label>
+                        }
+                        else if (Model.Sizes[i].Inventory <= 5)
+                        {
+                            <input type="radio" class="btn-check" name="@sizeid" id="@radioId">
+                            <label class="btn btn-outline-primary" for="@radioId">سایز : @Model.Sizes[i].SizeName<br />موجودی : @Model.Sizes[i].Inventory</label>
+                        }
+                        else{
+                            <input type="radio" class="btn-check" name="@sizeid" id="@radioId">
+                            <label class="btn btn-outline-primary" for="@radioId">سایز : @Model.Sizes[i].SizeName<br />موجود</label>
+                        }
+                    }
+                    <div class="actions">
+                        <div class="quantity">
+                            <input type="number" class="qty-input" step="1" min="1" max="100" name="quantity" value="1" title="Qty"><button class="quantity-plus qty-btn"><i class="far fa-chevron-up"></i></button><button class="quantity-minus qty-btn"><i class="far fa-chevron-down"></i></button>
+                        </div>
+                        <button class="th-btn" onclick="AddToCartFunc()">به سبد خرید اضافه کنید</button><a href="wishlist.html" class="icon-btn"><i class="far fa-heart"></i></a>
+                    </div>
+                    <div class="product_meta">
+                        <span class="sku_wrapper">برند:<span class="sku">@Model.Brand</span></span><span class="posted_in">دسته بندی:<a href="/Product/GetProductList?SearchKey=@Model.ParentCategoryName">@Model.CategoryName - @Model.ParentCategoryName</a></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <ul class="nav product-tab-style1" id="productTab" role="tablist">
+            <li class="nav-item" role="presentation"><a class="nav-link th-btn" id="description-tab" data-bs-toggle="tab" href="#description" role="tab" aria-controls="description" aria-selected="false">توضیحات محصول</a></li>
+            <li class="nav-item" role="presentation"><a class="nav-link th-btn active" id="reviews-tab" data-bs-toggle="tab" href="#reviews" role="tab" aria-controls="reviews" aria-selected="true">نظرات مشتریان</a></li>
+        </ul>
+        <div class="tab-content" id="productTabContent">
+            <div class="tab-pane fade" id="description" role="tabpanel" aria-labelledby="description-tab">
+                <p>@Model.Description</p>
+            </div>
+            <div class="tab-pane fade show active" id="reviews" role="tabpanel" aria-labelledby="reviews-tab">
+                <div class="woocommerce-Reviews">
+                    <div class="th-comments-wrap ">
+                        <ul class="comment-list">
+                            @foreach (var Reviewer in Model.ProductReviews)
+                            {
+                                <li class="review th-comment-item">
+                                    <div class="th-post-comment">
+                                        <div class="comment-avater"><img src="~/images/4213460-account-avatar-head-person-profile-user_115386.png" alt="Comment Author"></div>
+                                        <div class="comment-content">
+                                            <h4 class="name">@Reviewer.UserName @Reviewer.UserLastName</h4>
+                                            <span class="commented-on"><i class="far fa-calendar"></i>@Reviewer.ReviewTime</span><div class="star-rating" role="img" aria-label="Rated 5.00 out of 5">
+                                                <span>
+                                                    @for (int i = 0; i < Reviewer.UserScore; i++)
+                                                    {
+                                                        <a class="star active" href="#">30</a>
+                                                    }
+                                                </span>
+                                            </div>
+                                            <p class="text">@Reviewer.ReviewDetail</p>
+                                            @if(Reviewer.Reply != null){
+                                                <br />
+                                                <p class="text">پاسخ @Reviewer.Reply.DisplayName :  @Reviewer.Reply.ReviewDetail</p>
+                                                <p class="text">تاریخ :  @Reviewer.Reply.ReplyTime</p>
+                                            }
+                                        </div>
+                                    </div>
+                                </li>
+                            }
+                        </ul>
+                        <a class="th-btn" href="/product/GetAllReviews?ProductId=@Model.Id">مشاهده همه نظرات</a>
+                    </div>
+                    <div class="th-comment-form ">
+                        <div class="form-title"><h3 class="blog-inner-title ">یک بررسی اضافه کنید</h3></div>
+                        <div class="row">
+                            <div class="form-group rating-select d-flex align-items-center">
+                                <label>امتیاز شما</label><p class="stars"><span><a class="star-1" href="#">1</a><a class="star-2" href="#">2</a><a class="star-3" href="#">3</a><a class="star-4" href="#">4</a><a class="star-5" href="#">5</a></span></p>
+                            </div>
+                            <div class="col-12 form-group">
+                                <textarea id="ReviewText" placeholder="یک پیام بنویس" class="form-control"></textarea><i class="text-title far fa-pencil-alt"></i>
+                            </div>
+                            <div class="col-12 form-group mb-0"><button class="th-btn" onclick="AddReviewFunc()">ارسال بررسی</button></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="space-extra-top mb-30">
+            <div class="row justify-content-between align-items-center">
+                <div class="col-md-auto"><h2 class="sec-title text-center">محصولات مرتبط</h2></div>
+                <div class="col-md d-none d-sm-block"><hr class="title-line"></div>
+            </div>
+            <div class="row gy-40">
+                @foreach (var item in Model.SameProducts)
+                {
+                    <div class="col-xl-3 col-lg-4 col-sm-6">
+
+                        @if (item.OffPercentage > 0)
+                        {
+                            <div class="th-product product-grid">
+                                <div class="product-img">
+                                    <img src="~/@item.ImageSrc" alt="Product Image"><span class="product-tag">@item.OffPercentage%</span><div class="actions">
+                                        <a href="#QuickView" class="icon-btn popup-content"><i class="far fa-eye"></i></a><a href="cart.html" class="icon-btn"><i class="far fa-cart-plus"></i></a><a href="wishlist.html" class="icon-btn"><i class="far fa-heart"></i></a>
+                                    </div>
+                                </div>
+                                <div class="product-content">
+                                    <a href="shop-details.html" class="product-category">@item.Brand</a><h3 class="product-title"><a href="/product/GetProductDetail/@item.Id">@item.Name</a></h3>
+                                    <span class="price">@((item.Price - (item.Price * item.OffPercentage / 100)).ToString("n0"))<del>@item.Price.ToString("n0")</del></span>
+                                    <div class="woocommerce-product-rating">
+                                        <span class="count">(@item.ProductReviewCount نظر)</span><div class="star-rating" role="img" aria-label="Rated 5.00 out of 5">
+                                            <span>
+                                                @for (int i = 0; i < item.ProductScore; i++)
+                                                {
+                                                    <a class="star active" href="#">30</a>
+                                                }
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        }
+                        else
+                        {
+                            <div class="th-product product-grid">
+                                <div class="product-img">
+                                    <img src="~/@item.ImageSrc" alt="Product Image"><div class="actions">
+                                        <a href="#QuickView" class="icon-btn popup-content"><i class="far fa-eye"></i></a><a href="cart.html" class="icon-btn"><i class="far fa-cart-plus"></i></a><a href="wishlist.html" class="icon-btn"><i class="far fa-heart"></i></a>
+                                    </div>
+                                </div>
+                                <div class="product-content">
+                                    <a href="shop-details.html" class="product-category">@item.Brand</a><h3 class="product-title"><a href="/product/GetProductDetail/@item.Id">@item.Name</a></h3>
+                                    <span class="price">@item.Price.ToString("n0")</span>
+                                    <div class="woocommerce-product-rating">
+                                        <span class="count">(@item.ProductReviewCount نظر)</span><div class="star-rating" role="img" aria-label="Rated 5.00 out of 5">
+                                            <span>
+                                                @for (int i = 0; i < item.ProductScore; i++)
+                                                {
+                                                    <a class="star active" href="#">30</a>
+                                                }
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        }
+
+                    </div>
+                }
+            </div>
+            <div class="d-block d-md-none mt-40 text-center">
+                <div class="icon-box">
+                    <button data-slider-prev="#productSlider1" class="slider-arrow default"><i class="far fa-arrow-left"></i></button><button data-slider-next="#productSlider1" class="slider-arrow default"><i class="far fa-arrow-right"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script src="~/admin_template/vendor/global/global.min.js"></script>
+    <script src="~/admin_template/vendor/chart.js/Chart.bundle.min.js"></script>
+    <script src="~/admin_template/vendor/jquery-nice-select/js/jquery.nice-select.min.js"></script>
+    <script src="~/admin_template/vendor/apexchart/apexchart.js"></script>
+    <script src="~/admin_template/vendor/owl-carousel/owl.carousel.js"></script>
+    <script src="~/admin_template/js/dashboard/dashboard-1.js"></script>
+    <script src="~/admin_template/js/custom.min.js"></script>
+    <script src="~/admin_template/js/deznav-init.js"></script>
+    <link href="~/sweetalert2/sweetalert2.min.css" rel="stylesheet" />
+    <script src="~/sweetalert2/sweetalert2.min.js"></script>
+
+    <script>
+        function AddToCartFunc(){
+            var checkedRadioButton = document.querySelector('input[type="radio"]:checked'); 
+            var name = "";
+            if (checkedRadioButton) { 
+                name = checkedRadioButton.getAttribute('name'); }
+            var num = name.match(/\d+/)[0];
+            var quantity = document.querySelector('.qty-input').value;
+
+            var postData = {
+                        'ProductId': @Model.Id,
+                        'ProductSizeId': num,
+                        'Count': quantity,
+                    };
+            $.ajax({
+                contentType: 'application/x-www-form-urlencoded',
+                dataType: 'json',
+                type: "POST",
+                url: "/Cart/AddToCart",
+                data: postData,
+                success: function (data) {
+                if (data.isSuccess == true) {
+                    swal.fire(
+                        'موفق!',
+                        data.message,
+                        'success'
+                    ).then(function (isConfirm) {
+                             window.location.href = '/Cart';
+                    });
+                }
+                else {
+                    swal.fire(
+                        'هشدار!',
+                        data.message,
+                        'warning'
+                    );
+                }
+            },
+            error: function (request, status, error) {
+                alert(request.responseText);
+            }
+            });
+        }
+        function AddReviewFunc(){
+            var authenticated = @isAuthenticated.ToString().ToLower();
+                if (!authenticated) { 
+                    Swal.fire({
+                        title: 'عدم احراز هویت',
+                        text: "کاربر گرامی لطفا ابتدا به حساب کاربری خود وارد شوید",
+                        icon: 'warning',
+                        showCancelButton: false,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#7cacbe',
+                        confirmButtonText: 'ورود به حساب کاربری',
+                    }).then((result) => {
+                        if (result.isConfirmed) { window.location.href = '/register/login'; }
+                    }); 
+                }
+                else {
+                    var ReviewDetail = $("#ReviewText").val();
+                    var Score = $('.stars a.active').text();
+                    var postData = {
+                        'ProductId': '@Model.Id',
+                        'ReviewDetail': ReviewDetail,
+                        'Score': Score,
+                    };
+                $.ajax({
+                contentType: 'application/x-www-form-urlencoded',
+                dataType: 'json',
+                type: "POST",
+                url: "/Product/AddUserReview",
+                data: postData,
+                success: function (data) {
+                if (data.isSuccess == true) {
+                    swal.fire(
+                        'موفق!',
+                        data.message,
+                        'success'
+                    ).then(function (isConfirm) {
+                             window.location.reload();
+                    });
+                }
+                else {
+                    swal.fire(
+                        'هشدار!',
+                        data.message,
+                        'warning'
+                    );
+                }
+            },
+            error: function (request, status, error) {
+                alert(request.responseText);
+            }
+            });
+                }
+        }
+     </script>
+}

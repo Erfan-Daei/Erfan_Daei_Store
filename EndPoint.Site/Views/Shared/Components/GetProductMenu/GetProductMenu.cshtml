@@ -1,0 +1,24 @@
+﻿@using Practice_Store.Application.Services.Common.GetProductMenu;
+@model List<GetProductMenuDto>;
+@{
+    Layout = null;
+}
+
+<li class="menu-item-has-children">
+    <a href="#">محصولات</a>
+    <ul class="sub-menu">
+        @foreach(var item in Model){
+            <li class ="menu-item-has-children"><a href="/product/GetProductList?CategoryId=@item.CategoryId&ordering=0">@item.Name</a>
+                @if (item.ChildCategories.Count > 0)
+                {
+                    <ul class="sub-menu">
+                        @foreach (var child in item.ChildCategories)
+                        {
+                            <li><a href="/product/GetProductList?CategoryId=@child.CategoryId&ordering=0">@child.Name</a></li>
+                        }
+                    </ul>
+                }
+            </li>
+        }
+    </ul>
+</li>

@@ -1,0 +1,227 @@
+﻿@using Practice_Store.Application.Services.Products.Queries.GetCategories;
+@model List<CategoriesDto>
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    string path = $"{Context.Request.QueryString}";
+}
+
+<div class="container-fluid">
+    <div class="row page-titles">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item active"><a href="javascript:void(0)">مدیریت محصولات</a></li>
+            <li class="breadcrumb-item"><a href="javascript:void(0)">لیست دسته بندی ها</a></li>
+        </ol>
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-body">
+                    @if (Model.Count != 0)
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-sm mb-0 table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>نام دسته بندی</th>
+                                        <th>نام دسته بندی پدر</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="customers">
+                                    @foreach (var item in Model)
+                                    {
+                                        <tr class="btn-reveal-trigger">
+                                            <td class="py-3">
+                                                <a href="#">
+                                                    <div class="media d-flex align-items-center">
+                                                        <div class="avatar avatar-xl me-2"><div class=""><img class="rounded-circle img-fluid" src="./images/avatar/5.png" width="30" alt=""></div></div>
+                                                        <div class="media-body"><h5 class="mb-0 fs--1">@item.Name</h5></div>
+                                                    </div>
+                                                </a>
+                                            </td>
+                                            <td class="py-2">
+                                                @{
+                                                    string Parent = item.Parent != null ? item.Parent.Name : "-";
+                                                }
+                                                <text> @Parent</text>
+                                            </td>
+                                            <td class="py-2 text-end">
+                                                <div class="dropdown">
+                                                    <button class="btn btn-primary tp-btn-light sharp" type="button" data-bs-toggle="dropdown"><span class="fs--1"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="18px" height="18px" viewBox="0 0 24 24" version="1.1"><g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"><rect x="0" y="0" width="24" height="24"></rect><circle fill="#000000" cx="5" cy="12" r="2"></circle><circle fill="#000000" cx="12" cy="12" r="2"></circle><circle fill="#000000" cx="19" cy="12" r="2"></circle></g></svg></span></button><div class="dropdown-menu dropdown-menu-end border py-0">
+                                                        <div class="py-2">
+                                                            <button class="dropdown-item" onclick="ShowEditUserModalFunc('@item.Id', '@item.Name')">ویرایش دسته بندی</button>
+                                                            @if (item.Parent == null){
+                                                                <button class="dropdown-item" onclick="window.location.href='/admin/categories/addcategory?ParentId=@item.Id'">افزودن فرزند</button>
+                                                            }
+                                                            @if (item.HasChild){
+                                                                <button class="dropdown-item" onclick="window.location.href='/admin/categories/index?ParentId=@item.Id'">مشاهده فرزندها</button>
+                                                            }
+                                                            <button class="dropdown-item text-danger" onclick="DeleteCategoryFunc('@item.Id')">حذف دسته بندی</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    @if (Model.Count == 0)
+    {
+        <div class="col-lg-12">
+            <div class="alert alert-danger left-icon-big alert-dismissible fade show">
+                <div class="media">
+                    <div class="alert-left-icon-big"><span><i class="mdi mdi-alert"></i></span></div>
+                    <div class="media-body">
+                        <h5 class="mt-1 mb-2">کاربری یافت نشد!</h5>
+                        <p class="mb-0">مجدد جست و جو کنید</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    <div>
+        @if (path.Contains("?ParentId="))
+        {
+            <button class="btn btn-primary btn-block" onclick="window.location.href='/admin/categories/addcategory?ParentId=@path[^1].ToString()'">افزودن دسته بندی جدید</button>
+        }
+        else
+        {
+            <button class="btn btn-primary btn-block" onclick="window.location.href='/admin/categories/addcategory'">افزودن دسته بندی جدید</button>
+        }
+    </div>
+</div>
+
+@section Scripts
+{
+    <link href="~/sweetalert2/sweetalert2.min.css" rel="stylesheet" />
+    <script src="~/sweetalert2/sweetalert2.min.js"></script>
+
+    <script>
+        function ShowEditUserModalFunc(Id, Name) {
+            $('#Edit_Id').val(Id);
+            $('#Edit_Name').val(Name);
+            $('#EditCategoryMod').modal('show');
+        }
+
+        function EditCategoryfunc(){
+            var Id = $('#Edit_Id').val();
+            var Name = $('#Edit_Name').val();
+            var postData = {
+                'Id': Id,
+                'Name': Name,
+            };
+            $.ajax({
+                contentType: 'application/x-www-form-urlencoded',
+                dataType: 'json',
+                type: "PATCH",
+                url: "/admin/categories/EditCategory",
+                data: postData,
+                success: function (data) {
+                    if (data.isSuccess == true) {
+                        swal.fire(
+                            'موفق!',
+                            data.message,
+                            'success'
+                        ).then(function (isConfirm) {
+                            location.reload();
+                        });
+                    }
+                    else {
+                        swal.fire(
+                            'هشدار!',
+                            data.message,
+                            'warning'
+                        );
+                    }
+                },
+                error: function (request, status, error) {
+                    alert(request.responseText);
+                }
+            });
+        }
+
+        function CloseEditUserModalFunc() {
+            $('#EditCategoryMod').modal('hide');
+        }
+
+        function DeleteCategoryFunc(Id) {
+            swal.fire({
+                title: 'حذف دسته بندی',
+                text: "کاربر گرامی از حذف دسته بندی مطمئن هستید؟",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#7cacbe',
+                confirmButtonText: 'بله ، دسته بندی حذف شود',
+                cancelButtonText: 'خیر'
+            }).then((result) => {
+                if (result.value) {
+                    var postData = {
+                        'Id': Id,
+                    };
+                    $.ajax({
+                        contentType: 'application/x-www-form-urlencoded',
+                        dataType: 'json',
+                        type: "DELETE",
+                        url: "/admin/categories/DeleteCategory",
+                        data: postData,
+                        success: function (data) {
+                            if (data.isSuccess == true) {
+                                swal.fire(
+                                    'موفق!',
+                                    data.message,
+                                    'success'
+                                ).then(function (isConfirm) {
+                                    location.reload();
+                                });
+                            }
+                            else {
+                                swal.fire(
+                                    'هشدار!',
+                                    data.message,
+                                    'warning'
+                                );
+                            }
+                        },
+                        error: function (request, status, error) {
+                            alert(request.responseText);
+                        }
+                    });
+                }
+            })
+        }
+    </script>
+}
+@section Modals
+{
+    <div class="modal fade" id="EditCategoryMod" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">ویرایش دسته بندی</h5>
+                </div>
+                <div class="modal-body">
+                    <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
+                        <fieldset class="form-group">
+                            <input type="hidden" id="Edit_Id" />
+                            <label for="basicInput">نام</label>
+                            <input type="text" class="form-control" id="Edit_Name">
+                        </fieldset>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <a class="btn btn-secondary" onclick="CloseEditUserModalFunc()">انصراف</a>
+                    <a class="btn btn-primary" onclick="EditCategoryfunc()">اعمال تغییرات</a>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+

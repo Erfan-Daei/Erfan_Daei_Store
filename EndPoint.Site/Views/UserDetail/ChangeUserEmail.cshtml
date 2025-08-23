@@ -1,0 +1,88 @@
+﻿
+@{
+    ViewData["Title"] = "ChangeUserEmail";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var UserId = ViewBag.UserId;
+    var LastUserEmail = ViewBag.UserEmail;
+}
+
+<section>
+    <div class="th-checkout-wrapper space-top space-extra-bottom">
+        <div class="container">
+            <div class="align-content-center">
+                <div class="col-lg-6">
+                    <h2 class="h4">تغییر ایمیل</h2>
+                    <div class="row">
+                        <div class="col-md-6 form-group"><input type="text" class="form-control" value="@ViewBag.UserEmail" disabled></div>
+                    </div>
+                    <br />
+                    <br />
+                    <br />
+                    <br />
+
+                    <h2 class="h4">ایمیل جدید</h2>
+                    <div class="row">
+                        <div class="col-md-6 form-group"><input type="text" class="form-control" id="NewUserEmailInput" placeholder="ایمیل جدید"></div>
+                        <div class="col-md-6 form-group"><button class="th-btn" id="CheckEmailBtn" onclick="NewEmailvalidationFunc()" style="cursor:pointer;">تایید</button></div>
+                    </div>
+                    </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts{
+    <link href="~/sweetalert2/sweetalert2.min.css" rel="stylesheet" />
+    <script src="~/sweetalert2/sweetalert2.min.js"></script>
+
+    <script>
+
+        function NewEmailvalidationFunc() {
+            // var LastEmail = '@LastUserEmail';
+            var NewEmail = $("#NewUserEmailInput").val();
+            var postData = {
+                // 'LastEmail': LastEmail,
+                'NewEmail': NewEmail
+            };
+            $.ajax({
+                contentType: 'application/x-www-form-urlencoded',
+                dataType: 'json',
+                type: "POST",
+                url: "ChangeUserEmail",
+                data: postData,
+                success: function (data) {
+                    if (data.isSuccess == true && data.status_Code == 200) {
+                        swal.fire(
+                            'موفق!',
+                            data.message,
+                            'success'
+                        )
+                    }
+                    else if (data.isSuccess == true && data.status_Code == 202) {
+                        swal.fire(
+                            'موفق!',
+                            data.message,
+                            'success'
+                        ).then(function (isConfirm) {
+                            $("#NewUserEmailInput").prop("disabled", true);
+                            $("#CheckEmailBtn").prop("disabled", true);
+                            $("#CheckCodeBtn").prop("disabled", false);
+                            $("#ChangeEmailBtn").prop("disabled", false);
+                        });
+                    }
+                    else {
+                        swal.fire(
+                            'هشدار!',
+                            data.message,
+                            'warning'
+                        );
+                    }
+                },
+                error: function (request, status, error) {
+                    alert(request.responseText);
+                }
+            });
+        }
+    </script>
+}
+

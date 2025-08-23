@@ -1,0 +1,106 @@
+﻿@using Practice_Store.Application.Services.Products.Queries.GetAllReviews
+@model List<GetAllReviewsDto>
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    ViewData["Title"] = "GetAllReviews";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<section>
+    <div class="container-fluid">
+        <div class="row page-titles">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item active"><a href="javascript:void(0)">مدیریت محصولات</a></li>
+                <li class="breadcrumb-item"><a href="javascript:void(0)">نظرات کاربران</a></li>
+            </ol>
+        </div>
+        <div class="row">
+            @foreach (var review in Model)
+            {
+                <div class="col-xl-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title">@review.UserName @review.UserLastName</h5>
+                            <div class="comment-review star-rating">
+                                <ul>
+                                    @for (int i= 0; i < review.UserScore; i++)
+                                    {
+                                        <li><i class="fa fa-star"></i></li>
+                                    }
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="card-body"><p class="card-text">@review.ReviewDetail</p></div>
+                        <div class="card-footer d-sm-flex justify-content-between align-items-center">
+                            <div class="card-footer-link mb-4 mb-sm-0"><p class="card-text text-dark d-inline">@review.ReviewTime</p></div>
+                            @if (review.Reply == null)
+                            {
+                                <div class="mb-3"><textarea class="form-control" id="Reply@(review.ReviewId)" placeholder="پاسخ خود را وارد کنید" hidden></textarea></div>
+                                <button id="BtnReply@(review.ReviewId)" onclick="ShowReplyTextArea('@review.ReviewId')" class="btn btn-primary">افزودن پاسخ</button>
+                            }
+                            else{
+                                <p class="card-text">پاسخ @review.Reply.DisplayName :  @review.Reply.ReviewDetail - تاریخ :  @review.Reply.ReplyTime</p>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+@section Scripts{
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link href="~/sweetalert2/sweetalert2.min.css" rel="stylesheet" />
+    <script src="~/sweetalert2/sweetalert2.min.js"></script>
+
+    <script>
+        function ShowReplyTextArea(reviewId){
+            $('#Reply' + reviewId).prop('hidden', false);
+            var btn = $('#BtnReply' + reviewId); 
+            btn.text('ثبت');
+            btn.attr('onclick', 'AddReplyFunc(' + reviewId + ')');
+        }
+
+        function AddReplyFunc(reviewId){
+            var ReviewId = reviewId;
+            var ReplyDetail = $('#Reply' + reviewId).val();
+            var postData = {
+                'ReviewId': ReviewId,
+                'ReplyDetail': ReplyDetail,
+            };
+            $.ajax({
+                        contentType: 'application/x-www-form-urlencoded',
+                        dataType: 'json',
+                        type: "POST",
+                        url: "/admin/product/AddReplyToReview",
+                        data: postData,
+                        success: function (data) {
+                            if (data.isSuccess == true) {
+                                swal.fire(
+                                    'موفق!',
+                                    data.message,
+                                    'success'
+                                ).then(function (isConfirm) {
+                                    location.reload();
+                                });
+                            }
+                            else {
+                                swal.fire(
+                                    'هشدار!',
+                                    data.message,
+                                    'warning'
+                                );
+                            }
+                        },
+                        error: function (request, status, error) {
+                            alert(request.responseText);
+                        }
+                    });
+        }
+    </script>
+}
+@section Modals{
+
+}

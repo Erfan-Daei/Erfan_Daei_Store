@@ -1,0 +1,251 @@
+﻿@using Practice_Store.Application.Services.Carts
+@model CartDto;
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var isAuthenticated = User.Identity.IsAuthenticated;
+}
+
+<div class="container">
+    <form action="#" class="woocommerce-cart-form">
+        <table class="cart_table">
+            <thead>
+                <tr>
+                    <th class="cart-col-image">تصویر</th>
+                    <th class="cart-col-productname">نام محصول</th>
+                    <th class="cart-col-productsize">سایز محصول</th>
+                    <th class="cart-col-price">قیمت</th>
+                    <th class="cart-col-quantity">تعداد</th>
+                    <th class="cart-col-total">جمع</th>
+                    <th class="cart-col-remove">حذف</th>
+                </tr>
+            </thead>
+            <tbody>
+
+                @foreach (var item in Model.CartProducts)
+                {
+                    <tr class="cart_item">
+                        <td data-title="Product"><a class="cart-productimage" href="shop-detailis.html"><img width="91" height="91" src="~/@item.ProductImageSrc"></a></td>
+                        <td data-title="Name"><a class="cart-productname" href="/product/GetProductDetail/@item.ProductId">@item.ProductName</a></td>
+                        <td data-title="Size">
+                            <span>
+                                @item.ProductSizeName@{
+                                    var outOfInventory = "";
+                                    if (item.Count > item.ProductSizeInventory)
+                                    {
+                                        outOfInventory = $" - فقط {item.ProductSizeInventory} عدد از این محصول باقی مانده";
+                                    }
+                                    if (item.ProductSizeInventory == 0)
+                                    {
+                                        outOfInventory = " - ناموجود";
+                                    }
+                                }@outOfInventory
+                            </span>
+                        </td>
+                        <td data-title="Price"><span class="amount">@item.ProductTotalSum.ToString("n0")@{
+                                    if (item.ProductOff > 0)
+                                    {
+                                        <del>@item.ProductPrice.ToString("n0")</del>
+                                    }
+                                }</span></td>
+                        <td data-title="Quantity">
+                            <div class="quantity">
+                                <a onclick="RemoveFromCartFunc('@item.ProductId','@item.ProductSizeId', 1)" class="qty-btn"><i class="far fa-minus"></i></a><input type="number" class="qty-input" value="@item.Count" min="1" max="99" disabled><a onclick="AddToCartFunc('@item.ProductId','@item.ProductSizeId', 1)" class="qty-btn"><i class="far fa-plus"></i></a>
+                            </div>
+                        </td>
+                        <td data-title="Total">
+                            <span class="amount">
+                                @{
+                                    var ProductSum = "";
+                                    if (item.Count > item.ProductSizeInventory) { ProductSum = ((item.ProductTotalSum * item.ProductSizeInventory).ToString("n0")); }
+                                    else { ProductSum = ((item.ProductTotalSum * item.Count).ToString("n0")); }
+                                    @ProductSum
+                                }
+                            </span>
+                        </td>
+                        <td data-title="Remove"><a onclick="RemoveFromCartFunc('@item.ProductId','@item.ProductSizeId','@item.Count')" class="remove"><i class="fal fa-trash-alt"></i></a></td>
+                    </tr>
+                }
+
+            </tbody>
+        </table>
+    </form>
+    <div class="row justify-content-end">
+        <div class="col-md-8 col-lg-7 col-xl-6">
+            <h2 class="h4 summary-title">مجموع سبد خرید</h2>
+            <table class="cart_totals">
+                <tbody>
+                    <tr>
+                        <td>جمع سبد خرید</td>
+                        <td data-title="Cart Subtotal">
+                            <span class="amount">
+                                @Model.TotalSum.ToString("n0")
+                            </span>
+                        </td>
+                    </tr>
+                    <tr class="shipping">
+                        <th>حمل و نقل و جابجایی</th>
+                        <td data-title="Shipping and Handling">
+                            <ul class="woocommerce-shipping-methods list-unstyled">
+                                @if (Model.TotalSum >= 15000000)
+                                {
+                                    <li>
+                                        <input type="radio" id="free_shipping" onchange="ChangeTotalPrice()" name="shipping_method" class="shipping_method" value="0"><label for="free_shipping">ارسال رایگان : خرید های بالای 15,000,000</label>
+                                    </li>
+                                }
+                                else
+                                {
+                                    <li>
+                                        <input type="radio" id="free_shipping" name="shipping_method" class="shipping_method" disabled><label for="free_shipping">ارسال رایگان : خرید های بالای 15,000,000</label>
+                                    </li>
+                                }
+                                <li>
+                                    <input type="radio" id="flat_rate" onchange="ChangeTotalPrice()" name="shipping_method" class="shipping_method" checked value="500000"><label for="flat_rate">نرخ ثابت : 500,000</label>
+                                </li>
+                            </ul>
+                            <p class="woocommerce-shipping-destination">گزینه های حمل و نقل در هنگام تسویه حساب به روز می شود.</p>
+                        </td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr class="order-total">
+                        <td>سفارش مجموع</td>
+                        <td data-title="Total"><strong><span id="total_price" class="amount">@((Model.TotalSum + 500000).ToString("n0"))</span></strong></td>
+                    </tr>
+                </tfoot>
+            </table>
+            <div class="wc-proceed-to-checkout mb-30"><button type="button" onclick="CheckInventory()" id="checkoutButton" class="th-btn">برای تسویه حساب اقدام کنید</button></div>
+        </div>
+    </div>
+</div>
+
+@section Scripts
+{
+    <link href="~/sweetalert2/sweetalert2.min.css" rel="stylesheet" />
+    <script src="~/sweetalert2/sweetalert2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        function ChangeTotalPrice(){
+             var selectedShipping = document.querySelector('input[name="shipping_method"]:checked').value;
+             var temp = '@Model.TotalSum';
+             var newTotalPrice = parseInt(temp) + parseInt(selectedShipping);
+             document.getElementById('total_price').innerText = newTotalPrice.toLocaleString();
+        }
+
+        function CheckInventory(){
+            var Shipping = document.querySelector('input[name="shipping_method"]:checked').value;
+            var cartProducts = @Html.Raw(Json.Serialize(Model.CartProducts));
+            var hasOutOfStockItem = false;
+            for (var i = 0; i < cartProducts.length; i++) {
+                if (cartProducts[i].count > cartProducts[i].productSizeInventory) {
+                    hasOutOfStockItem = true;
+                    break;
+                }
+            }
+            if (hasOutOfStockItem) {
+                Swal.fire({
+                    title: 'محصول ناموجود',
+                    text: "کاربر گرامی محصول ناموجودی در سبد خرید شما وجود دارد",
+                    icon: 'warning',
+                    showCancelButton: false,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#7cacbe',
+                    confirmButtonText: 'ویرایش سبد خرید',
+                }).then((result) => {
+                    if (result.isConfirmed) { window.location.href = '/Cart'; }
+                });
+            }
+            else {
+                var authenticated = @isAuthenticated.ToString().ToLower();
+                if (authenticated) { window.location.href = '/order/index?Shipping='+parseInt(Shipping); }
+                else {
+                    Swal.fire({
+                        title: 'عدم احراز هویت',
+                        text: "کاربر گرامی لطفا ابتدا به حساب کاربری خود وارد شوید",
+                        icon: 'warning',
+                        showCancelButton: false,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#7cacbe',
+                        confirmButtonText: 'ورود به حساب کاربری',
+                    }).then((result) => {
+                        if (result.isConfirmed) { window.location.href = '/register/login'; }
+                    });
+                }
+            }
+        }
+
+        function AddToCartFunc(ProductId, ProductSizeId, Count){
+            var postData = {
+                        'ProductId': ProductId,
+                        'ProductSizeId': ProductSizeId,
+                        'Count': Count,
+                    };
+            $.ajax({
+                contentType: 'application/x-www-form-urlencoded',
+                dataType: 'json',
+                type: "POST",
+                url: "/Cart/AddToCart",
+                data: postData,
+                success: function (data) {
+                if (data.isSuccess == true) {
+                    swal.fire(
+                        'موفق!',
+                        data.message,
+                        'success'
+                    ).then(function (isConfirm) {
+                                    location.reload();
+                    });
+                }
+                else {
+                    swal.fire(
+                        'هشدار!',
+                        data.message,
+                        'warning'
+                    );
+                }
+            },
+            error: function (request, status, error) {
+                alert(request.responseText);
+            }
+            });
+        }
+
+        function RemoveFromCartFunc(ProductId, ProductSizeId, Count){
+            var postData = {
+                        'ProductId': ProductId,
+                        'ProductSizeId': ProductSizeId,
+                        'Count': Count,
+                    };
+            $.ajax({
+                contentType: 'application/x-www-form-urlencoded',
+                dataType: 'json',
+                type: "DELETE",
+                url: "/Cart/RemoveFromCart",
+                data: postData,
+                success: function (data) {
+                if (data.isSuccess == true) {
+                    swal.fire(
+                        'موفق!',
+                        data.message,
+                        'success'
+                    ).then(function (isConfirm) {
+                                    location.reload();
+                                });
+                }
+                else {
+                    swal.fire(
+                        'هشدار!',
+                        data.message,
+                        'warning'
+                    );
+                }
+            },
+            error: function (request, status, error) {
+                alert(request.responseText);
+            }
+            });
+        }
+    </script>
+}
+
