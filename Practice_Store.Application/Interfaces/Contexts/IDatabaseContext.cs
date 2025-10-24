@@ -32,5 +32,6 @@ namespace Practice_Store.Application.Interfaces.Contexts
         int SaveChanges();
         Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = new CancellationToken());
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken());
+        DbSet<T> Set<T>() where T : class;
     }
 }

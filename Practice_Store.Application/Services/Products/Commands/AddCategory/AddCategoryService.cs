@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Practice_Store.Application.Interfaces.Contexts;
+using Practice_Store.Application.Interfaces.RepositoryManager.Products;
+using Practice_Store.Application.Interfaces.RepositoryManager.Products.Commands;
 using Practice_Store.Common;
 using Practice_Store.Domain.Entities.Products;
 using System.Text.RegularExpressions;
@@ -8,10 +9,12 @@ namespace Practice_Store.Application.Services.Products.Commands.AddCategory
 {
     public class AddCategoryService : IAddCategory
     {
-        private readonly IDatabaseContext _databaseContext;
-        public AddCategoryService(IDatabaseContext databaseContext)
+        private readonly IAddCategoryRepo _addCategoryRepo;
+        private readonly IProductRepoFinders _productRepoFinders;
+        public AddCategoryService(IAddCategoryRepo addCategoryRepo, IProductRepoFinders productRepoFinders)
         {
-            _databaseContext = databaseContext;
+            _addCategoryRepo = addCategoryRepo;
+            _productRepoFinders = productRepoFinders;
         }
 
         public ResultDto<long> Execute(long? ParentId, string Name)
@@ -44,8 +47,16 @@ namespace Practice_Store.Application.Services.Products.Commands.AddCategory
                 ParentCategory = GetParent(ParentId)
             };
 
-            _databaseContext.Categories.Add(Category);
-            _databaseContext.SaveChanges();
+            var result = _addCategoryRepo.AddCategory(Category);
+            if (!result)
+            {
+                return new ResultDto<long>()
+                {
+                    IsSuccess = false,
+                    Message = "مشکل سرور",
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                };
+            }
 
             return new ResultDto<long>()
             {
@@ -58,7 +69,7 @@ namespace Practice_Store.Application.Services.Products.Commands.AddCategory
         }
         private Category GetParent(long? ParentId)
         {
-            return _databaseContext.Categories.Find(ParentId);
+            return _productRepoFinders.FindCategory(ParentId);
         }
     }
 }

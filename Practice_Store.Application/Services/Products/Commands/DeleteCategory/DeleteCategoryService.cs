@@ -1,23 +1,29 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Practice_Store.Application.Interfaces.Contexts;
 using Practice_Store.Application.Interfaces.FacadPatterns;
+using Practice_Store.Application.Interfaces.RepositoryManager.Products;
+using Practice_Store.Application.Interfaces.RepositoryManager.Products.Commands;
 using Practice_Store.Common;
+using Practice_Store.Domain.Entities.Products;
 
 namespace Practice_Store.Application.Services.Products.Commands.DeleteCategory
 {
     public class DeleteCategoryService : IDeleteCategory
     {
-        private readonly IDatabaseContext _databaseContext;
+        private readonly IProductRepoFinders _productRepoFinders;
+        private readonly IDeleteCategoryRepo _deleteCategoryRepo;
         private readonly IProductFacad _productFacad;
-        public DeleteCategoryService(IDatabaseContext databaseContext, IProductFacad productFacad)
+        public DeleteCategoryService(IProductRepoFinders productRepoFinders,
+            IDeleteCategoryRepo deleteCategoryRepo,
+            IProductFacad productFacad)
         {
-            _databaseContext = databaseContext;
+            _deleteCategoryRepo = deleteCategoryRepo;
+            _productRepoFinders = productRepoFinders;
             _productFacad = productFacad;
         }
 
         public ResultDto Execute(long Id)
         {
-            var _Category = _databaseContext.Categories.Find(Id);
+            var _Category = _productRepoFinders.FindCategory(Id);
 
             if (_Category == null)
             {
@@ -31,16 +37,33 @@ namespace Practice_Store.Application.Services.Products.Commands.DeleteCategory
 
             if (_Category.ParentCategoryId == null)
             {
-                var SubCategoriesList = _productFacad.GetCategoriesService.Execute(Id).Data;
-                foreach (var Category in SubCategoriesList)
+                var SubCategoriesList = _productFacad.GetCategoriesService.Execute(Id).Data.ToList();
+                var SubCategories = SubCategoriesList.Select(s => new Category
                 {
-                    var SubCategoryId = _databaseContext.Categories.Find(Category.Id);
-                    _databaseContext.Categories.Remove(SubCategoryId);
+                    Id = s.Id,
+                }).ToList();
+                var DeleteSubCateory = _deleteCategoryRepo.DeleteSubCategories(SubCategories);
+                if (!DeleteSubCateory)
+                {
+                    return new ResultDto()
+                    {
+                        IsSuccess = false,
+                        Message = "مشل سرور",
+                        StatusCode = StatusCodes.Status500InternalServerError,
+                    };
                 }
             }
 
-            _databaseContext.Categories.Remove(_Category);
-            _databaseContext.SaveChanges();
+            var DeleteCategory = _deleteCategoryRepo.DeleteCategory(_Category);
+            if (!DeleteCategory)
+            {
+                return new ResultDto()
+                {
+                    IsSuccess = false,
+                    Message = "مشل سرور",
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                };
+            }
 
             return new ResultDto()
             {

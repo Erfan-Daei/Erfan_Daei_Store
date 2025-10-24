@@ -1,20 +1,19 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
+using Practice_Store.Application.Interfaces.RepositoryManager;
 using Practice_Store.Common;
-using Practice_Store.Domain.Entities.Users;
 
 namespace Practice_Store.Application.Services.Users.Commands.ActivationUser
 {
     public class ActivationUserService : IActivationUser
     {
-        private readonly UserManager<IdtUser> _userManager;
-        public ActivationUserService(UserManager<IdtUser> userManager)
+        private readonly IManageUserRepository _manageUserRepository;
+        public ActivationUserService(IManageUserRepository manageUserRepository)
         {
-            _userManager = userManager;
+            _manageUserRepository = manageUserRepository;
         }
         public ResultDto<ResultActivationUserDto> ChangeActivationState(string UserId)
         {
-            var _User = _userManager.FindByIdAsync(UserId).Result;
+            var _User = _manageUserRepository.FindUserById(UserId);
             if (_User == null)
             {
                 return new ResultDto<ResultActivationUserDto>()
@@ -25,7 +24,16 @@ namespace Practice_Store.Application.Services.Users.Commands.ActivationUser
                 };
             }
 
-            var _Change = _userManager.SetLockoutEnabledAsync(_User, !_User.LockoutEnabled);
+            var Change = _manageUserRepository.ChangeUserActivation(_User);
+            if (!Change)
+            {
+                return new ResultDto<ResultActivationUserDto>()
+                {
+                    IsSuccess = false,
+                    Message = "عملیات ناموفق",
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                };
+            }
             string UserState = _User.LockoutEnabled == true ? "غیر فعال" : "فعال";
 
             return new ResultDto<ResultActivationUserDto>()

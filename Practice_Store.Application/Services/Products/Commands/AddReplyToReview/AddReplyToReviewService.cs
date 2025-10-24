@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Practice_Store.Application.Interfaces.Contexts;
+using Practice_Store.Application.Interfaces.RepositoryManager;
+using Practice_Store.Application.Interfaces.RepositoryManager.Products.Commands;
 using Practice_Store.Common;
 using Practice_Store.Domain.Entities.Products;
 
@@ -7,15 +8,17 @@ namespace Practice_Store.Application.Services.Products.Commands.AddReplyToReview
 {
     public class AddReplyToReviewService : IAddReplyToReview
     {
-        private readonly IDatabaseContext _databaseContext;
-        public AddReplyToReviewService(IDatabaseContext databaseContext)
+        private readonly IManageUserRepository _manageUserRepository;
+        private readonly IAddReplyRepo _addReplyRepo;
+        public AddReplyToReviewService(IManageUserRepository manageUserRepository, IAddReplyRepo addReplyRepo)
         {
-            _databaseContext = databaseContext;
+            _manageUserRepository = manageUserRepository;
+            _addReplyRepo = addReplyRepo;
         }
 
         public ResultDto<long> Execute(long ReviewId, string UserId, string ReplyDetail)
         {
-            var _Review = _databaseContext.Reviews.Find(ReviewId);
+            var _Review = _addReplyRepo.FindReview(ReviewId);
             if (_Review == null)
             {
                 return new ResultDto<long>
@@ -26,7 +29,7 @@ namespace Practice_Store.Application.Services.Products.Commands.AddReplyToReview
                 };
             }
 
-            var _User = _databaseContext.Users.Find(UserId);
+            var _User = _manageUserRepository.FindUserById(UserId);
             if (_User == null)
             {
                 return new ResultDto<long>
@@ -49,10 +52,18 @@ namespace Practice_Store.Application.Services.Products.Commands.AddReplyToReview
                 ReplyedReviewId = _Review.Id,
                 ReviewDetail = ReplyDetail,
             };
-            _databaseContext.Reviews.Add(Review);
-            _databaseContext.SaveChanges();
+            var AddReply = _addReplyRepo.AddReply(Review);
+            if (!AddReply)
+            {
+                return new ResultDto<long>
+                {
+                    IsSuccess = false,
+                    Message = "مشکل سرور",
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                };
+            }
 
-            return new ResultDto<long> 
+            return new ResultDto<long>
             {
                 Data = Review.ProductId,
                 IsSuccess = true,

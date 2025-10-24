@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Practice_Store.Application.Interfaces.Contexts;
+using Practice_Store.Application.Interfaces.RepositoryManager.Products;
+using Practice_Store.Application.Interfaces.RepositoryManager.Products.Commands;
 using Practice_Store.Common;
 using System.Text.RegularExpressions;
 
@@ -7,15 +8,17 @@ namespace Practice_Store.Application.Services.Products.Commands.EditCategory
 {
     public class EditCategoryService : IEditCategory
     {
-        private readonly IDatabaseContext _databaseContext;
-        public EditCategoryService(IDatabaseContext databaseContext)
+        private readonly IEditCategoryRepo _editCategoryRepo;
+        private readonly IProductRepoFinders _productRepoFinders;
+        public EditCategoryService(IEditCategoryRepo editCategoryRepo, IProductRepoFinders productRepoFinders)
         {
-            _databaseContext = databaseContext;
+            _editCategoryRepo = editCategoryRepo;
+            _productRepoFinders = productRepoFinders;
         }
 
         public ResultDto Execute(long Id, string Name)
         {
-            var _Category = _databaseContext.Categories.Find(Id);
+            var _Category = _productRepoFinders.FindCategory(Id);
             if (_Category == null)
             {
                 return new ResultDto()
@@ -48,8 +51,16 @@ namespace Practice_Store.Application.Services.Products.Commands.EditCategory
                 };
             }
 
-            _Category.Name = Name;
-            _databaseContext.SaveChanges();
+            var Edit = _editCategoryRepo.EditCategory(_Category, Name);
+            if (!Edit)
+            {
+                return new ResultDto()
+                {
+                    IsSuccess = false,
+                    Message = "مشکل سرور",
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                };
+            }
 
             return new ResultDto()
             {

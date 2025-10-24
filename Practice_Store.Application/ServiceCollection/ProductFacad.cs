@@ -1,6 +1,9 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Practice_Store.Application.Interfaces.Contexts;
 using Practice_Store.Application.Interfaces.FacadPatterns;
+using Practice_Store.Application.Interfaces.RepositoryManager;
+using Practice_Store.Application.Interfaces.RepositoryManager.Products;
+using Practice_Store.Application.Interfaces.RepositoryManager.Products.Commands;
 using Practice_Store.Application.Services.Common.GetProductMenu;
 using Practice_Store.Application.Services.Products.Commands.AddCategory;
 using Practice_Store.Application.Services.Products.Commands.AddProduct;
@@ -24,11 +27,43 @@ namespace Practice_Store.Application.ServiceCollection
     public class ProductFacad : IProductFacad
     {
         private readonly IDatabaseContext _databaseContext;
-        private readonly IHostingEnvironment _hostingEnvironment;
-        public ProductFacad(IDatabaseContext databaseContext, IHostingEnvironment hostingEnvironment)
+        private readonly IManageUserRepository _manageUserRepository;
+        private readonly IProductRepoFinders _productRepoFinders;
+        private readonly IAddCategoryRepo _addCategoryRepo;
+        private readonly IAddproductRepo _addproductRepo;
+        private readonly IAddReplyRepo _addreplyRepo;
+        private readonly IAddReviewRepo _addreviewRepo;
+        private readonly IDeleteCategoryRepo _deleteCategoryRepo;
+        private readonly IDeleteProductRepo _deleteproductRepo;
+        private readonly IEditCategoryRepo _editCategoryRepo;
+        private readonly IChangeProductDisplayRepo _changeProductDisplayRepo;
+        private readonly IEditProductRepo _editProductRepo;
+        public ProductFacad(
+        IDatabaseContext databaseContext,
+        IManageUserRepository manageUserRepository,
+        IProductRepoFinders productRepoFinders,
+        IAddCategoryRepo addCategoryRepo,
+        IAddproductRepo addProductRepo,
+        IAddReplyRepo addReplyRepo,
+        IAddReviewRepo addReviewRepo,
+        IDeleteCategoryRepo deleteCategoryRepo,
+        IDeleteProductRepo deleteProductRepo,
+        IEditCategoryRepo editCategoryRepo,
+        IChangeProductDisplayRepo changeProductDisplayRepo,
+        IEditProductRepo editProductRepo)
         {
             _databaseContext = databaseContext;
-            _hostingEnvironment = hostingEnvironment;
+            _manageUserRepository = manageUserRepository;
+            _productRepoFinders = productRepoFinders;
+            _addCategoryRepo = addCategoryRepo;
+            _addproductRepo = addProductRepo;
+            _addreplyRepo = addReplyRepo;
+            _addreviewRepo = addReviewRepo;
+            _deleteCategoryRepo = deleteCategoryRepo;
+            _deleteproductRepo = deleteProductRepo;
+            _editCategoryRepo = editCategoryRepo;
+            _changeProductDisplayRepo = changeProductDisplayRepo;
+            _editProductRepo = editProductRepo;
         }
 
         private IAddCategory _addCategoryService;
@@ -36,7 +71,7 @@ namespace Practice_Store.Application.ServiceCollection
         {
             get
             {
-                return _addCategoryService = _addCategoryService ?? new AddCategoryService(_databaseContext);
+                return _addCategoryService = _addCategoryService ?? new AddCategoryService(_addCategoryRepo, _productRepoFinders);
             }
         }
 
@@ -54,7 +89,7 @@ namespace Practice_Store.Application.ServiceCollection
         {
             get
             {
-                return _editCategory = _editCategory ?? new EditCategoryService(_databaseContext);
+                return _editCategory = _editCategory ?? new EditCategoryService(_editCategoryRepo, _productRepoFinders);
             }
         }
 
@@ -63,7 +98,7 @@ namespace Practice_Store.Application.ServiceCollection
         {
             get
             {
-                return _deleteCategory = _deleteCategory ?? new DeleteCategoryService(_databaseContext, this);
+                return _deleteCategory = _deleteCategory ?? new DeleteCategoryService(_productRepoFinders, _deleteCategoryRepo, this);
             }
         }
 
@@ -72,7 +107,7 @@ namespace Practice_Store.Application.ServiceCollection
         {
             get
             {
-                return _addProduct = _addProduct ?? new AddProductService(_databaseContext, _hostingEnvironment);
+                return _addProduct = _addProduct ?? new AddProductService(_productRepoFinders, _addproductRepo);
             }
         }
 
@@ -99,7 +134,7 @@ namespace Practice_Store.Application.ServiceCollection
         {
             get
             {
-                return _deleteProduct = _deleteProduct ?? new DeleteProductService(_databaseContext);
+                return _deleteProduct = _deleteProduct ?? new DeleteProductService(_deleteproductRepo, _productRepoFinders);
             }
         }
 
@@ -108,7 +143,7 @@ namespace Practice_Store.Application.ServiceCollection
         {
             get
             {
-                return _changeProductDisplayed = _changeProductDisplayed ?? new ChangeProductDisplayedService(_databaseContext);
+                return _changeProductDisplayed = _changeProductDisplayed ?? new ChangeProductDisplayedService(_changeProductDisplayRepo, _productRepoFinders);
             }
         }
 
@@ -126,7 +161,7 @@ namespace Practice_Store.Application.ServiceCollection
         {
             get
             {
-                return _editProduct = _editProduct ?? new EditProductService(_databaseContext, _hostingEnvironment);
+                return _editProduct = _editProduct ?? new EditProductService(_editProductRepo, _productRepoFinders);
             }
         }
 
@@ -162,7 +197,7 @@ namespace Practice_Store.Application.ServiceCollection
         {
             get
             {
-                return _addReview = _addReview ?? new AddReviewService(_databaseContext);
+                return _addReview = _addReview ?? new AddReviewService(_addreviewRepo, _productRepoFinders, _manageUserRepository);
             }
         }
         
@@ -180,7 +215,7 @@ namespace Practice_Store.Application.ServiceCollection
         {
             get
             {
-                return _addReplyToReview = _addReplyToReview ?? new AddReplyToReviewService(_databaseContext);
+                return _addReplyToReview = _addReplyToReview ?? new AddReplyToReviewService(_manageUserRepository, _addreplyRepo);
             }
         }
     }

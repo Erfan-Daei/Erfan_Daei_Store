@@ -1,20 +1,25 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Practice_Store.Application.Interfaces.Contexts;
+using Practice_Store.Application.Interfaces.RepositoryManager.Products;
+using Practice_Store.Application.Interfaces.RepositoryManager.Products.Commands;
 using Practice_Store.Common;
 
 namespace Practice_Store.Application.Services.Products.Commands.ProductChangeDisplayed
 {
     public class ChangeProductDisplayedService : IChangeProductDisplayed
     {
-        private readonly IDatabaseContext _databaseContext;
-        public ChangeProductDisplayedService(IDatabaseContext databaseContext)
+        private readonly IChangeProductDisplayRepo _changeProductDisplayRepo;
+        private readonly IProductRepoFinders _productRepoFinders;
+        public ChangeProductDisplayedService(IChangeProductDisplayRepo changeProductDisplayRepo,
+            IProductRepoFinders productRepoFinders)
         {
-            _databaseContext = databaseContext;
+            _productRepoFinders = productRepoFinders;
+            _changeProductDisplayRepo = changeProductDisplayRepo;
+
         }
 
         public ResultDto Execute(long Id)
         {
-            var _Product = _databaseContext.Products.Find(Id);
+            var _Product = _productRepoFinders.FindProduct(Id);
 
             if (_Product == null)
             {
@@ -26,8 +31,16 @@ namespace Practice_Store.Application.Services.Products.Commands.ProductChangeDis
                 };
             }
 
-            _Product.Displayed = !_Product.Displayed;
-            _databaseContext.SaveChanges();
+            var Change = _changeProductDisplayRepo.ChangeDisplay(_Product);
+            if (!Change)
+            {
+                return new ResultDto()
+                {
+                    IsSuccess = false,
+                    Message = "مشکل سرور",
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                };
+            }
             var State = _Product.Displayed == true ? "نمایش" : "عدم نمایش";
             return new ResultDto()
             {

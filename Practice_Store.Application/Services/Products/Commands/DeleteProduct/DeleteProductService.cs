@@ -1,20 +1,23 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Practice_Store.Application.Interfaces.Contexts;
+using Practice_Store.Application.Interfaces.RepositoryManager.Products;
+using Practice_Store.Application.Interfaces.RepositoryManager.Products.Commands;
 using Practice_Store.Common;
 
 namespace Practice_Store.Application.Services.Products.Commands.DeleteProduct
 {
     public class DeleteProductService : IDeleteProduct
     {
-        private readonly IDatabaseContext _databaseContext;
-        public DeleteProductService(IDatabaseContext databaseContext)
+        private readonly IDeleteProductRepo _deleteProductRepo;
+        private readonly IProductRepoFinders _productRepoFinders;
+        public DeleteProductService(IDeleteProductRepo deleteProductRepo, IProductRepoFinders productRepoFinders)
         {
-            _databaseContext = databaseContext;
+            _deleteProductRepo = deleteProductRepo;
+            _productRepoFinders = productRepoFinders;
         }
 
         public ResultDto Execute(long Id)
         {
-            var _Product = _databaseContext.Products.Find(Id);
+            var _Product = _productRepoFinders.FindProduct(Id);
 
             if (_Product == null)
             {
@@ -26,24 +29,49 @@ namespace Practice_Store.Application.Services.Products.Commands.DeleteProduct
                 };
             }
 
-            var ImageList = _databaseContext.ProductImages.Where(p => p.ProductId == Id);
-            foreach (var image in ImageList)
+            var DeleteImage = _deleteProductRepo.DeleteImages(Id);
+            if (!DeleteImage)
             {
-                _databaseContext.ProductImages.Remove(image);
-                File.Delete("G:\\Practice_Store\\EndPoint.Site\\wwwroot\\" + image.Src);
+                return new ResultDto()
+                {
+                    IsSuccess = false,
+                    Message = "مشکل سرور",
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                };
             }
 
-            var SizeList = _databaseContext.ProductSizes.Where(p => p.ProductId == Id);
-            foreach (var size in SizeList)
+            var DeleteSize = _deleteProductRepo.DeleteSizes(Id);
+            if (!DeleteSize)
             {
-                _databaseContext.ProductSizes.Remove(size);
+                return new ResultDto()
+                {
+                    IsSuccess = false,
+                    Message = "مشکل سرور",
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                };
             }
 
-            var Off = _databaseContext.ProductOffs.Where(p => p.ProductId == Id).FirstOrDefault();
-            _databaseContext.ProductOffs.Remove(Off);
+            var DeleteOff = _deleteProductRepo.DeleteOff(Id);
+            if (!DeleteOff)
+            {
+                return new ResultDto()
+                {
+                    IsSuccess = false,
+                    Message = "مشکل سرور",
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                };
+            }
 
-            _databaseContext.Products.Remove(_Product);
-            _databaseContext.SaveChanges();
+            var Delete = _deleteProductRepo.DeleteProduct(_Product);
+            if (!Delete)
+            {
+                return new ResultDto()
+                {
+                    IsSuccess = false,
+                    Message = "مشکل سرور",
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                };
+            }
 
             return new ResultDto()
             {

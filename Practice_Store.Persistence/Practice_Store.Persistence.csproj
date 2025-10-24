@@ -22,4 +22,8 @@
     <ProjectReference Include="..\Practice_Store.Domain\Practice_Store.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="RepositoryManager\Products\Queries\" />
+  </ItemGroup>
+
 </Project>

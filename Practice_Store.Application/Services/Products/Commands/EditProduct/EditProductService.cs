@@ -1,20 +1,21 @@
-﻿using Microsoft.AspNetCore.Hosting;
-using Practice_Store.Application.Interfaces.Contexts;
+﻿using Microsoft.AspNetCore.Http;
+using Practice_Store.Application.Interfaces.RepositoryManager.Products;
+using Practice_Store.Application.Interfaces.RepositoryManager.Products.Commands;
 using Practice_Store.Common;
 using Practice_Store.Domain.Entities.Products;
 using System.Text.RegularExpressions;
-using static Practice_Store.Common.UploadFile;
 
 namespace Practice_Store.Application.Services.Products.Commands.EditProduct
 {
     public class EditProductService : IEditProduct
     {
-        private readonly IDatabaseContext _databaseContext;
-        private readonly IHostingEnvironment _hostingEnvironment;
-        public EditProductService(IDatabaseContext databaseContext, IHostingEnvironment hostingEnvironment)
+        private readonly IEditProductRepo _editProductRepo;
+        private readonly IProductRepoFinders _productRepoFinders;
+        public EditProductService(IEditProductRepo editProductRepo,
+            IProductRepoFinders productRepoFinders)
         {
-            _databaseContext = databaseContext;
-            _hostingEnvironment = hostingEnvironment;
+            _editProductRepo = editProductRepo;
+            _productRepoFinders = productRepoFinders;
         }
 
         public ResultDto Execute(RequestEditProductDto Request)
@@ -25,7 +26,7 @@ namespace Practice_Store.Application.Services.Products.Commands.EditProduct
                 {
                     IsSuccess = false,
                     Message = "لطفا نام محصول را وارد کنید",
-                    Status_Code = Status_Code.BAD_REQUEST
+                    StatusCode = StatusCodes.Status400BadRequest
                 };
             }
             if (string.IsNullOrEmpty(Request.Brand))
@@ -34,7 +35,7 @@ namespace Practice_Store.Application.Services.Products.Commands.EditProduct
                 {
                     IsSuccess = false,
                     Message = "لطفا برند محصول را وارد کنید",
-                    Status_Code = Status_Code.BAD_REQUEST
+                    StatusCode = StatusCodes.Status400BadRequest
                 };
             }
             if (string.IsNullOrEmpty(Request.Description))
@@ -49,7 +50,7 @@ namespace Practice_Store.Application.Services.Products.Commands.EditProduct
                 {
                     IsSuccess = false,
                     Message = "لطفا قیمت را وارد کنید\nقیمت نمیتواند از حروف تشکیل شود",
-                    Status_Code = Status_Code.BAD_REQUEST
+                    StatusCode = StatusCodes.Status400BadRequest
                 };
             }
             if (Request.CategoryId == 0)
@@ -58,7 +59,7 @@ namespace Practice_Store.Application.Services.Products.Commands.EditProduct
                 {
                     IsSuccess = false,
                     Message = "لطفا دسته بندی محصول را انتخاب کنید",
-                    Status_Code = Status_Code.BAD_REQUEST
+                    StatusCode = StatusCodes.Status400BadRequest
                 };
             }
             if (Request.Images.Count == 0)
@@ -67,7 +68,7 @@ namespace Practice_Store.Application.Services.Products.Commands.EditProduct
                 {
                     IsSuccess = false,
                     Message = "لطفا حداقل یک عکس را برای محصول انتخاب کنید",
-                    Status_Code = Status_Code.BAD_REQUEST
+                    StatusCode = StatusCodes.Status400BadRequest
                 };
             }
             if (Request.Sizes.Count == 0)
@@ -76,13 +77,13 @@ namespace Practice_Store.Application.Services.Products.Commands.EditProduct
                 {
                     IsSuccess = false,
                     Message = "لطفا حداقل یک سایز را برای محصول انتخاب کنید",
-                    Status_Code = Status_Code.BAD_REQUEST
+                    StatusCode = StatusCodes.Status400BadRequest
                 };
             }
 
-            var _Product = _databaseContext.Products.Find(Request.Id);
-            var _Category = _databaseContext.Categories.Find(Request.CategoryId);
-            var _Off = _databaseContext.ProductOffs.Where(p => p.ProductId == Request.Id).FirstOrDefault();
+            var _Product = _productRepoFinders.FindProduct(Request.Id);
+            var _Category = _productRepoFinders.FindCategory(Request.CategoryId);
+            var _Off = _editProductRepo.FindOff(Request.Id);
 
             _Product.Name = Request.Name;
             _Product.Brand = Request.Brand;
@@ -98,14 +99,23 @@ namespace Practice_Store.Application.Services.Products.Commands.EditProduct
                     Product = _Product,
                     Percentage = Request.OffPercentage,
                 };
-                _databaseContext.ProductOffs.Add(Off);
+                var AddOff = _editProductRepo.AddOff(Off);
+                if (!AddOff)
+                {
+                    return new ResultDto()
+                    {
+                        IsSuccess = false,
+                        Message = "مشکل سرور",
+                        StatusCode = StatusCodes.Status500InternalServerError
+                    };
+                }
             }
             else
             {
                 _Off.Percentage = Request.OffPercentage;
             }
 
-            var PastSizes = _databaseContext.ProductSizes.Where(p => p.ProductId == Request.Id).ToDictionary(p => p.Size);
+            var PastSizes = _editProductRepo.GetPastSizes(Request.Id);
 
             List<ProductSizes> ProductSizes = new List<ProductSizes>();
             foreach (var item in Request.Sizes)
@@ -124,45 +134,55 @@ namespace Practice_Store.Application.Services.Products.Commands.EditProduct
                     });
                 }
             }
-            _databaseContext.ProductSizes.AddRange(ProductSizes);
+            var AddSizes = _editProductRepo.AddNewSizes(ProductSizes);
+            if (!AddSizes)
+            {
+                return new ResultDto()
+                {
+                    IsSuccess = false,
+                    Message = "مشکل سرور",
+                    StatusCode = StatusCodes.Status500InternalServerError
+                };
+            }
             var UpdatePastSizes = PastSizes.Values.ToList();
             var RemoveSizes = UpdatePastSizes.Where(p => !Request.Sizes.Any(n => n.Size == p.Size)).ToList();
-            foreach (var item in RemoveSizes)
+            var RemoveSize = _editProductRepo.RemovePastSizes(RemoveSizes);
+            if (!RemoveSize)
             {
-                _databaseContext.ProductSizes.Remove(item);
-            }
-
-
-            var PastImages = _databaseContext.ProductImages.Where(p => p.ProductId == Request.Id);
-            foreach (var image in PastImages)
-            {
-                _databaseContext.ProductImages.Remove(image);
-                File.Delete(_hostingEnvironment.WebRootPath + "\\" + image.Src);
-            }
-            List<ProductImages> ProductImages = new List<ProductImages>();
-            foreach (var item in Request.Images)
-            {
-                var UploadResult = UploadImageFile(new RequestUploadImageFile
+                return new ResultDto()
                 {
-                    File = item,
-                    Name = Request.Name,
-                    _hostingEnvironment = _hostingEnvironment,
-                    FolderPath = $@"images\ProductImages\",
-                });
-                ProductImages.Add(new ProductImages()
-                {
-                    Product = _Product,
-                    Src = UploadResult.FileNameAddress,
-                });
+                    IsSuccess = false,
+                    Message = "مشکل سرور",
+                    StatusCode = StatusCodes.Status500InternalServerError
+                };
             }
-            _databaseContext.ProductImages.AddRange(ProductImages);
 
-            _databaseContext.SaveChanges();
+            var RemoveImage = _editProductRepo.RemovePastImage(Request.Id);
+            if (!RemoveImage)
+            {
+                return new ResultDto()
+                {
+                    IsSuccess = false,
+                    Message = "مشکل سرور",
+                    StatusCode = StatusCodes.Status500InternalServerError
+                };
+            }
+            var AddImages = _editProductRepo.AddNewImages(_Product, Request.Images, Request.Name);
+            if (!AddImages)
+            {
+                return new ResultDto()
+                {
+                    IsSuccess = false,
+                    Message = "مشکل سرور",
+                    StatusCode = StatusCodes.Status500InternalServerError
+                };
+            }
+
             return new ResultDto()
             {
                 IsSuccess = true,
                 Message = "محصول با موفقیت ویرایش شد",
-                Status_Code = Status_Code.OK,
+                StatusCode = StatusCodes.Status200OK,
             };
         }
     }

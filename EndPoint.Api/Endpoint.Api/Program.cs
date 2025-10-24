@@ -13,6 +13,7 @@ using Practice_Store.Domain.Entities.Users;
 using Practice_Store.Infrastructure.Cookie;
 using Practice_Store.Infrastructure.JWTToken;
 using Practice_Store.Persistence.Contexts;
+using Practice_Store.Persistence.RepositoryManager.ServiceCollection;
 using System.Security.Claims;
 using System.Text;
 
@@ -112,6 +113,7 @@ builder.Services.AddScoped<IGenerateToken, Generatetoken>();
 builder.Services.AddScoped<IReadToken, ReadToken>();
 builder.Services.AddScoped<IManageCookie, ManageCookie>();
 builder.Services.UserManagementServices().ProductManagementServices().LandingPageManagementServices().CartManagementServices().OrderManagementServices();
+builder.Services.RepositoriesServices().ProductRepositiryServices();
 
 string _ConnectionString = @"Data Source=LENOVO-THINKBOO\SQLEXPRESS; Initial Catalog=Practice_Store_DB; Integrated Security=True; TrustServerCertificate=True;";
 builder.Services.AddEntityFrameworkSqlServer().AddDbContext<DatabaseContext>(option => option.UseSqlServer(_ConnectionString));
@@ -129,7 +131,8 @@ if (app.Environment.IsDevelopment())
 {
 
     app.UseSwagger();
-    app.UseSwaggerUI(c => {
+    app.UseSwaggerUI(c =>
+    {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
     });
 }

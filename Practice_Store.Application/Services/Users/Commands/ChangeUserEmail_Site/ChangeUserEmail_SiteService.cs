@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Practice_Store.Application.Interfaces.RepositoryManager;
 using Practice_Store.Domain.Entities.Users;
 using System.Text.RegularExpressions;
 
@@ -8,15 +9,15 @@ namespace Practice_Store.Application.Services.Users.Commands.ChangeUserEmail_Sit
 {
     public class ChangeUserEmail_SiteService : IChangeUserEmail_Site
     {
-        private readonly UserManager<IdtUser> _userManager;
-        public ChangeUserEmail_SiteService(UserManager<IdtUser> userManager)
+        private readonly IManageUserRepository _manageUserRepository;
+        public ChangeUserEmail_SiteService(IManageUserRepository manageUserRepository)
         {
-            _userManager = userManager;
+            _manageUserRepository = manageUserRepository;
         }
 
         public ResultChangeUserEmail_SiteDto CheckEmailValidation(string UserId, string LastEmail, string NewEmail)
         {
-            var _User = _userManager.FindByIdAsync(UserId).Result;
+            var _User = _manageUserRepository.FindUserById(UserId);
             if (_User == null)
             {
                 return new ResultChangeUserEmail_SiteDto
@@ -49,7 +50,7 @@ namespace Practice_Store.Application.Services.Users.Commands.ChangeUserEmail_Sit
                 };
             }
 
-            var _GetEmail = _userManager.Users.IgnoreQueryFilters().FirstOrDefault(p => p.Email.ToLower() == NewEmail.ToLower());
+            var _GetEmail = _manageUserRepository.EmailExist(NewEmail);
             if (_GetEmail != null)
             {
                 return new ResultChangeUserEmail_SiteDto
@@ -62,8 +63,8 @@ namespace Practice_Store.Application.Services.Users.Commands.ChangeUserEmail_Sit
             _User.Email = NewEmail;
             _User.UserName = NewEmail;
             _User.EmailConfirmed = false;
-            var Update = _userManager.UpdateAsync(_User).Result;
-            if (!Update.Succeeded)
+            var Update = _manageUserRepository.UpdateUser(_User);
+            if (!Update)
             {
                 return new ResultChangeUserEmail_SiteDto
                 {
@@ -73,7 +74,7 @@ namespace Practice_Store.Application.Services.Users.Commands.ChangeUserEmail_Sit
                 };
             }
 
-            var Token = _userManager.GenerateEmailConfirmationTokenAsync(_User).Result;
+            var Token = _manageUserRepository.GenerateChangeEmailToken(_User);
 
             return new ResultChangeUserEmail_SiteDto
             {

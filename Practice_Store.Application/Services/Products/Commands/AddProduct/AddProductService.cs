@@ -1,20 +1,21 @@
-﻿using Microsoft.AspNetCore.Hosting;
-using Practice_Store.Application.Interfaces.Contexts;
+﻿using Microsoft.AspNetCore.Http;
+using Practice_Store.Application.Interfaces.RepositoryManager.Products;
+using Practice_Store.Application.Interfaces.RepositoryManager.Products.Commands;
 using Practice_Store.Common;
 using Practice_Store.Domain.Entities.Products;
 using System.Text.RegularExpressions;
-using static Practice_Store.Common.UploadFile;
 
 namespace Practice_Store.Application.Services.Products.Commands.AddProduct
 {
     public class AddProductService : IAddProduct
     {
-        private readonly IDatabaseContext _databaseContext;
-        private readonly IHostingEnvironment _hostingEnvironment;
-        public AddProductService(IDatabaseContext databaseContext, IHostingEnvironment hostingEnvironment)
+        private readonly IProductRepoFinders _productRepoFinders;
+        private readonly IAddproductRepo _addProductRepo;
+        public AddProductService(IProductRepoFinders productRepoFinders,
+            IAddproductRepo addProductRepo)
         {
-            _databaseContext = databaseContext;
-            _hostingEnvironment = hostingEnvironment;
+            _productRepoFinders = productRepoFinders;
+            _addProductRepo = addProductRepo;
         }
 
         public ResultDto<long> Execute(RequestAddProductDto Request)
@@ -27,7 +28,7 @@ namespace Practice_Store.Application.Services.Products.Commands.AddProduct
                     {
                         IsSuccess = false,
                         Message = "لطفا نام محصول را وارد کنید",
-                        Status_Code = Status_Code.BAD_REQUEST
+                        StatusCode = StatusCodes.Status400BadRequest
                     };
                 }
                 if (string.IsNullOrEmpty(Request.Brand))
@@ -36,7 +37,7 @@ namespace Practice_Store.Application.Services.Products.Commands.AddProduct
                     {
                         IsSuccess = false,
                         Message = "لطفا برند محصول را وارد کنید",
-                        Status_Code = Status_Code.BAD_REQUEST
+                        StatusCode = StatusCodes.Status400BadRequest
                     };
                 }
                 if (string.IsNullOrEmpty(Request.Description))
@@ -51,7 +52,7 @@ namespace Practice_Store.Application.Services.Products.Commands.AddProduct
                     {
                         IsSuccess = false,
                         Message = "لطفا قیمت را وارد کنید\nقیمت نمیتواند از حروف تشکیل شود",
-                        Status_Code = Status_Code.BAD_REQUEST
+                        StatusCode = StatusCodes.Status400BadRequest
                     };
                 }
                 if (Request.CategoryId == 0)
@@ -60,8 +61,8 @@ namespace Practice_Store.Application.Services.Products.Commands.AddProduct
                     {
                         IsSuccess = false,
                         Message = "لطفا دسته بندی محصول را انتخاب کنید",
-                        Status_Code = Status_Code.BAD_REQUEST
-                    };      
+                        StatusCode = StatusCodes.Status400BadRequest
+                    };
                 }
                 if (Request.Images.Count == 0)
                 {
@@ -69,7 +70,7 @@ namespace Practice_Store.Application.Services.Products.Commands.AddProduct
                     {
                         IsSuccess = false,
                         Message = "لطفا حداقل یک عکس را برای محصول انتخاب کنید",
-                        Status_Code = Status_Code.BAD_REQUEST
+                        StatusCode = StatusCodes.Status400BadRequest
                     };
                 }
                 if (Request.Sizes.Count == 0)
@@ -78,10 +79,10 @@ namespace Practice_Store.Application.Services.Products.Commands.AddProduct
                     {
                         IsSuccess = false,
                         Message = "لطفا حداقل یک سایز را برای محصول انتخاب کنید",
-                        Status_Code = Status_Code.BAD_REQUEST
+                        StatusCode = StatusCodes.Status400BadRequest
                     };
                 }
-                var _Category = _databaseContext.Categories.Find(Request.CategoryId);
+                var _Category = _productRepoFinders.FindCategory(Request.CategoryId);
 
                 Product Product = new Product()
                 {
@@ -92,32 +93,43 @@ namespace Practice_Store.Application.Services.Products.Commands.AddProduct
                     Displayed = Request.Displayed,
                     Category = _Category,
                 };
-                _databaseContext.Products.Add(Product);
+                var AddProduct = _addProductRepo.AddProduct(Product);
+                if (!AddProduct)
+                {
+                    return new ResultDto<long>()
+                    {
+                        IsSuccess = false,
+                        Message = "مشکل سور",
+                        StatusCode = StatusCodes.Status500InternalServerError
+                    };
+                }
 
                 ProductOff Off = new ProductOff()
                 {
                     Product = Product,
                     Percentage = Request.OffPercentage
                 };
-                _databaseContext.ProductOffs.Add(Off);
-
-                List<ProductImages> ProductImages = new List<ProductImages>();
-                foreach (var item in Request.Images)
+                var AddOff = _addProductRepo.AddOff(Off);
+                if (!AddOff)
                 {
-                    var UploadResult = UploadImageFile(new RequestUploadImageFile
+                    return new ResultDto<long>()
                     {
-                        File = item,
-                        Name = Request.Name,
-                        _hostingEnvironment = _hostingEnvironment,
-                        FolderPath = $@"images\ProductImages\",
-                    });
-                    ProductImages.Add(new ProductImages()
-                    {
-                        Product = Product,
-                        Src = UploadResult.FileNameAddress,
-                    });
+                        IsSuccess = false,
+                        Message = "مشکل سور",
+                        StatusCode = StatusCodes.Status500InternalServerError
+                    };
                 }
-                _databaseContext.ProductImages.AddRange(ProductImages);
+
+                var AddImage = _addProductRepo.AddImages(Product, Request.Images, Request.Name);
+                if (!AddImage)
+                {
+                    return new ResultDto<long>()
+                    {
+                        IsSuccess = false,
+                        Message = "مشکل سور",
+                        StatusCode = StatusCodes.Status500InternalServerError
+                    };
+                }
 
                 List<ProductSizes> ProductSizes = new List<ProductSizes>();
                 foreach (var item in Request.Sizes)
@@ -129,15 +141,23 @@ namespace Practice_Store.Application.Services.Products.Commands.AddProduct
                         Inventory = item.Inventory,
                     });
                 }
-                _databaseContext.ProductSizes.AddRange(ProductSizes);
+                var AddSize = _addProductRepo.AddSizes(ProductSizes);
+                if (!AddSize)
+                {
+                    return new ResultDto<long>()
+                    {
+                        IsSuccess = false,
+                        Message = "مشکل سور",
+                        StatusCode = StatusCodes.Status500InternalServerError
+                    };
+                }
 
-                _databaseContext.SaveChanges();
                 return new ResultDto<long>()
                 {
                     Data = Product.Id,
                     IsSuccess = true,
                     Message = "محصول با موفقیت ثبت شد",
-                    Status_Code = Status_Code.CREATED,
+                    StatusCode = StatusCodes.Status201Created,
                 };
             }
             catch (Exception)
@@ -146,7 +166,7 @@ namespace Practice_Store.Application.Services.Products.Commands.AddProduct
                 {
                     IsSuccess = false,
                     Message = "ثبت ناموفق",
-                    Status_Code = Status_Code.INTERNAL_SERVER_ERROR,
+                    StatusCode = StatusCodes.Status500InternalServerError,
                 };
             }
         }

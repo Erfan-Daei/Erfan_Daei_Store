@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Practice_Store.Application.Interfaces.Contexts;
 using Practice_Store.Application.Interfaces.FacadPatterns;
+using Practice_Store.Application.Interfaces.RepositoryManager;
 using Practice_Store.Application.JWTToken;
 using Practice_Store.Application.Services.Users.Commands.ActivationUser;
 using Practice_Store.Application.Services.Users.Commands.ChangeUserEmail_Site;
@@ -28,17 +29,20 @@ namespace Practice_Store.Application.ServiceCollection
 {
     public class UserFacad : IUserFacad
     {
+        private readonly IManageUserRepository _manageUserRepository;
         private readonly IDatabaseContext _databaseContext;
         private readonly UserManager<IdtUser> _userManager;
         private readonly RoleManager<IdtRole> _roleManager;
         private readonly IGenerateToken _generateToken;
         private readonly IConfiguration _configuration;
-        public UserFacad(IDatabaseContext databaseContext,
+        public UserFacad(IManageUserRepository manageUserRepository,
+            IDatabaseContext databaseContext,
             UserManager<IdtUser> userManager,
             RoleManager<IdtRole> roleManager,
             IGenerateToken generateToken,
             IConfiguration configuration)
         {
+            _manageUserRepository = manageUserRepository;
             _databaseContext = databaseContext;
             _userManager = userManager;
             _roleManager = roleManager;
@@ -51,7 +55,7 @@ namespace Practice_Store.Application.ServiceCollection
         {
             get
             {
-                return _activationUser = _activationUser ?? new ActivationUserService(_userManager);
+                return _activationUser = _activationUser ?? new ActivationUserService(_manageUserRepository);
             }
         }
 
@@ -159,7 +163,7 @@ namespace Practice_Store.Application.ServiceCollection
         {
             get
             {
-                return _changeUserEmail_Site = _changeUserEmail_Site ?? new ChangeUserEmail_SiteService(_userManager);
+                return _changeUserEmail_Site = _changeUserEmail_Site ?? new ChangeUserEmail_SiteService(_manageUserRepository);
             }
         }
 
@@ -207,7 +211,7 @@ namespace Practice_Store.Application.ServiceCollection
                 return _saveToken = _saveToken ?? new SaveTokenService(_generateToken, _databaseContext, _configuration);
             }
         }
-        
+
         private IConfirmEmail _confirmEmail;
         public IConfirmEmail ConfirmEmailService
         {
