@@ -6,17 +6,14 @@ namespace Practice_Store.Application.Services.Products.Queries.GetAllSubCategori
 {
     public class GetAllSubCategoriesService : IGetAllSubCategories
     {
-        private readonly IDatabaseContext _databaseContext;
-        public GetAllSubCategoriesService(IDatabaseContext databaseContext)
+        private readonly IGetAllSubCategoriesRepo _getAllSubCategoriesRepo;
+        public GetAllSubCategoriesService(IGetAllSubCategoriesRepo getAllSubCategoriesRepo)
         {
-            _databaseContext = databaseContext;
+            _getAllSubCategoriesRepo = getAllSubCategoriesRepo;
         }
         public ResultDto<List<GetAllCategoriesDto>> Execute()
         {
-            var _Categories = _databaseContext.Categories
-                .Include(p => p.ParentCategory)
-                .Where(p => p.ParentCategoryId != null)
-                .ToList()
+            var _Categories = _getAllSubCategoriesRepo.GetAllCategories()
                 .Select(p => new GetAllCategoriesDto
                 {
                     Id = p.Id,
