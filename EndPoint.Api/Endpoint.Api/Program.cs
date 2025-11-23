@@ -113,7 +113,7 @@ builder.Services.AddScoped<IGenerateToken, Generatetoken>();
 builder.Services.AddScoped<IReadToken, ReadToken>();
 builder.Services.AddScoped<IManageCookie, ManageCookie>();
 builder.Services.UserManagementServices().ProductManagementServices().LandingPageManagementServices().CartManagementServices().OrderManagementServices();
-builder.Services.RepositoriesServices().ProductRepositiryServices();
+builder.Services.RepositoriesServices().ProductRepositiryServices().CartRepositoryServices();
 
 string _ConnectionString = @"Data Source=LENOVO-THINKBOO\SQLEXPRESS; Initial Catalog=Practice_Store_DB; Integrated Security=True; TrustServerCertificate=True;";
 builder.Services.AddEntityFrameworkSqlServer().AddDbContext<DatabaseContext>(option => option.UseSqlServer(_ConnectionString));

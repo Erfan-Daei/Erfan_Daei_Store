@@ -2,7 +2,6 @@ using EndPoint.Site.Models;
 using EndPoint.Site.Models.ViewModels.LandingPage;
 using Microsoft.AspNetCore.Mvc;
 using Practice_Store.Application.Interfaces.FacadPatterns;
-using Practice_Store.Application.Services.Carts;
 using Practice_Store.Application.Services.Products.Queries.GetProductList_Site;
 using System.Diagnostics;
 
@@ -15,7 +14,7 @@ namespace EndPoint.Site.Controllers
         private readonly IProductFacad _productFacad;
 
         public HomeController(ILogger<HomeController> logger, ILandingPageFacad landingPageFacad,
-            IProductFacad productFacad, ICartServices cartServices)
+            IProductFacad productFacad, ICartFacad cartFacad)
         {
             _logger = logger;
             _landingPageFacad = landingPageFacad;

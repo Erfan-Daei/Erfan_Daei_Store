@@ -1,22 +1,22 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Practice_Store.Application.Interfaces.Contexts;
+using Practice_Store.Application.Interfaces.RepositoryManager.Products.Queries;
 using Practice_Store.Common;
 
 namespace Practice_Store.Application.Services.Products.Queries.GetAllReviews
 {
     public class GetAllReviewsService : IGetAllReviews
     {
-        private readonly IDatabaseContext _databaseContext;
-        public GetAllReviewsService(IDatabaseContext databaseContext)
+        private readonly IGetAllReviewsRepo _getAllReviewsRepo;
+        public GetAllReviewsService(IGetAllReviewsRepo getAllReviewsRepo)
         {
-            _databaseContext = databaseContext;
+            _getAllReviewsRepo = getAllReviewsRepo;
         }
 
         public ResultDto<List<GetAllReviewsDto>> Execute(long ProductId)
         {
-            var _ProductReviews = _databaseContext.Reviews.Where(p => p.ProductId == ProductId).ToList();
+            var _ProductReviews = _getAllReviewsRepo.GetReviews(ProductId);
 
-            var _ProductReviewsList = _ProductReviews.Where(p => p.ReplyedReviewId == null).Select(p => new GetAllReviewsDto
+            var _ProductReviewsList = _ProductReviews.Select(p => new GetAllReviewsDto
             {
                 ReviewId = p.Id,
                 ProductId = ProductId,
@@ -27,19 +27,19 @@ namespace Practice_Store.Application.Services.Products.Queries.GetAllReviews
                 ReviewTime = p.InsertTime,
             }).ToList();
 
-            foreach (var review in _ProductReviewsList)
-            {
-                var Reply = _databaseContext.Reviews.FirstOrDefault(p => p.ReplyedReviewId == review.ReviewId);
-                if (Reply == null)
-                {
-                    continue;
-                }
+            var Replies = _getAllReviewsRepo.GetReplies(_ProductReviews);
+            foreach (var reply in Replies)
 
-                review.Reply = new GetAllReviewsReplyDto
+            {
+                var _Review = _ProductReviewsList.Find(p => p.ReviewId == reply.ReplyedReviewId);
+
+
+                _ProductReviewsList.FirstOrDefault(p => p.ReviewId == reply.ReplyedReviewId)
+                    .Reply = new GetAllReviewsReplyDto
                 {
                     DisplayName = "ادمین",
-                    ReplyTime = Reply.InsertTime,
-                    ReviewDetail = Reply.ReviewDetail,
+                    ReplyTime = _Review.ReviewTime,
+                    ReviewDetail = _Review.ReviewDetail,
                 };
             }
 

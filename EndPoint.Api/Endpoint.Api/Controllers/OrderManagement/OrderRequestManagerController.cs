@@ -5,7 +5,6 @@ using Newtonsoft.Json;
 using Practice_Store.Application.Interfaces.Cookie;
 using Practice_Store.Application.Interfaces.FacadPatterns;
 using Practice_Store.Application.Interfaces.JWTToken;
-using Practice_Store.Application.Services.Carts;
 using Practice_Store.Application.Services.Orders.Commands.AddOrder;
 using Practice_Store.Application.Services.Orders.Commands.RequestOrder;
 using System.Text;
@@ -19,19 +18,19 @@ namespace Endpoint.Api.Controllers.OrderManagement
     {
         private readonly IOrderFacad _orderFacad;
         private readonly IReadToken _readToken;
-        private readonly ICartServices _cartServices;
+        private readonly ICartFacad _cartFacad;
         private readonly IUserFacad _userFacad;
         private readonly IManageCookie _cookieManager;
         private readonly HttpClient client;
         public OrderRequestManagerController(IOrderFacad orderFacad,
             IReadToken readToken,
-            ICartServices cartServices,
+            ICartFacad cartServices,
             IUserFacad userFacad,
             IManageCookie cookieManager)
         {
             _orderFacad = orderFacad;
             _readToken = readToken;
-            _cartServices = cartServices;
+            _cartFacad = cartServices;
             _userFacad = userFacad;
             _cookieManager = cookieManager;
             client = new HttpClient();
@@ -43,7 +42,7 @@ namespace Endpoint.Api.Controllers.OrderManagement
         {
             var UserId = _readToken.GetUserId(User);
 
-            var Cart = _cartServices.GetCart(_cookieManager.GetBrowserId(HttpContext), UserId);
+            var Cart = _cartFacad.GetCartService.GetCart(_cookieManager.GetBrowserId(HttpContext), UserId);
             var UserDetail = _userFacad.GetUserDetail_SiteService.GetUser(UserId);
 
             if (!UserDetail.IsSuccess)
@@ -65,7 +64,7 @@ namespace Endpoint.Api.Controllers.OrderManagement
         public async Task<IActionResult> POST([FromBody] AddOrderRequestDto _Request)
         {
             var UserId = _readToken.GetUserId(User);
-            var _Cart = _cartServices.GetCart(_cookieManager.GetBrowserId(HttpContext), UserId).Data;
+            var _Cart = _cartFacad.GetCartService.GetCart(_cookieManager.GetBrowserId(HttpContext), UserId).Data;
 
             if (_Cart.CartProducts.Count == 0)
             {
@@ -150,7 +149,7 @@ namespace Endpoint.Api.Controllers.OrderManagement
                 var UserId = _readToken.GetUserId(User);
                 _orderFacad.AddOrderService.Execute(new RequestAddOrder
                 {
-                    CartId = _cartServices.GetCart(_cookieManager.GetBrowserId(HttpContext), UserId).Data.Id,
+                    CartId = _cartFacad.GetCartService.GetCart(_cookieManager.GetBrowserId(HttpContext), UserId).Data.Id,
                     UserId = UserId,
                     Authority = _Request.Authority,
                     RefId = _Request.RefId,

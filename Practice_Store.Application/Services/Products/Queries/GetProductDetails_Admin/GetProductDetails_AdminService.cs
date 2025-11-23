@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
-using Practice_Store.Application.Interfaces.Contexts;
+using Practice_Store.Application.Interfaces.RepositoryManager.Products;
+using Practice_Store.Application.Interfaces.RepositoryManager.Products.Queries;
 using Practice_Store.Common;
 using Practice_Store.Domain.Entities.Products;
 
@@ -8,23 +8,18 @@ namespace Practice_Store.Application.Services.Products.Queries.GetProductDetails
 {
     public class GetProductDetails_AdminService : IGetProductDetails_Admin
     {
-        private readonly IDatabaseContext _databaseContext;
-        public GetProductDetails_AdminService(IDatabaseContext databaseContext)
+        private readonly IGetProductDetail_AdminRepo _getProductDetail_AdminRepo;
+        private readonly IProductRepoFinders _productRepoFinders;
+        public GetProductDetails_AdminService(IGetProductDetail_AdminRepo getProductDetail_AdminRepo,
+            IProductRepoFinders productRepoFinders)
         {
-            _databaseContext = databaseContext;
+            _getProductDetail_AdminRepo = getProductDetail_AdminRepo;
+            _productRepoFinders = productRepoFinders;
         }
 
         public ResultDto<GetProductDetail_AdminDto> Execute(long Id)
         {
-            var _Product = _databaseContext.Products
-                .Where(p => p.Id == Id)
-                .Include(p => p.Category)
-                .ThenInclude(p => p.ParentCategory)
-                .Include(p => p.ProductImages)
-                .Include(p => p.ProductSizes)
-                .Include(p => p.Off)
-                .Include(p => p.Reviews)
-                .FirstOrDefault();
+            var _Product = _getProductDetail_AdminRepo.GetDetail(Id);
 
             if (_Product == null)
             {
@@ -67,7 +62,7 @@ namespace Practice_Store.Application.Services.Products.Queries.GetProductDetails
         }
         private string GetCategory(Category Category)
         {
-            var ParentCategory = _databaseContext.Categories.Find(Category.ParentCategoryId);
+            var ParentCategory = _productRepoFinders.FindCategory(Category.ParentCategoryId);
             return ParentCategory.Name + " - " + Category.Name;
         }
     }

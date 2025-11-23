@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
-using Practice_Store.Application.Interfaces.Contexts;
+using Practice_Store.Application.Interfaces.RepositoryManager.Products.Queries;
 using Practice_Store.Application.Services.Products.Queries.GetProductList_Site;
 using Practice_Store.Common;
 
@@ -8,25 +7,17 @@ namespace Practice_Store.Application.Services.Products.Queries.GetProductDetails
 {
     public class GetProductDetails_SiteService : IGetProductDetails_Site
     {
-        private readonly IDatabaseContext _databaseContext;
+        private readonly IGetProductDetails_SiteRepo _getProductDetails_SiteRepo;
         private readonly IGetProductList_Site _getProductList;
-        public GetProductDetails_SiteService(IDatabaseContext databaseContext, IGetProductList_Site getProductList_Site)
+        public GetProductDetails_SiteService(IGetProductDetails_SiteRepo getProductDetails_SiteRepo, IGetProductList_Site getProductList_Site)
         {
-            _databaseContext = databaseContext;
+            _getProductDetails_SiteRepo = getProductDetails_SiteRepo;
             _getProductList = getProductList_Site;
         }
 
         public ResultDto<GetProductDetails_SiteDto> Execute(long Id)
         {
-            var _Product = _databaseContext.Products
-                .Include(p => p.Category)
-                .ThenInclude(p => p.ParentCategory)
-                .Include(p => p.ProductImages)
-                .Include(p => p.ProductSizes)
-                .Include(p => p.Off)
-                .Include(p => p.Reviews)
-                .Where(p => p.Id == Id)
-                .FirstOrDefault();
+            var _Product = _getProductDetails_SiteRepo.GetProduct(Id);
 
             var GetSameProducts = _getProductList.Execute(new RequestGetProductList_SiteDto
             {
@@ -45,25 +36,20 @@ namespace Practice_Store.Application.Services.Products.Queries.GetProductDetails
                 ReviewDetail = p.ReviewDetail,
                 ReviewTime = p.InsertTime,
             }).ToList();
-
-            foreach (var review in _Review)
+            var Replies = _getProductDetails_SiteRepo.GetReplies(_Product);
+            foreach (var review in Replies)
             {
-                var Reply = _databaseContext.Reviews.FirstOrDefault(p => p.ReplyedReviewId == review.ReviewId);
-                if (Reply == null)
-                {
-                    continue;
-                }
+                var Review = _Review.Find(p => p.ReviewId == review.ReplyedReviewId);
 
-                review.Reply = new GetProductList_SiteReplyDto
-                {
-                    DisplayName = "ادمین",
-                    ReplyTime = Reply.InsertTime,
-                    ReviewDetail = Reply.ReviewDetail,
-                };
+
+                _Review.FirstOrDefault(p => p.ReviewId == review.ReplyedReviewId)
+                    .Reply = new GetProductList_SiteReplyDto
+                    {
+                        DisplayName = "ادمین",
+                        ReplyTime = Review.ReviewTime,
+                        ReviewDetail = Review.ReviewDetail,
+                    };
             }
-
-            _Product.ViewCount++;
-            _databaseContext.SaveChanges();
 
             return new ResultDto<GetProductDetails_SiteDto>()
             {

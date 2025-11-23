@@ -3,12 +3,9 @@ using EndPoint.Site.Utilities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using NuGet.Configuration;
 using Practice_Store.Application.Interfaces.FacadPatterns;
-using Practice_Store.Application.Services.Carts;
 using Practice_Store.Application.Services.Orders.Commands.AddOrder;
 using Practice_Store.Application.Services.Orders.Commands.RequestOrder;
-using Practice_Store.Domain.Entities.Orders;
 using System.Text;
 
 namespace EndPoint.Site.Controllers
@@ -16,16 +13,16 @@ namespace EndPoint.Site.Controllers
     [Authorize(Roles = "Admin,Customer")]
     public class OrderController : Controller
     {
-        private readonly ICartServices _cartServices;
+        private readonly ICartFacad _cartFacad;
         private readonly IUserFacad _userFacad;
         private readonly IOrderFacad _orderFacad;
         private readonly CookieManager cookieManager;
         private readonly HttpClient client;
 
-        public OrderController(ICartServices cartServices, IUserFacad userFacad,
+        public OrderController(ICartFacad cartFacad, IUserFacad userFacad,
             IOrderFacad orderFacad)
         {
-            _cartServices = cartServices;
+            _cartFacad = cartFacad;
             _userFacad = userFacad;
             _orderFacad = orderFacad;
             cookieManager = new CookieManager();
@@ -38,7 +35,7 @@ namespace EndPoint.Site.Controllers
             var userId = ClaimUtility.GetUserId(User);
             CheckOutViewModel checkOutViewModel = new CheckOutViewModel()
             {
-                Cart = _cartServices.GetCart(cookieManager.GetBrowserId(HttpContext), userId).Data,
+                Cart = _cartFacad.GetCartService.GetCart(cookieManager.GetBrowserId(HttpContext), userId).Data,
                 UserDetail = _userFacad.GetUserDetail_SiteService.GetUser(userId.ToString()).Data,
                 ShippingPrice = Shipping,
             };
@@ -49,7 +46,7 @@ namespace EndPoint.Site.Controllers
         public async Task<IActionResult> AddRequestOrder(RequestAddRequestOrder Request)
         {
             var UserId = ClaimUtility.GetUserId(User);
-            var _Cart = _cartServices.GetCart(cookieManager.GetBrowserId(HttpContext), UserId).Data;
+            var _Cart = _cartFacad.GetCartService.GetCart(cookieManager.GetBrowserId(HttpContext), UserId).Data;
             if (_Cart.CartProducts.Count == 0)
             {
                 return Json(new { message = "سبد شما خالی است" });
@@ -127,7 +124,7 @@ namespace EndPoint.Site.Controllers
                 var UserId = ClaimUtility.GetUserId(User);
                 _orderFacad.AddOrderService.Execute(new RequestAddOrder
                 {
-                    CartId = _cartServices.GetCart(cookieManager.GetBrowserId(HttpContext), UserId).Data.Id,
+                    CartId = _cartFacad.GetCartService.GetCart(cookieManager.GetBrowserId(HttpContext), UserId).Data.Id,
                     UserId = UserId,
                     Authority = Request.Authority,
                     RefId = Request.RefId,

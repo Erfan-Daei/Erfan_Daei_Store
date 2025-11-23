@@ -1,22 +1,18 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Practice_Store.Application.Interfaces.Contexts;
+﻿using Practice_Store.Application.Interfaces.RepositoryManager.Products.Queries;
 using Practice_Store.Common;
 
 namespace Practice_Store.Application.Services.Products.Queries.GetAllSubCategories
 {
     public class GetAllSubCategoriesService : IGetAllSubCategories
     {
-        private readonly IDatabaseContext _databaseContext;
-        public GetAllSubCategoriesService(IDatabaseContext databaseContext)
+        private readonly IGetAllSubCategoriesRepo _getAllSubCategoriesRepo;
+        public GetAllSubCategoriesService(IGetAllSubCategoriesRepo getAllSubCategoriesRepo)
         {
-            _databaseContext = databaseContext;
+            _getAllSubCategoriesRepo = getAllSubCategoriesRepo;
         }
         public ResultDto<List<GetAllCategoriesDto>> Execute()
         {
-            var _Categories = _databaseContext.Categories
-                .Include(p => p.ParentCategory)
-                .Where(p => p.ParentCategoryId != null)
-                .ToList()
+            var _Categories = _getAllSubCategoriesRepo.GetCategories()
                 .Select(p => new GetAllCategoriesDto
                 {
                     Id = p.Id,

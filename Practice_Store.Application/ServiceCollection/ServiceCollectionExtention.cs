@@ -1,6 +1,9 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Practice_Store.Application.Interfaces.FacadPatterns;
 using Practice_Store.Application.Services.Carts;
+using Practice_Store.Application.Services.Carts.Commands.AddToCart;
+using Practice_Store.Application.Services.Carts.Commands.RemoveFromCart;
+using Practice_Store.Application.Services.Carts.Queries.GetCart;
 using Practice_Store.Application.Services.Common.GetProductMenu;
 using Practice_Store.Application.Services.LandingPage.Commands.AddImages;
 using Practice_Store.Application.Services.LandingPage.Commands.DeleteImage;
@@ -123,7 +126,11 @@ namespace Practice_Store.Application.ServiceCollection
 
         public static IServiceCollection CartManagementServices(this IServiceCollection services)
         {
-            services.AddScoped<ICartServices, CartServices>();
+            services.AddScoped<ICartFacad, CartFacad>();
+
+            services.AddScoped<IAddToCart, AddToCartService>();
+            services.AddScoped<IRemoveFromCart, RemoveFromCartService>();
+            services.AddScoped<IGetCart, GetCartService>();
 
             return services;
         }

@@ -1,4 +1,4 @@
-﻿namespace Practice_Store.Application.Services.Carts
+﻿namespace Practice_Store.Application.Services.Carts.Commands
 {
     public class RequestCartDto
     {

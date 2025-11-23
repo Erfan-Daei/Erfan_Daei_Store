@@ -1,23 +1,19 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
-using Practice_Store.Application.Interfaces.Contexts;
+using Practice_Store.Application.Interfaces.RepositoryManager.Products.Queries;
 using Practice_Store.Common;
 
 namespace Practice_Store.Application.Services.Products.Queries.GetCategories
 {
     public class GetCategoriesService : IGetCategories
     {
-        private readonly IDatabaseContext _databaseContext;
-        public GetCategoriesService(IDatabaseContext databaseContext)
+        private readonly IGetCategoriesRepo _getCategoriesRepo;
+        public GetCategoriesService(IGetCategoriesRepo getCategoriesRepo)
         {
-            _databaseContext = databaseContext;
+            _getCategoriesRepo = getCategoriesRepo;
         }
         public ResultDto<List<CategoriesDto>> Execute(long? ParentId)
         {
-            var _Categories = _databaseContext.Categories
-                .Include(p => p.ParentCategory)
-                .Where(p => p.ParentCategoryId == ParentId)
-                .Include(p => p.SubCategories)
+            var _Categories = _getCategoriesRepo.GetCategories(ParentId)
                 .Select(p => new CategoriesDto
                 {
                     Id = p.Id,

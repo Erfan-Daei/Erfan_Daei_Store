@@ -1,9 +1,15 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Practice_Store.Application.Interfaces.RepositoryManager;
+using Practice_Store.Application.Interfaces.RepositoryManager.Carts.Commands;
+using Practice_Store.Application.Interfaces.RepositoryManager.Carts.Quesries;
 using Practice_Store.Application.Interfaces.RepositoryManager.Products;
 using Practice_Store.Application.Interfaces.RepositoryManager.Products.Commands;
+using Practice_Store.Application.Interfaces.RepositoryManager.Products.Queries;
+using Practice_Store.Persistence.RepositoryManager.Carts.Commands;
+using Practice_Store.Persistence.RepositoryManager.Carts.Queries;
 using Practice_Store.Persistence.RepositoryManager.Products;
 using Practice_Store.Persistence.RepositoryManager.Products.Commands;
+using Practice_Store.Persistence.RepositoryManager.Products.Queries;
 
 namespace Practice_Store.Persistence.RepositoryManager.ServiceCollection
 {
@@ -29,6 +35,22 @@ namespace Practice_Store.Persistence.RepositoryManager.ServiceCollection
             services.AddScoped<IDeleteProductRepo, DeleteProductRepo>();
             services.AddScoped<IEditCategoryRepo, EditCategoryRepo>();
             services.AddScoped<IEditProductRepo, EditProductRepo>();
+            services.AddScoped<IGetAllReviewsRepo, GetAllReviewsRepo>();
+            services.AddScoped<IGetAllSubCategoriesRepo, GetAllSubCategoriesRepo>();
+            services.AddScoped<IGetCategoriesRepo, GetCategoriesRepo>();
+            services.AddScoped<IGetProductDetail_AdminRepo, GetProductDetail_AdminRepo>();
+            services.AddScoped<IGetProductDetails_SiteRepo, GetProductDetails_SiteRepo>();
+            services.AddScoped<IGetProductList_AdminRepo, GetProductList_AdminRepo>();
+            services.AddScoped<IGetProductList_SiteRepo, GetProductList_SiteRepo>();
+
+            return services;
+        }
+
+        public static IServiceCollection CartRepositoryServices(this IServiceCollection services)
+        {
+            services.AddScoped<IAddToCartRepo, AddToCartRepo>();
+            services.AddScoped<IRemoveFromCartRepo, RemoveFromCartRepo>();
+            services.AddScoped<IGetCartRepo, GetCartRepo>();
 
             return services;
         }

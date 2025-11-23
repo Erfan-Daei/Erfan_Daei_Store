@@ -1,26 +1,21 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
-using Practice_Store.Application.Interfaces.Contexts;
+using Practice_Store.Application.Interfaces.RepositoryManager.Products.Queries;
 using Practice_Store.Common;
 
 namespace Practice_Store.Application.Services.Products.Queries.GetProductList_Site
 {
     public class GetProductList_SiteService : IGetProductList_Site
     {
-        private readonly IDatabaseContext _databaseContext;
-        public GetProductList_SiteService(IDatabaseContext databaseContext)
+        private readonly IGetProductList_SiteRepo _getProductList_SiteRepo;
+        public GetProductList_SiteService(IGetProductList_SiteRepo getProductList_SiteRepo)
         {
-            _databaseContext = databaseContext;
+            _getProductList_SiteRepo = getProductList_SiteRepo;
         }
 
         public ResultDto<ResultGetProductList_SiteDto> Execute(RequestGetProductList_SiteDto Request, Ordering Ordering, int PageSize = 20)
         {
 
-            var _Products = _databaseContext.Products.Include(p => p.Category)
-                .ThenInclude(p => p.ParentCategory)
-                .Include(p => p.ProductImages)
-                .Include(p => p.Off)
-                .AsQueryable();
+            var _Products = _getProductList_SiteRepo.GetProducts();
 
             if (Request.SearchKey == null && Request.CategoryId != 0)
             {

@@ -1,4 +1,4 @@
-﻿using Practice_Store.Application.Services.Carts;
+﻿using Practice_Store.Application.Services.Carts.Queries.GetCart;
 using Practice_Store.Application.Services.Users.Queries.GetUserDetail_Site;
 
 namespace EndPoint.Site.Models.ViewModels.CheckOut

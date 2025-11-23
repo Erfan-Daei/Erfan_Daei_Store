@@ -1,8 +1,9 @@
 ﻿using Endpoint.Api.Model.CartManagement;
 using Microsoft.AspNetCore.Mvc;
 using Practice_Store.Application.Interfaces.Cookie;
+using Practice_Store.Application.Interfaces.FacadPatterns;
 using Practice_Store.Application.Interfaces.JWTToken;
-using Practice_Store.Application.Services.Carts;
+using Practice_Store.Application.Services.Carts.Commands;
 using Practice_Store.Common;
 
 namespace Endpoint.Api.Controllers.CartManagement
@@ -11,14 +12,14 @@ namespace Endpoint.Api.Controllers.CartManagement
     [ApiController]
     public class CartManagerController : ControllerBase
     {
-        private readonly ICartServices _cartServices;
+        private readonly ICartFacad _cartFacad;
         private readonly IManageCookie _cookieManager;
         private readonly IReadToken _readToken;
-        public CartManagerController(ICartServices cartServices,
+        public CartManagerController(ICartFacad cartFacad,
             IManageCookie manageCookie,
             IReadToken readToken)
         {
-            _cartServices = cartServices;
+            _cartFacad = cartFacad;
             _cookieManager = manageCookie;
             _readToken = readToken;
         }
@@ -27,7 +28,7 @@ namespace Endpoint.Api.Controllers.CartManagement
         public IActionResult GET()
         {
             var UserId = _readToken.GetUserId(User);
-            var Result = _cartServices.GetCart(_cookieManager.GetBrowserId(HttpContext), UserId);
+            var Result = _cartFacad.GetCartService.GetCart(_cookieManager.GetBrowserId(HttpContext), UserId);
 
             dynamic Output = new
             {
@@ -57,7 +58,7 @@ namespace Endpoint.Api.Controllers.CartManagement
         public IActionResult POST([FromBody] CartManagerDto _Request)
         {
             string? UserId = _readToken.GetUserId(User);
-            var Result = _cartServices.AddToCart(new RequestCartDto
+            var Result = _cartFacad.AddToCartService.AddToCart(new RequestCartDto
             {
                 BrowserId = _cookieManager.GetBrowserId(HttpContext),
                 UserId = UserId,
@@ -94,7 +95,7 @@ namespace Endpoint.Api.Controllers.CartManagement
         public IActionResult DELETE([FromBody] CartManagerDto _Request)
         {
             string? UserId = _readToken.GetUserId(User);
-            var Result = _cartServices.RemoveFromCart(new RequestCartDto
+            var Result = _cartFacad.RemoveFromCartService.RemoveFromCart(new RequestCartDto
             {
                 BrowserId = _cookieManager.GetBrowserId(HttpContext),
                 UserId = UserId,

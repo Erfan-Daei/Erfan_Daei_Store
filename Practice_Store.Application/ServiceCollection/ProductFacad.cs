@@ -2,8 +2,10 @@
 using Practice_Store.Application.Interfaces.Contexts;
 using Practice_Store.Application.Interfaces.FacadPatterns;
 using Practice_Store.Application.Interfaces.RepositoryManager;
+using Practice_Store.Application.Interfaces.RepositoryManager.Carts.Commands;
 using Practice_Store.Application.Interfaces.RepositoryManager.Products;
 using Practice_Store.Application.Interfaces.RepositoryManager.Products.Commands;
+using Practice_Store.Application.Interfaces.RepositoryManager.Products.Queries;
 using Practice_Store.Application.Services.Common.GetProductMenu;
 using Practice_Store.Application.Services.Products.Commands.AddCategory;
 using Practice_Store.Application.Services.Products.Commands.AddProduct;
@@ -38,6 +40,13 @@ namespace Practice_Store.Application.ServiceCollection
         private readonly IEditCategoryRepo _editCategoryRepo;
         private readonly IChangeProductDisplayRepo _changeProductDisplayRepo;
         private readonly IEditProductRepo _editProductRepo;
+        private readonly IGetAllReviewsRepo _getAllReviewsRepo;
+        private readonly IGetAllSubCategoriesRepo _getAllSubCategoriesRepo;
+        private readonly IGetCategoriesRepo _getCategoriesRepo;
+        private readonly IGetProductDetail_AdminRepo _getProductDetail_AdminRepo;
+        private readonly IGetProductDetails_SiteRepo _getProductDetail_SiteRepo;
+        private readonly IGetProductList_AdminRepo _getProductList_AdminRepo;
+        private readonly IGetProductList_SiteRepo _getProductList_SiteRepo;
         public ProductFacad(
         IDatabaseContext databaseContext,
         IManageUserRepository manageUserRepository,
@@ -50,7 +59,14 @@ namespace Practice_Store.Application.ServiceCollection
         IDeleteProductRepo deleteProductRepo,
         IEditCategoryRepo editCategoryRepo,
         IChangeProductDisplayRepo changeProductDisplayRepo,
-        IEditProductRepo editProductRepo)
+        IEditProductRepo editProductRepo,
+        IGetAllReviewsRepo getAllReviewsRepo,
+        IGetAllSubCategoriesRepo getAllSubCategoriesRepo,
+        IGetCategoriesRepo getCategoriesRepo,
+        IGetProductDetail_AdminRepo getProductDetail_AdminRepo,
+        IGetProductDetails_SiteRepo getProductDetail_SiteRepo,
+        IGetProductList_AdminRepo getProductList_AdminRepo,
+        IGetProductList_SiteRepo getProductList_SiteRepo)
         {
             _databaseContext = databaseContext;
             _manageUserRepository = manageUserRepository;
@@ -64,6 +80,13 @@ namespace Practice_Store.Application.ServiceCollection
             _editCategoryRepo = editCategoryRepo;
             _changeProductDisplayRepo = changeProductDisplayRepo;
             _editProductRepo = editProductRepo;
+            _getAllReviewsRepo = getAllReviewsRepo;
+            _getAllSubCategoriesRepo = getAllSubCategoriesRepo;
+            _getCategoriesRepo = getCategoriesRepo;
+            _getProductDetail_AdminRepo = getProductDetail_AdminRepo;
+            _getProductDetail_SiteRepo = getProductDetail_SiteRepo;
+            _getProductList_AdminRepo = getProductList_AdminRepo;
+            _getProductList_SiteRepo = getProductList_SiteRepo;
         }
 
         private IAddCategory _addCategoryService;
@@ -80,7 +103,7 @@ namespace Practice_Store.Application.ServiceCollection
         {
             get
             {
-                return _getCategories = _getCategories ?? new GetCategoriesService(_databaseContext);
+                return _getCategories = _getCategories ?? new GetCategoriesService(_getCategoriesRepo);
             }
         }
 
@@ -116,7 +139,7 @@ namespace Practice_Store.Application.ServiceCollection
         {
             get
             {
-                return _getAllSubCategories = _getAllSubCategories ?? new GetAllSubCategoriesService(_databaseContext);
+                return _getAllSubCategories = _getAllSubCategories ?? new GetAllSubCategoriesService(_getAllSubCategoriesRepo);
             }
         }
 
@@ -125,7 +148,7 @@ namespace Practice_Store.Application.ServiceCollection
         {
             get
             {
-                return _getProductList_Admin = _getProductList_Admin ?? new GetProductList_AdminService(_databaseContext);
+                return _getProductList_Admin = _getProductList_Admin ?? new GetProductList_AdminService(_getProductList_AdminRepo);
             }
         }
 
@@ -152,7 +175,7 @@ namespace Practice_Store.Application.ServiceCollection
         {
             get
             {
-                return _getProductDetails_Admin = _getProductDetails_Admin ?? new GetProductDetails_AdminService(_databaseContext);
+                return _getProductDetails_Admin = _getProductDetails_Admin ?? new GetProductDetails_AdminService(_getProductDetail_AdminRepo, _productRepoFinders);
             }
         }
 
@@ -170,7 +193,7 @@ namespace Practice_Store.Application.ServiceCollection
         {
             get
             {
-                return _getProductList_Site = _getProductList_Site ?? new GetProductList_SiteService(_databaseContext);
+                return _getProductList_Site = _getProductList_Site ?? new GetProductList_SiteService(_getProductList_SiteRepo);
             }
         }
 
@@ -179,7 +202,7 @@ namespace Practice_Store.Application.ServiceCollection
         {
             get
             {
-                return _getProductDetails_Site = _getProductDetails_Site ?? new GetProductDetails_SiteService(_databaseContext, GetProductList_SiteService);
+                return _getProductDetails_Site = _getProductDetails_Site ?? new GetProductDetails_SiteService(_getProductDetail_SiteRepo, GetProductList_SiteService);
             }
         }
 
@@ -206,7 +229,7 @@ namespace Practice_Store.Application.ServiceCollection
         {
             get
             {
-                return _getAllReviews = _getAllReviews ?? new GetAllReviewsService(_databaseContext);
+                return _getAllReviews = _getAllReviews ?? new GetAllReviewsService(_getAllReviewsRepo);
             }
         }
         

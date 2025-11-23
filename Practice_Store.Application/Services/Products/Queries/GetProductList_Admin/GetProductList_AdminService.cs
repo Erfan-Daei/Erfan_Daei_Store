@@ -1,35 +1,20 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
-using Practice_Store.Application.Interfaces.Contexts;
+using Practice_Store.Application.Interfaces.RepositoryManager.Products.Queries;
 using Practice_Store.Common;
 
 namespace Practice_Store.Application.Services.Products.Queries.GetProductList_Admin
 {
     public class GetProductList_AdminService : IGetProductList_Admin
     {
-        private readonly IDatabaseContext _databaseContext;
-        public GetProductList_AdminService(IDatabaseContext databaseContext)
+        private readonly IGetProductList_AdminRepo _getProductList_AdminRepo;
+        public GetProductList_AdminService(IGetProductList_AdminRepo getProductList_AdminRepo)
         {
-            _databaseContext = databaseContext;
+            _getProductList_AdminRepo = getProductList_AdminRepo;
         }
 
         public ResultDto<ResultGetProductList_AdminDto> Execute(RequestGetProductList_AdminDto Request)
         {
-            var _ProductList = _databaseContext.Products
-                .Include(p => p.Category)
-                .Where(p => string.IsNullOrEmpty(Request.SearchKey) ||
-                            p.Name.Contains(Request.SearchKey) ||
-                            p.Brand.Contains(Request.SearchKey) ||
-                            p.Displayed.ToString().Contains(Request.SearchKey == "نمایش" ? "true" :
-                                                            Request.SearchKey == "عدم نمایش" ? "false" : Request.SearchKey) ||
-                            p.Category.Name.Contains(Request.SearchKey)
-                )
-                .Include(p => p.ProductSizes)
-                .Include(p => p.ProductImages)
-                .Include(p => p.Off)
-                .OrderBy(p => p.Category.ParentCategoryId)
-                .ThenByDescending(p => p.Id)
-                .ToPaged(Request.Page ?? 1, Request.PageSize ?? 20)
+            var _ProductList = _getProductList_AdminRepo.GetProductList(Request.SearchKey, Request.Page, Request.PageSize)
                 .Select(p => new ProductList_AdminDto
                 {
                     Id = p.Id,
