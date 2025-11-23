@@ -65,6 +65,7 @@ namespace Practice_Store.Persistence.RepositoryManager.ServiceCollection
             services.AddScoped<IDeleteImage_LandingPageRepo, DeleteImage_LandingPageRepo>();
             services.AddScoped<IEditImages_LandingPageRepo, EditImages_LandingPageRepo>();
             services.AddScoped<IGetImage_SiteRepo, GetImage_SiteRepo>();
+            services.AddScoped<IGetProductMenuRepo, GetProductMenuRepo>();
 
             return services;
         }

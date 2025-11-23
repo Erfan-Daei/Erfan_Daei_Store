@@ -6,6 +6,7 @@ using Practice_Store.Application.Services.LandingPage.Commands.AddImages;
 using Practice_Store.Application.Services.LandingPage.Commands.DeleteImage;
 using Practice_Store.Application.Services.LandingPage.Commands.EditImages;
 using Practice_Store.Application.Services.LandingPage.Queries.GetImages_Site;
+using Practice_Store.Application.Services.LandingPage.Queries.GetProductMenu;
 
 namespace Practice_Store.Application.ServiceCollection
 {
@@ -16,17 +17,20 @@ namespace Practice_Store.Application.ServiceCollection
         private readonly IDeleteImage_LandingPageRepo _deleteImage_LandingPageRepo;
         private readonly IEditImages_LandingPageRepo _editImages_LandingPageRepo;
         private readonly IGetImage_SiteRepo _getImage_SiteRepo;
+        private readonly IGetProductMenuRepo _getProductMenuRepo;
         public LandingPageFacad(IAddImage_LandingPageRepo addImageRepo,
             IHostingEnvironment hostingEnvironment,
             IDeleteImage_LandingPageRepo deleteImage_LandingPageRepo,
             IEditImages_LandingPageRepo editImages_LandingPageRepo,
-            IGetImage_SiteRepo getImage_SiteRepo)
+            IGetImage_SiteRepo getImage_SiteRepo,
+            IGetProductMenuRepo getProductMenuRepo)
         {
             _addImageRepo = addImageRepo;
             _hostingEnvironment = hostingEnvironment;
             _deleteImage_LandingPageRepo = deleteImage_LandingPageRepo;
             _editImages_LandingPageRepo = editImages_LandingPageRepo;
             _getImage_SiteRepo = getImage_SiteRepo;
+            _getProductMenuRepo = getProductMenuRepo;
         }
 
         private IAddImage_LandingPage _addImageLandingPage;
@@ -62,6 +66,15 @@ namespace Practice_Store.Application.ServiceCollection
             get
             {
                 return _deleteImage_LandingPage = _deleteImage_LandingPage ?? new DeleteImage_LandingPageService(_deleteImage_LandingPageRepo);
+            }
+        }
+
+        private IGetProductMenu _getProductMenu;
+        public IGetProductMenu GetProductMenuService
+        {
+            get
+            {
+                return _getProductMenu = _getProductMenu ?? new GetProductMenuService(_getProductMenuRepo);
             }
         }
     }

@@ -1,22 +1,20 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Practice_Store.Application.Interfaces.Contexts;
+﻿using Microsoft.AspNetCore.Http;
+using Practice_Store.Application.Interfaces.RepositoryManager.LandingPage.Queries;
 using Practice_Store.Common;
 
-namespace Practice_Store.Application.Services.Common.GetProductMenu
+namespace Practice_Store.Application.Services.LandingPage.Queries.GetProductMenu
 {
     public class GetProductMenuService : IGetProductMenu
     {
-        IDatabaseContext _databaseContext;
-        public GetProductMenuService(IDatabaseContext databaseContext)
+        private readonly IGetProductMenuRepo _getProductMenuRepo;
+        public GetProductMenuService(IGetProductMenuRepo getProductMenuRepo)
         {
-            _databaseContext = databaseContext;
+            _getProductMenuRepo = getProductMenuRepo;
         }
 
         public ResultDto<List<GetProductMenuDto>> Execute()
         {
-            var _Categories = _databaseContext.Categories.Include(p => p.SubCategories)
-                .Where(p => p.ParentCategoryId == null)
-                .ToList()
+            var _Categories = _getProductMenuRepo.GetCategories()
                 .Select(p => new GetProductMenuDto
                 {
                     CategoryId = p.Id,
@@ -32,7 +30,7 @@ namespace Practice_Store.Application.Services.Common.GetProductMenu
             {
                 Data = _Categories,
                 IsSuccess = true,
-                Status_Code = Status_Code.OK,
+                StatusCode = StatusCodes.Status200OK,
             };
         }
     }

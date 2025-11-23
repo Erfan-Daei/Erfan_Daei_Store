@@ -5,15 +5,15 @@ namespace EndPoint.Site.ViewComponents
 {
     public class GetProductMenu : ViewComponent
     {
-        private readonly IProductFacad _productFacad;
-        public GetProductMenu(IProductFacad productFacad)
+        private readonly ILandingPageFacad _landingPageFacad;
+        public GetProductMenu(ILandingPageFacad landingPageFacad)
         {
-            _productFacad = productFacad;
+            _landingPageFacad = landingPageFacad;
         }
 
         public IViewComponentResult Invoke()
         {
-            var ProductMenu = _productFacad.GetProductMenuService.Execute().Data;
+            var ProductMenu = _landingPageFacad.GetProductMenuService.Execute().Data;
             return View(viewName: "GetProductMenu", ProductMenu);
         }
     }

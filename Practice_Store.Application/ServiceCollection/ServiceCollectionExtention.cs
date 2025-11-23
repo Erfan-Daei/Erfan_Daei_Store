@@ -4,11 +4,11 @@ using Practice_Store.Application.Services.Carts;
 using Practice_Store.Application.Services.Carts.Commands.AddToCart;
 using Practice_Store.Application.Services.Carts.Commands.RemoveFromCart;
 using Practice_Store.Application.Services.Carts.Queries.GetCart;
-using Practice_Store.Application.Services.Common.GetProductMenu;
 using Practice_Store.Application.Services.LandingPage.Commands.AddImages;
 using Practice_Store.Application.Services.LandingPage.Commands.DeleteImage;
 using Practice_Store.Application.Services.LandingPage.Commands.EditImages;
 using Practice_Store.Application.Services.LandingPage.Queries.GetImages_Site;
+using Practice_Store.Application.Services.LandingPage.Queries.GetProductMenu;
 using Practice_Store.Application.Services.Orders.Commands.AddOrder;
 using Practice_Store.Application.Services.Orders.Commands.ChangeOrderState_Admin;
 using Practice_Store.Application.Services.Orders.Commands.ChangeOrderState_User;
@@ -103,7 +103,6 @@ namespace Practice_Store.Application.ServiceCollection
             services.AddScoped<IEditProduct, EditProductService>();
             services.AddScoped<IGetProductList_Site, GetProductList_SiteService>();
             services.AddScoped<IGetProductDetails_Site, GetProductDetails_SiteService>();
-            services.AddScoped<IGetProductMenu, GetProductMenuService>();
             services.AddScoped<IAddReview, AddReviewService>();
             services.AddScoped<IGetAllReviews, GetAllReviewsService>();
             services.AddScoped<IAddReplyToReview, AddReplyToReviewService>();
@@ -119,6 +118,7 @@ namespace Practice_Store.Application.ServiceCollection
             services.AddScoped<IGetImages_Site, GetImages_SiteService>();
             services.AddScoped<IEditImage_LandingPage, EditImage_LandingPageService>();
             services.AddScoped<IDeleteImage_LandingPage, DeleteImage_LandingPageService>();
+            services.AddScoped<IGetProductMenu, GetProductMenuService>();
 
 
             return services;

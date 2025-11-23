@@ -1,12 +1,9 @@
-﻿using Microsoft.AspNetCore.Hosting;
-using Practice_Store.Application.Interfaces.Contexts;
+﻿using Practice_Store.Application.Interfaces.Contexts;
 using Practice_Store.Application.Interfaces.FacadPatterns;
 using Practice_Store.Application.Interfaces.RepositoryManager;
-using Practice_Store.Application.Interfaces.RepositoryManager.Carts.Commands;
 using Practice_Store.Application.Interfaces.RepositoryManager.Products;
 using Practice_Store.Application.Interfaces.RepositoryManager.Products.Commands;
 using Practice_Store.Application.Interfaces.RepositoryManager.Products.Queries;
-using Practice_Store.Application.Services.Common.GetProductMenu;
 using Practice_Store.Application.Services.Products.Commands.AddCategory;
 using Practice_Store.Application.Services.Products.Commands.AddProduct;
 using Practice_Store.Application.Services.Products.Commands.AddReplyToReview;
@@ -206,15 +203,6 @@ namespace Practice_Store.Application.ServiceCollection
             }
         }
 
-        private IGetProductMenu _getProductMenu;
-        public IGetProductMenu GetProductMenuService
-        {
-            get
-            {
-                return _getProductMenu = _getProductMenu ?? new GetProductMenuService(_databaseContext);
-            }
-        }
-
         private IAddReview _addReview;
         public IAddReview AddReviewService
         {
@@ -223,7 +211,7 @@ namespace Practice_Store.Application.ServiceCollection
                 return _addReview = _addReview ?? new AddReviewService(_addreviewRepo, _productRepoFinders, _manageUserRepository);
             }
         }
-        
+
         private IGetAllReviews _getAllReviews;
         public IGetAllReviews GetAllReviewsService
         {
@@ -232,7 +220,7 @@ namespace Practice_Store.Application.ServiceCollection
                 return _getAllReviews = _getAllReviews ?? new GetAllReviewsService(_getAllReviewsRepo);
             }
         }
-        
+
         private IAddReplyToReview _addReplyToReview;
         public IAddReplyToReview AddReplyToReviewService
         {

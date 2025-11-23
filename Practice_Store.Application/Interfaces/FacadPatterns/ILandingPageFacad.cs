@@ -2,6 +2,7 @@
 using Practice_Store.Application.Services.LandingPage.Commands.DeleteImage;
 using Practice_Store.Application.Services.LandingPage.Commands.EditImages;
 using Practice_Store.Application.Services.LandingPage.Queries.GetImages_Site;
+using Practice_Store.Application.Services.LandingPage.Queries.GetProductMenu;
 
 namespace Practice_Store.Application.Interfaces.FacadPatterns
 {
@@ -11,5 +12,6 @@ namespace Practice_Store.Application.Interfaces.FacadPatterns
         IGetImages_Site GetImages_SiteService { get; }
         IEditImage_LandingPage EditImageService { get; }
         IDeleteImage_LandingPage DeleteImage_LandingPageService { get; }
+        IGetProductMenu GetProductMenuService { get; }
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace Practice_Store.Application.Services.Common.GetProductMenu
+﻿namespace Practice_Store.Application.Services.LandingPage.Queries.GetProductMenu
 {
     public class GetProductMenuDto
     {

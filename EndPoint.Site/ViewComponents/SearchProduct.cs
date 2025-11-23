@@ -5,15 +5,15 @@ namespace EndPoint.Site.ViewComponents
 {
     public class SearchProduct : ViewComponent
     {
-        IProductFacad _productFacad;
-        public SearchProduct(IProductFacad productFacad)
+        private readonly ILandingPageFacad _landingPageFacad;
+        public SearchProduct(ILandingPageFacad landingPageFacad)
         {
-            _productFacad = productFacad;
+            _landingPageFacad = landingPageFacad;
         }
 
         public IViewComponentResult Invoke()
         {
-            var ParentCategories = _productFacad.GetProductMenuService.Execute().Data;
+            var ParentCategories = _landingPageFacad.GetProductMenuService.Execute().Data;
             return View(viewName: "SearchProduct", ParentCategories);
         }
     }

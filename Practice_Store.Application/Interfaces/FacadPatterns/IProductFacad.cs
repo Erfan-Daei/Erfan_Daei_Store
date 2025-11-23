@@ -1,5 +1,4 @@
-﻿using Practice_Store.Application.Services.Common.GetProductMenu;
-using Practice_Store.Application.Services.Products.Commands.AddCategory;
+﻿using Practice_Store.Application.Services.Products.Commands.AddCategory;
 using Practice_Store.Application.Services.Products.Commands.AddProduct;
 using Practice_Store.Application.Services.Products.Commands.AddReplyToReview;
 using Practice_Store.Application.Services.Products.Commands.AddReview;
@@ -33,7 +32,6 @@ namespace Practice_Store.Application.Interfaces.FacadPatterns
         IEditProduct EditProductService { get; }
         IGetProductList_Site GetProductList_SiteService { get; }
         IGetProductDetails_Site GetProductDetails_SiteService { get; }
-        IGetProductMenu GetProductMenuService { get; }
         IAddReview AddReviewService { get; }
         IGetAllReviews GetAllReviewsService { get; }
         IAddReplyToReview AddReplyToReviewService { get; }
