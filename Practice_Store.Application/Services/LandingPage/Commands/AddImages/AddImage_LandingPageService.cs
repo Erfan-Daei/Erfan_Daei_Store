@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Practice_Store.Application.Interfaces.Contexts;
+using Practice_Store.Application.Interfaces.RepositoryManager.LandingPage.Commands;
 using Practice_Store.Common;
 using Practice_Store.Domain.Entities.LandingPage;
 using static Practice_Store.Common.UploadFile;
@@ -9,19 +9,19 @@ namespace Practice_Store.Application.Services.LandingPage.Commands.AddImages
 {
     public class AddImage_LandingPageService : IAddImage_LandingPage
     {
-        private readonly IDatabaseContext _databaseContext;
+        private readonly IAddImage_LandingPageRepo _addImageRepo;
         private readonly IHostingEnvironment _hostingEnvironment;
 
-        public AddImage_LandingPageService(IDatabaseContext databaseContext, IHostingEnvironment hostingEnvironment)
+        public AddImage_LandingPageService(IAddImage_LandingPageRepo addImageRepo, IHostingEnvironment hostingEnvironment)
         {
-            _databaseContext = databaseContext;
+            _addImageRepo = addImageRepo;
             _hostingEnvironment = hostingEnvironment;
         }
 
         public ResultDto Execute(RequestAddImage_LandingPageDto Request)
         {
 
-            var AllImages = _databaseContext.LandingPageImages.ToList();
+            var AllImages = _addImageRepo.GetAllImages();
             if (AllImages.Where(p => p.ImageLocation == (LandingPageImageLocation)1).Count() == 3 && Request.ImageLocation == (LandingPageImageLocation)1)
             {
                 return new ResultDto()
@@ -102,8 +102,7 @@ namespace Practice_Store.Application.Services.LandingPage.Commands.AddImages
                 ImageLocation = Request.ImageLocation,
                 Src = ResultUploadImage.FileNameAddress,
             };
-            _databaseContext.LandingPageImages.Add(LandingPageImage);
-            _databaseContext.SaveChanges();
+            var Add = _addImageRepo.AddImages(LandingPageImage);
             return new ResultDto()
             {
                 IsSuccess = true,

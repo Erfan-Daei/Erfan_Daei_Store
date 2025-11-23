@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Practice_Store.Application.Interfaces.Contexts;
+using Practice_Store.Application.Interfaces.RepositoryManager.LandingPage.Commands;
 using Practice_Store.Common;
 using Practice_Store.Domain.Entities.LandingPage;
 using static Practice_Store.Common.UploadFile;
@@ -9,17 +9,17 @@ namespace Practice_Store.Application.Services.LandingPage.Commands.EditImages
 {
     public class EditImage_LandingPageService : IEditImage_LandingPage
     {
-        private readonly IDatabaseContext _databaseContext;
+        private readonly IEditImages_LandingPageRepo _editImages_LandingPageRepo;
         private readonly IHostingEnvironment _hostingEnvironment;
-        public EditImage_LandingPageService(IDatabaseContext databaseContext, IHostingEnvironment hostingEnvironment)
+        public EditImage_LandingPageService(IEditImages_LandingPageRepo editImages_LandingPageRepo, IHostingEnvironment hostingEnvironment)
         {
-            _databaseContext = databaseContext;
+            _editImages_LandingPageRepo = editImages_LandingPageRepo;
             _hostingEnvironment = hostingEnvironment;
         }
 
         public ResultDto Execute(RequestEditImage_LandingPageDto Request)
         {
-            var _Image = _databaseContext.LandingPageImages.Find(Request.Id);
+            var _Image = _editImages_LandingPageRepo.FindImage(Request.Id);
             if (_Image.ImageLocation != Request.ImageLocation)
             {
                 int count = 0;
@@ -43,7 +43,7 @@ namespace Practice_Store.Application.Services.LandingPage.Commands.EditImages
                     default:
                         break;
                 }
-                var AllImages = _databaseContext.LandingPageImages.ToList();
+                var AllImages = _editImages_LandingPageRepo.FindAllImages();
                 if (AllImages.Where(p => p.ImageLocation == (LandingPageImageLocation)0).Count() == 1 && Request.ImageLocation == (LandingPageImageLocation)0)
                 {
                     return new ResultDto()
@@ -136,7 +136,7 @@ namespace Practice_Store.Application.Services.LandingPage.Commands.EditImages
             _Image.Title = Request.Title;
             _Image.Link = Request.Link;
 
-            _databaseContext.SaveChanges();
+            _editImages_LandingPageRepo.Save();
             return new ResultDto()
             {
                 IsSuccess = true,

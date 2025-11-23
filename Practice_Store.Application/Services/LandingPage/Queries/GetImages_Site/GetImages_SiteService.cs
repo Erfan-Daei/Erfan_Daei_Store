@@ -1,27 +1,28 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Practice_Store.Application.Interfaces.Contexts;
+using Practice_Store.Application.Interfaces.RepositoryManager.LandingPage.Queries;
 using Practice_Store.Common;
 
 namespace Practice_Store.Application.Services.LandingPage.Queries.GetImages_Site
 {
     public class GetImages_SiteService : IGetImages_Site
     {
-        private readonly IDatabaseContext _databaseContext;
-        public GetImages_SiteService(IDatabaseContext databaseContext)
+        private readonly IGetImage_SiteRepo _getImage_SiteRepo;
+        public GetImages_SiteService(IGetImage_SiteRepo getImage_SiteRepo)
         {
-            _databaseContext = databaseContext;
+            _getImage_SiteRepo = getImage_SiteRepo;
         }
 
         public ResultDto<List<GetImages_SiteDto>> Execute()
         {
-            var GetImages = _databaseContext.LandingPageImages.OrderBy(p => p.ImageLocation).Select(p => new GetImages_SiteDto
-            {
-                Id = p.Id,
-                Src = p.Src.Replace('\\', '/'),
-                Title = p.Title,
-                Link = p.Link,
-                ImageLocation = p.ImageLocation,
-            }).ToList();
+            var GetImages = _getImage_SiteRepo.GetImages()
+                .Select(p => new GetImages_SiteDto
+                {
+                    Id = p.Id,
+                    Src = p.Src.Replace('\\', '/'),
+                    Title = p.Title,
+                    Link = p.Link,
+                    ImageLocation = p.ImageLocation,
+                }).ToList();
 
             return new ResultDto<List<GetImages_SiteDto>>()
             {

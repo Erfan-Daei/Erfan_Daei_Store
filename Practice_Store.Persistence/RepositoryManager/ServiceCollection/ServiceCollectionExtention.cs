@@ -2,11 +2,15 @@
 using Practice_Store.Application.Interfaces.RepositoryManager;
 using Practice_Store.Application.Interfaces.RepositoryManager.Carts.Commands;
 using Practice_Store.Application.Interfaces.RepositoryManager.Carts.Quesries;
+using Practice_Store.Application.Interfaces.RepositoryManager.LandingPage.Commands;
+using Practice_Store.Application.Interfaces.RepositoryManager.LandingPage.Queries;
 using Practice_Store.Application.Interfaces.RepositoryManager.Products;
 using Practice_Store.Application.Interfaces.RepositoryManager.Products.Commands;
 using Practice_Store.Application.Interfaces.RepositoryManager.Products.Queries;
 using Practice_Store.Persistence.RepositoryManager.Carts.Commands;
 using Practice_Store.Persistence.RepositoryManager.Carts.Queries;
+using Practice_Store.Persistence.RepositoryManager.LandingPage.Commands;
+using Practice_Store.Persistence.RepositoryManager.LandingPage.Queries;
 using Practice_Store.Persistence.RepositoryManager.Products;
 using Practice_Store.Persistence.RepositoryManager.Products.Commands;
 using Practice_Store.Persistence.RepositoryManager.Products.Queries;
@@ -51,6 +55,16 @@ namespace Practice_Store.Persistence.RepositoryManager.ServiceCollection
             services.AddScoped<IAddToCartRepo, AddToCartRepo>();
             services.AddScoped<IRemoveFromCartRepo, RemoveFromCartRepo>();
             services.AddScoped<IGetCartRepo, GetCartRepo>();
+
+            return services;
+        }
+
+        public static IServiceCollection LandingPageRepositoryServices(this IServiceCollection services)
+        {
+            services.AddScoped<IAddImage_LandingPageRepo, AddImage_LandingPageRepo>();
+            services.AddScoped<IDeleteImage_LandingPageRepo, DeleteImage_LandingPageRepo>();
+            services.AddScoped<IEditImages_LandingPageRepo, EditImages_LandingPageRepo>();
+            services.AddScoped<IGetImage_SiteRepo, GetImage_SiteRepo>();
 
             return services;
         }

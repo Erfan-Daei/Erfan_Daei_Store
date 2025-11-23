@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Practice_Store.Application.Interfaces.Contexts;
+using Practice_Store.Application.Interfaces.RepositoryManager.LandingPage.Commands;
 using Practice_Store.Common;
 using Practice_Store.Domain.Entities.LandingPage;
 
@@ -7,15 +7,15 @@ namespace Practice_Store.Application.Services.LandingPage.Commands.DeleteImage
 {
     public class DeleteImage_LandingPageService : IDeleteImage_LandingPage
     {
-        private readonly IDatabaseContext _databaseContext;
-        public DeleteImage_LandingPageService(IDatabaseContext databaseContext)
+        private readonly IDeleteImage_LandingPageRepo _deleteImage_LandingPageRepo;
+        public DeleteImage_LandingPageService(IDeleteImage_LandingPageRepo deleteImage_LandingPageRepo)
         {
-            _databaseContext = databaseContext;
+            _deleteImage_LandingPageRepo = deleteImage_LandingPageRepo;
         }
 
         public ResultDto Execute(long Id)
         {
-            var Image = _databaseContext.LandingPageImages.Find(Id);
+            var Image = _deleteImage_LandingPageRepo.FindImage(Id);
             if (Image == null)
             {
                 return new ResultDto()
@@ -25,7 +25,7 @@ namespace Practice_Store.Application.Services.LandingPage.Commands.DeleteImage
                     StatusCode = StatusCodes.Status400BadRequest,
                 };
             }
-            var AllImages = _databaseContext.LandingPageImages.ToList();
+            var AllImages = _deleteImage_LandingPageRepo.FindAllImages();
             if (AllImages.Where(p => p.ImageLocation == (LandingPageImageLocation)0).Count() == 1 && Image.ImageLocation == (LandingPageImageLocation)0)
             {
                 return new ResultDto()
@@ -71,15 +71,22 @@ namespace Practice_Store.Application.Services.LandingPage.Commands.DeleteImage
                     StatusCode = StatusCodes.Status400BadRequest,
                 };
             }
-            _databaseContext.LandingPageImages.Remove(Image);
             File.Delete("G:\\Practice_Store\\EndPoint.Site\\wwwroot\\" + Image.Src);
-            _databaseContext.SaveChanges();
-            return new ResultDto()
-            {
-                IsSuccess = true,
-                Message = "موفق",
-                StatusCode = StatusCodes.Status204NoContent,
-            };
+            var Delete = _deleteImage_LandingPageRepo.DeleteImage(Image);
+            if (Delete)
+                return new ResultDto()
+                {
+                    IsSuccess = true,
+                    Message = "موفق",
+                    StatusCode = StatusCodes.Status204NoContent,
+                };
+            else
+                return new ResultDto()
+                {
+                    IsSuccess = false,
+                    Message = "اروری رخ داد",
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                };
         }
     }
 }
