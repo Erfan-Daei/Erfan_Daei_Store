@@ -1,21 +1,20 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
-using Practice_Store.Application.Interfaces.Contexts;
+using Practice_Store.Application.Interfaces.RepositoryManager.Orders.Queries;
 using Practice_Store.Common;
 
 namespace Practice_Store.Application.Services.Orders.Queries.GetOrderRequest_Admin
 {
     public class GetOrderRequest_AdminService : IGetOrderRequest_Admin
     {
-        private readonly IDatabaseContext _databaseContext;
-        public GetOrderRequest_AdminService(IDatabaseContext databaseContext)
+        private readonly IGetOrderRequest_AdminRepo _getOrderRequest_AdminRepo;
+        public GetOrderRequest_AdminService(IGetOrderRequest_AdminRepo getOrderRequest_AdminRepo)
         {
-            _databaseContext = databaseContext;
+            _getOrderRequest_AdminRepo = getOrderRequest_AdminRepo;
         }
 
         public ResultDto<ResultGetOrderRequest_AdminDto> Execute(RequestGetOrderRequest_AdminDto Request, int PageSize = 20)
         {
-            var _OrderRequest = _databaseContext.OrderRequests.Include(p => p.OrderRequestExtraInfo).AsQueryable();
+            var _OrderRequest = _getOrderRequest_AdminRepo.GetOrderRequest();
 
             if (Request.SearchKey == null && Request.IsPayed != null)
             {

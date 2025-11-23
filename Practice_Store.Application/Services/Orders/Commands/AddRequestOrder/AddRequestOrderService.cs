@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Practice_Store.Application.Interfaces.Contexts;
+using Practice_Store.Application.Interfaces.RepositoryManager.Orders.Commands;
 using Practice_Store.Common;
 using Practice_Store.Domain.Entities.Orders;
 using System.Text.RegularExpressions;
@@ -8,10 +8,10 @@ namespace Practice_Store.Application.Services.Orders.Commands.RequestOrder
 {
     public class AddRequestOrderService : IAddRequestOreder
     {
-        private readonly IDatabaseContext _databaseContext;
-        public AddRequestOrderService(IDatabaseContext databaseContext)
+        private readonly IAddRequestOrderRepo _addRequestOrderRepo;
+        public AddRequestOrderService(IAddRequestOrderRepo addRequestOrderRepo)
         {
-            _databaseContext = databaseContext;
+            _addRequestOrderRepo = addRequestOrderRepo;
         }
 
         public ResultDto<ResultAddRequestOrder> Execute(RequestAddRequestOrder Request)
@@ -35,7 +35,7 @@ namespace Practice_Store.Application.Services.Orders.Commands.RequestOrder
                 };
             }
 
-            var _User = _databaseContext.Users.Find(Request.UserId);
+            var _User = _addRequestOrderRepo.FindUser(Request.UserId);
 
             if (_User.Name == "کاربر")
             {
@@ -100,7 +100,7 @@ namespace Practice_Store.Application.Services.Orders.Commands.RequestOrder
                 User = _User,
                 Shipping = Request.Shipping,
             };
-            _databaseContext.OrderRequests.Add(orderRequest);
+            var AddOrderRequest = _addRequestOrderRepo.AddOrderRequest(orderRequest);
 
             OrderRequestExtraInfo extraInfo = new OrderRequestExtraInfo()
             {
@@ -111,9 +111,9 @@ namespace Practice_Store.Application.Services.Orders.Commands.RequestOrder
                 Mobile = Request.Mobile,
                 OrderRequest = orderRequest,
             };
-            _databaseContext.OrderRequestExtraInfos.Add(extraInfo);
+            var AddExtraInfo = _addRequestOrderRepo.AddExtraInfo(extraInfo);
             orderRequest.OrderRequestExtraInfo = extraInfo;
-            _databaseContext.SaveChanges();
+            _addRequestOrderRepo.Save();
             return new ResultDto<ResultAddRequestOrder>()
             {
                 Data = new ResultAddRequestOrder()

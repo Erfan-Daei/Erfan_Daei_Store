@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Practice_Store.Application.Interfaces.Contexts;
+using Practice_Store.Application.Interfaces.RepositoryManager.Orders.Commands;
 using Practice_Store.Common;
 using Practice_Store.Domain.Entities.Orders;
 
@@ -7,16 +7,15 @@ namespace Practice_Store.Application.Services.Orders.Commands.ChangeOrderState_A
 {
     public class ChangeOrderState_AdminService : IChangeOrderState_Admin
     {
-        private readonly IDatabaseContext _databaseContext;
-        public ChangeOrderState_AdminService(IDatabaseContext databaseContext)
+        private readonly IChangeOrderState_AdminRepo _changeOrderState_AdminRepo;
+        public ChangeOrderState_AdminService(IChangeOrderState_AdminRepo changeOrderState_AdminRepo)
         {
-            _databaseContext = databaseContext;
+            _changeOrderState_AdminRepo = changeOrderState_AdminRepo;
         }
 
         public ResultDto Execute(long OrderId, OrderState OrderState)
         {
-            var _Order = _databaseContext.Orders.FirstOrDefault(p => p.Id == OrderId &&
-            (p.OrderState != OrderState.UserCanceled && p.OrderState != OrderState.Delivered));
+            var _Order = _changeOrderState_AdminRepo.GetOrder(OrderId);
 
             if (_Order == null)
             {
@@ -58,7 +57,7 @@ namespace Practice_Store.Application.Services.Orders.Commands.ChangeOrderState_A
                 default:
                     break;
             }
-            _databaseContext.SaveChanges();
+            _changeOrderState_AdminRepo.Save();
             return new ResultDto()
             {
                 IsSuccess = true,

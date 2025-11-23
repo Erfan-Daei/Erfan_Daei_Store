@@ -4,6 +4,8 @@ using Practice_Store.Application.Interfaces.RepositoryManager.Carts.Commands;
 using Practice_Store.Application.Interfaces.RepositoryManager.Carts.Quesries;
 using Practice_Store.Application.Interfaces.RepositoryManager.LandingPage.Commands;
 using Practice_Store.Application.Interfaces.RepositoryManager.LandingPage.Queries;
+using Practice_Store.Application.Interfaces.RepositoryManager.Orders.Commands;
+using Practice_Store.Application.Interfaces.RepositoryManager.Orders.Queries;
 using Practice_Store.Application.Interfaces.RepositoryManager.Products;
 using Practice_Store.Application.Interfaces.RepositoryManager.Products.Commands;
 using Practice_Store.Application.Interfaces.RepositoryManager.Products.Queries;
@@ -11,6 +13,8 @@ using Practice_Store.Persistence.RepositoryManager.Carts.Commands;
 using Practice_Store.Persistence.RepositoryManager.Carts.Queries;
 using Practice_Store.Persistence.RepositoryManager.LandingPage.Commands;
 using Practice_Store.Persistence.RepositoryManager.LandingPage.Queries;
+using Practice_Store.Persistence.RepositoryManager.Orders.Commands;
+using Practice_Store.Persistence.RepositoryManager.Orders.Queries;
 using Practice_Store.Persistence.RepositoryManager.Products;
 using Practice_Store.Persistence.RepositoryManager.Products.Commands;
 using Practice_Store.Persistence.RepositoryManager.Products.Queries;
@@ -66,6 +70,22 @@ namespace Practice_Store.Persistence.RepositoryManager.ServiceCollection
             services.AddScoped<IEditImages_LandingPageRepo, EditImages_LandingPageRepo>();
             services.AddScoped<IGetImage_SiteRepo, GetImage_SiteRepo>();
             services.AddScoped<IGetProductMenuRepo, GetProductMenuRepo>();
+
+            return services;
+        }
+
+        public static IServiceCollection OrderRepositoryServices(this IServiceCollection services)
+        {
+            services.AddScoped<IAddOrderRepo, AddOrderRepo>();
+            services.AddScoped<IChangeOrderState_AdminRepo, ChangeOrderState_AdminRepo>();
+            services.AddScoped<IChangeOrderState_UserRepo, ChangeOrderState_UserRepo>();
+            services.AddScoped<IFailedRequestOrderRepo, FailedRequestOrderRepo>();
+            services.AddScoped<IAddRequestOrderRepo, AddRequestOrderRepo>();
+            services.AddScoped<IGetOrderDetails_AdminRepo, GetOrderDetails_AdminRepo>();
+            services.AddScoped<IGetOrderRequest_AdminRepo, GetOrderRequest_AdminRepo>();
+            services.AddScoped<IGetOrders_AdminRepo, GetOrders_AdminRepo>();
+            services.AddScoped<IGetRequestOrderRepo, GetRequestOrderRepo>();
+            services.AddScoped<IGetUserOrdersRepo, GetUserOrdersRepo>();
 
             return services;
         }

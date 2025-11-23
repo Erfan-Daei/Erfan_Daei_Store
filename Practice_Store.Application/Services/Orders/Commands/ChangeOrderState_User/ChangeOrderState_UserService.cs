@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Practice_Store.Application.Interfaces.Contexts;
+using Practice_Store.Application.Interfaces.RepositoryManager.Orders.Commands;
 using Practice_Store.Common;
 using Practice_Store.Domain.Entities.Orders;
 
@@ -7,17 +7,15 @@ namespace Practice_Store.Application.Services.Orders.Commands.ChangeOrderState_U
 {
     public class ChangeOrderState_UserService : IChangeOrderState_User
     {
-        private readonly IDatabaseContext _databaseContext;
-        public ChangeOrderState_UserService(IDatabaseContext databaseContext)
+        private readonly IChangeOrderState_UserRepo _changeOrderState_UserRepo;
+        public ChangeOrderState_UserService(IChangeOrderState_UserRepo changeOrderState_UserRepo)
         {
-            _databaseContext = databaseContext;
+            _changeOrderState_UserRepo = changeOrderState_UserRepo;
         }
 
         public ResultDto Execute(string UserId, long OrderId, OrderState OrderState)
         {
-            var _Order = _databaseContext.Orders.FirstOrDefault(p => p.Id == OrderId &&
-            p.UserId == UserId.ToString() &&
-            (p.OrderState != OrderState.AdminCanceled && p.OrderState != OrderState.UserCanceled && p.OrderState != OrderState.Delivered));
+            var _Order = _changeOrderState_UserRepo.GetOrder(OrderId, UserId);
 
             if (_Order == null)
             {
@@ -32,7 +30,7 @@ namespace Practice_Store.Application.Services.Orders.Commands.ChangeOrderState_U
             if (OrderState == OrderState.Delivered)
             {
                 _Order.OrderState = OrderState.Delivered;
-                _databaseContext.SaveChanges();
+                _changeOrderState_UserRepo.Save();
                 return new ResultDto()
                 {
                     IsSuccess = true,
@@ -46,7 +44,7 @@ namespace Practice_Store.Application.Services.Orders.Commands.ChangeOrderState_U
                 if (Check48Hours.TotalHours <= 48)
                 {
                     _Order.OrderState = OrderState.UserCanceled;
-                    _databaseContext.SaveChanges();
+                    _changeOrderState_UserRepo.Save();
                     return new ResultDto()
                     {
                         IsSuccess = true,

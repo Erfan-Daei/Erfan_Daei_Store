@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
-using Practice_Store.Application.Interfaces.Contexts;
+using Practice_Store.Application.Interfaces.RepositoryManager.Orders.Commands;
 using Practice_Store.Common;
 using Practice_Store.Domain.Entities.Orders;
 
@@ -8,25 +7,18 @@ namespace Practice_Store.Application.Services.Orders.Commands.AddOrder
 {
     public class AddOrderService : IAddOrder
     {
-        private readonly IDatabaseContext _databaseContext;
-        public AddOrderService(IDatabaseContext databaseContext)
+        private readonly IAddOrderRepo _addOrderRepo;
+        public AddOrderService(IAddOrderRepo addOrderRepo)
         {
-            _databaseContext = databaseContext;
+            _addOrderRepo = addOrderRepo;
         }
 
         public ResultDto Execute(RequestAddOrder Request)
         {
-            var _User = _databaseContext.Users.Find(Request.UserId);
-            var _OrderRequest = _databaseContext.OrderRequests.Include(p => p.OrderRequestExtraInfo).FirstOrDefault(p => p.Id == Request.OrderRequestId);
+            var _User = _addOrderRepo.FindUser(Request.UserId);
+            var _OrderRequest = _addOrderRepo.GetOrderRequest(Request.OrderRequestId);
 
-            var _Cart = _databaseContext.Carts.Include(p => p.CartProducts)
-                .ThenInclude(p => p.Product)
-                .ThenInclude(p => p.ProductSizes)
-
-                .Include(p => p.CartProducts)
-                .ThenInclude(p => p.Product)
-                .ThenInclude(p => p.Off)
-                .FirstOrDefault(p => p.Id == Request.CartId);
+            var _Cart = _addOrderRepo.GetCart(Request.CartId);
 
             _OrderRequest.IsPayed = true;
             _OrderRequest.PayDate = DateTime.Now;
@@ -48,7 +40,7 @@ namespace Practice_Store.Application.Services.Orders.Commands.AddOrder
                 Shipping = _OrderRequest.Shipping,
                 TotalSum = _OrderRequest.TotalSum,
             };
-            _databaseContext.Orders.Add(Order);
+            var Add = _addOrderRepo.AddOrder(Order);
 
             List<OrderDetail> OrderDetails = new List<OrderDetail>();
             foreach (var item in _Cart.CartProducts)
@@ -62,14 +54,14 @@ namespace Practice_Store.Application.Services.Orders.Commands.AddOrder
                     ProductSizeId = item.ProductSizeId,
                 };
                 OrderDetails.Add(orderDetail);
-                var Size = _databaseContext.ProductSizes.Find(item.ProductSizeId);
+                var Size = _addOrderRepo.GetProductSize(item.ProductSizeId);
                 Size.Inventory = Size.Inventory - item.Count;
                 orderDetail.ProductSizeName = Size.Size;
             }
-            _databaseContext.OrderDetails.AddRange(OrderDetails);
+            var AddDetails = _addOrderRepo.AddOrderDetail(OrderDetails);
             Order.OrderDetails = OrderDetails;
 
-            _databaseContext.SaveChanges();
+            _addOrderRepo.Save();
             return new ResultDto
             {
                 IsSuccess = true,

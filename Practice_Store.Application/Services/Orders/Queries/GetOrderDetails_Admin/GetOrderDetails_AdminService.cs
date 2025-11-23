@@ -1,25 +1,20 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
-using Practice_Store.Application.Interfaces.Contexts;
+using Practice_Store.Application.Interfaces.RepositoryManager.Orders.Queries;
 using Practice_Store.Common;
 
 namespace Practice_Store.Application.Services.Orders.Queries.GetOrderDetails_Admin
 {
     public class GetOrderDetails_AdminService : IGetOrderDetails_Admin
     {
-        private readonly IDatabaseContext _databaseContext;
-        public GetOrderDetails_AdminService(IDatabaseContext databaseContext)
+        private readonly IGetOrderDetails_AdminRepo _getOrderDetails_AdminRepo;
+        public GetOrderDetails_AdminService(IGetOrderDetails_AdminRepo getOrderDetails_AdminRepo)
         {
-            _databaseContext = databaseContext;
+            _getOrderDetails_AdminRepo = getOrderDetails_AdminRepo;
         }
 
         public ResultDto<GetOrderDetails_AdminDto> Execute(long OrderId)
         {
-            var _Order = _databaseContext.Orders.Include(p => p.OrderRequest)
-                .Include(p => p.OrderDetails)
-                .ThenInclude(p => p.Product)
-                .ThenInclude(p => p.ProductImages)
-                .FirstOrDefault(p => p.Id == OrderId);
+            var _Order = _getOrderDetails_AdminRepo.GetOrder(OrderId);
 
             return new ResultDto<GetOrderDetails_AdminDto>
             {

@@ -1,27 +1,20 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
-using Practice_Store.Application.Interfaces.Contexts;
+using Practice_Store.Application.Interfaces.RepositoryManager.Orders.Queries;
 using Practice_Store.Common;
 
 namespace Practice_Store.Application.Services.Orders.Queries.GetUserOrders
 {
     public class GetUserOrdersService : IGetUserOrders
     {
-        private readonly IDatabaseContext _databaseContext;
-        public GetUserOrdersService(IDatabaseContext databaseContext)
+        private readonly IGetUserOrdersRepo _getUserOrdersRepo;
+        public GetUserOrdersService(IGetUserOrdersRepo getUserOrdersRepo)
         {
-            _databaseContext = databaseContext;
+            _getUserOrdersRepo = getUserOrdersRepo;
         }
 
         public ResultDto<List<UserOrderDto>> Execute(string UserId)
         {
-            var _Order = _databaseContext.Orders.Include(p => p.OrderDetails)
-                .ThenInclude(p => p.Product)
-                .ThenInclude(p => p.ProductImages)
-                .Include(p => p.OrderRequest)
-                .Where(p => p.UserId == UserId.ToString())
-                .OrderByDescending(p => p.Id)
-                .ToList();
+            var _Order = _getUserOrdersRepo.GetOrders(UserId);
 
             if (_Order == null)
             {

@@ -1,5 +1,4 @@
-﻿using Practice_Store.Application.Interfaces.RepositoryManager;
-using Practice_Store.Application.Services.Users.Commands.ActivationUser;
+﻿using Practice_Store.Application.Services.Users.Commands.ActivationUser;
 using Practice_Store.Application.Services.Users.Commands.ChangeUserEmail_Site;
 using Practice_Store.Application.Services.Users.Commands.ConfirmEmail;
 using Practice_Store.Application.Services.Users.Commands.DeleteUser;

@@ -1,23 +1,23 @@
-﻿using Practice_Store.Application.Interfaces.Contexts;
+﻿using Practice_Store.Application.Interfaces.RepositoryManager.Orders.Commands;
 using Practice_Store.Common;
 
 namespace Practice_Store.Application.Services.Orders.Commands.FailedRequestOrder
 {
     public class UpdateFailedRequestOrderService : IUpdateFailedRequestOrder
     {
-        private readonly IDatabaseContext _databaseContext;
-        public UpdateFailedRequestOrderService(IDatabaseContext databaseContext)
+        private readonly IFailedRequestOrderRepo _failedRequestOrderRepo;
+        public UpdateFailedRequestOrderService(IFailedRequestOrderRepo failedRequestOrderRepo)
         {
-            _databaseContext = databaseContext;
+            _failedRequestOrderRepo = failedRequestOrderRepo;
         }
 
         public ResultDto Execute(long OrderRequestId, string Authority, long RefId)
         {
-            var _OrderRequest = _databaseContext.OrderRequests.Find(OrderRequestId);
+            var _OrderRequest = _failedRequestOrderRepo.GetOrderRequest(OrderRequestId);
 
             _OrderRequest.Authority = Authority;
             _OrderRequest.RefId = RefId;
-            _databaseContext.SaveChanges();
+            _failedRequestOrderRepo.Save();
             return new ResultDto
             {
                 IsSuccess = true,

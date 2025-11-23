@@ -1,20 +1,19 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
-using Practice_Store.Application.Interfaces.Contexts;
+using Practice_Store.Application.Interfaces.RepositoryManager.Orders.Queries;
 using Practice_Store.Common;
 
 namespace Practice_Store.Application.Services.Orders.Queries.GetOrders_Admin
 {
     public class GetOrders_AdminService : IGetOrders_Admin
     {
-        private readonly IDatabaseContext _databaseContext;
-        public GetOrders_AdminService(IDatabaseContext databaseContext)
+        private readonly IGetOrders_AdminRepo _getOrders_AdminRepo;
+        public GetOrders_AdminService(IGetOrders_AdminRepo getOrders_AdminRepo)
         {
-            _databaseContext = databaseContext;
+            _getOrders_AdminRepo = getOrders_AdminRepo;
         }
         public ResultDto<ResultGetOrders_AdminDto> Execute(RequestGetOrders_AdminDto Request, int PageSize = 20)
         {
-            var _Order = _databaseContext.Orders.Include(p => p.OrderRequest).AsQueryable();
+            var _Order = _getOrders_AdminRepo.GetOrders();
 
             if (Request.SearchKey == null && Request.OrderState != null)
             {

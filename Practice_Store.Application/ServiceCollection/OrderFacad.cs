@@ -1,5 +1,6 @@
-﻿using Practice_Store.Application.Interfaces.Contexts;
-using Practice_Store.Application.Interfaces.FacadPatterns;
+﻿using Practice_Store.Application.Interfaces.FacadPatterns;
+using Practice_Store.Application.Interfaces.RepositoryManager.Orders.Commands;
+using Practice_Store.Application.Interfaces.RepositoryManager.Orders.Queries;
 using Practice_Store.Application.Services.Orders.Commands.AddOrder;
 using Practice_Store.Application.Services.Orders.Commands.ChangeOrderState_Admin;
 using Practice_Store.Application.Services.Orders.Commands.ChangeOrderState_User;
@@ -15,10 +16,37 @@ namespace Practice_Store.Application.ServiceCollection
 {
     public class OrderFacad : IOrderFacad
     {
-        private readonly IDatabaseContext _databaseContext;
-        public OrderFacad(IDatabaseContext databaseContext)
+        private readonly IAddOrderRepo _addOrderRepo;
+        private readonly IChangeOrderState_AdminRepo _changeOrderState_AdminRepo;
+        private readonly IChangeOrderState_UserRepo _changeOrderState_UserRepo;
+        private readonly IFailedRequestOrderRepo _failedRequestOrderRepo;
+        private readonly IAddRequestOrderRepo _addRequestOrderRepo;
+        private readonly IGetOrderDetails_AdminRepo _getOrderDetails_AdminRepo;
+        private readonly IGetOrderRequest_AdminRepo _getOrderRequest_AdminRepo;
+        private readonly IGetOrders_AdminRepo _getOrders_AdminRepo;
+        private readonly IGetRequestOrderRepo _getRequestOrderRepo;
+        private readonly IGetUserOrdersRepo _getUserOrdersRepo;
+        public OrderFacad(IAddOrderRepo addOrderRepo,
+            IChangeOrderState_AdminRepo changeOrderState_AdminRepo,
+            IChangeOrderState_UserRepo changeOrderState_UserRepo,
+            IFailedRequestOrderRepo failedRequestOrderRepo,
+            IAddRequestOrderRepo requestOrderRepo,
+            IGetOrderDetails_AdminRepo getOrderDetails_AdminRepo,
+            IGetOrderRequest_AdminRepo getOrderRequest_AdminRepo,
+            IGetOrders_AdminRepo getOrders_AdminRepo,
+            IGetRequestOrderRepo getRequestOrderRepo,
+            IGetUserOrdersRepo getUserOrdersRepo)
         {
-            _databaseContext = databaseContext;
+            _addOrderRepo = addOrderRepo;
+            _changeOrderState_AdminRepo = changeOrderState_AdminRepo;
+            _changeOrderState_UserRepo = changeOrderState_UserRepo;
+            _addRequestOrderRepo = requestOrderRepo;
+            _failedRequestOrderRepo = failedRequestOrderRepo;
+            _getOrderDetails_AdminRepo = getOrderDetails_AdminRepo;
+            _getOrderRequest_AdminRepo = getOrderRequest_AdminRepo;
+            _getUserOrdersRepo = getUserOrdersRepo;
+            _getOrders_AdminRepo = getOrders_AdminRepo;
+            _getRequestOrderRepo = getRequestOrderRepo;
         }
 
         private IAddRequestOreder _addRequestOreder;
@@ -26,7 +54,7 @@ namespace Practice_Store.Application.ServiceCollection
         {
             get
             {
-                return _addRequestOreder = _addRequestOreder ?? new AddRequestOrderService(_databaseContext);
+                return _addRequestOreder = _addRequestOreder ?? new AddRequestOrderService(_addRequestOrderRepo);
             }
         }
 
@@ -35,7 +63,7 @@ namespace Practice_Store.Application.ServiceCollection
         {
             get
             {
-                return _getRequestOrder = _getRequestOrder ?? new GetRequestOrderService(_databaseContext);
+                return _getRequestOrder = _getRequestOrder ?? new GetRequestOrderService(_getRequestOrderRepo);
             }
         }
 
@@ -44,7 +72,7 @@ namespace Practice_Store.Application.ServiceCollection
         {
             get
             {
-                return _addOrder = _addOrder ?? new AddOrderService(_databaseContext);
+                return _addOrder = _addOrder ?? new AddOrderService(_addOrderRepo);
             }
         }
 
@@ -53,7 +81,7 @@ namespace Practice_Store.Application.ServiceCollection
         {
             get
             {
-                return _getUserOrders = _getUserOrders ?? new GetUserOrdersService(_databaseContext);
+                return _getUserOrders = _getUserOrders ?? new GetUserOrdersService(_getUserOrdersRepo);
             }
         }
 
@@ -62,7 +90,7 @@ namespace Practice_Store.Application.ServiceCollection
         {
             get
             {
-                return _changeOrderState_User = _changeOrderState_User ?? new ChangeOrderState_UserService(_databaseContext);
+                return _changeOrderState_User = _changeOrderState_User ?? new ChangeOrderState_UserService(_changeOrderState_UserRepo);
             }
         }
 
@@ -71,7 +99,7 @@ namespace Practice_Store.Application.ServiceCollection
         {
             get
             {
-                return _updateFailedRequestOrder = _updateFailedRequestOrder ?? new UpdateFailedRequestOrderService(_databaseContext);
+                return _updateFailedRequestOrder = _updateFailedRequestOrder ?? new UpdateFailedRequestOrderService(_failedRequestOrderRepo);
             }
         }
 
@@ -80,7 +108,7 @@ namespace Practice_Store.Application.ServiceCollection
         {
             get
             {
-                return _getOrders_Admin = _getOrders_Admin ?? new GetOrders_AdminService(_databaseContext);
+                return _getOrders_Admin = _getOrders_Admin ?? new GetOrders_AdminService(_getOrders_AdminRepo);
             }
         }
 
@@ -89,7 +117,7 @@ namespace Practice_Store.Application.ServiceCollection
         {
             get
             {
-                return _getOrderDetails_Admin = _getOrderDetails_Admin ?? new GetOrderDetails_AdminService(_databaseContext);
+                return _getOrderDetails_Admin = _getOrderDetails_Admin ?? new GetOrderDetails_AdminService(_getOrderDetails_AdminRepo);
             }
         }
 
@@ -98,7 +126,7 @@ namespace Practice_Store.Application.ServiceCollection
         {
             get
             {
-                return _changeOrderState_Admin = _changeOrderState_Admin ?? new ChangeOrderState_AdminService(_databaseContext);
+                return _changeOrderState_Admin = _changeOrderState_Admin ?? new ChangeOrderState_AdminService(_changeOrderState_AdminRepo);
             }
         }
 
@@ -107,7 +135,7 @@ namespace Practice_Store.Application.ServiceCollection
         {
             get
             {
-                return _getOrderRequest_Admin = _getOrderRequest_Admin ?? new GetOrderRequest_AdminService(_databaseContext);
+                return _getOrderRequest_Admin = _getOrderRequest_Admin ?? new GetOrderRequest_AdminService(_getOrderRequest_AdminRepo);
             }
         }
     }
