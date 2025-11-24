@@ -6,7 +6,6 @@ namespace Practice_Store.Application.Interfaces.RepositoryManager.Users.Commands
     {
         bool CheckPassword(IdtUser user, string password);
         bool DeletePreviousTokens(string UserId);
-        List<string> GetRoles(IdtUser user);
         void Save();
     }
 }

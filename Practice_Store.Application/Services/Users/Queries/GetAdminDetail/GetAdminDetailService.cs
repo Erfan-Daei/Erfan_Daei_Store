@@ -1,21 +1,20 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
+using Practice_Store.Application.Interfaces.RepositoryManager;
 using Practice_Store.Common;
-using Practice_Store.Domain.Entities.Users;
 
 namespace Practice_Store.Application.Services.Users.Queries.GetAdminDetail
 {
     public class GetAdminDetailService : IGetAdminDetail
     {
-        private readonly UserManager<IdtUser> _userManager;
-        public GetAdminDetailService(UserManager<IdtUser> userManager)
+        private readonly IUserRepoFinder _userRepoFinder;
+        public GetAdminDetailService(IUserRepoFinder userRepoFinder)
         {
-            _userManager = userManager;
+            _userRepoFinder = userRepoFinder;
         }
 
         public ResultDto<GetAdminDetailDto> GetDetail(string UserId)
         {
-            var _User = _userManager.FindByIdAsync(UserId).Result;
+            var _User = _userRepoFinder.FindUserById(UserId);
             if (_User == null)
             {
                 return new ResultDto<GetAdminDetailDto>()
@@ -25,7 +24,7 @@ namespace Practice_Store.Application.Services.Users.Queries.GetAdminDetail
                     StatusCode = StatusCodes.Status404NotFound,
                 };
             }
-            var _UserRoles = _userManager.GetRolesAsync(_User).Result.ToList();
+            var _UserRoles = _userRepoFinder.GetRoles(_User);
 
             return new ResultDto<GetAdminDetailDto>()
             {

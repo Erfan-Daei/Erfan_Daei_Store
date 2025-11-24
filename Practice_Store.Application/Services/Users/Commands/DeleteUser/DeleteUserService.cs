@@ -27,7 +27,7 @@ namespace Practice_Store.Application.Services.Users.Commands.DeleteUser
                     StatusCode = StatusCodes.Status404NotFound,
                 };
             }
-            var _UserRoles = _deleteUserRepo.GetRoles(_User);
+            var _UserRoles = _userRepoFinder.GetRoles(_User);
             var _DeleteRoles = _deleteUserRepo.RemoveFromRole(_User, _UserRoles);
             _User.DeletedTime = DateTime.UtcNow;
             _User.IsDeleted = true;

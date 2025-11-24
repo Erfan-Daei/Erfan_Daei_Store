@@ -9,8 +9,8 @@ using Practice_Store.Application.Interfaces.RepositoryManager.Orders.Queries;
 using Practice_Store.Application.Interfaces.RepositoryManager.Products;
 using Practice_Store.Application.Interfaces.RepositoryManager.Products.Commands;
 using Practice_Store.Application.Interfaces.RepositoryManager.Products.Queries;
-using Practice_Store.Application.Interfaces.RepositoryManager.Users;
 using Practice_Store.Application.Interfaces.RepositoryManager.Users.Commands;
+using Practice_Store.Application.Interfaces.RepositoryManager.Users.Queries;
 using Practice_Store.Persistence.RepositoryManager.Carts.Commands;
 using Practice_Store.Persistence.RepositoryManager.Carts.Queries;
 using Practice_Store.Persistence.RepositoryManager.LandingPage.Commands;
@@ -22,6 +22,7 @@ using Practice_Store.Persistence.RepositoryManager.Products.Commands;
 using Practice_Store.Persistence.RepositoryManager.Products.Queries;
 using Practice_Store.Persistence.RepositoryManager.Users;
 using Practice_Store.Persistence.RepositoryManager.Users.Commands;
+using Practice_Store.Persistence.RepositoryManager.Users.Queries;
 
 namespace Practice_Store.Persistence.RepositoryManager.ServiceCollection
 {
@@ -42,6 +43,9 @@ namespace Practice_Store.Persistence.RepositoryManager.ServiceCollection
             services.AddScoped<IRefreshTokenRepo, RefreshTokenRepo>();
             services.AddScoped<ISaveTokenRepo, SaveTokenRepo>();
             services.AddScoped<IRegisterUserRepo, RegisterUserRepo>();
+            services.AddScoped<IGetRolesRepo, GetRolesRepo>();
+            services.AddScoped<IGetUsersRepo, GetUsersRepo>();
+            services.AddScoped<IRoleManagementRepo, RoleManagementRepo>();
 
             return services;
         }

@@ -1,8 +1,7 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Practice_Store.Application.Interfaces.Contexts;
-using Practice_Store.Application.Interfaces.FacadPatterns;
+﻿using Practice_Store.Application.Interfaces.FacadPatterns;
 using Practice_Store.Application.Interfaces.RepositoryManager;
 using Practice_Store.Application.Interfaces.RepositoryManager.Users.Commands;
+using Practice_Store.Application.Interfaces.RepositoryManager.Users.Queries;
 using Practice_Store.Application.JWTToken;
 using Practice_Store.Application.Services.Users.Commands.ActivationUser;
 using Practice_Store.Application.Services.Users.Commands.ChangeUserEmail_Site;
@@ -23,7 +22,6 @@ using Practice_Store.Application.Services.Users.Queries.GetUserDetail_Site;
 using Practice_Store.Application.Services.Users.Queries.GetUserRoles;
 using Practice_Store.Application.Services.Users.Queries.GetUsers;
 using Practice_Store.Application.Services.Users.Queries.RoleManagement;
-using Practice_Store.Domain.Entities.Users;
 
 namespace Practice_Store.Application.ServiceCollection
 {
@@ -42,11 +40,9 @@ namespace Practice_Store.Application.ServiceCollection
         private readonly IRefreshTokenRepo _refreshTokenRepo;
         private readonly ISaveTokenRepo _saveTokenRepo;
         private readonly IRegisterUserRepo _registerUserRepo;
-
-
-        private readonly IDatabaseContext _databaseContext;
-        private readonly UserManager<IdtUser> _userManager;
-        private readonly RoleManager<IdtRole> _roleManager;
+        private readonly IGetRolesRepo _getRolesRepo;
+        private readonly IGetUsersRepo _getUsersRepo;
+        private readonly IRoleManagementRepo _roleManagementRepo;
         private readonly IGenerateToken _generateToken;
         public UserFacad(IUserRepoFinder userRepoFinder,
             IActivationUserRepo activationUserRepo,
@@ -61,10 +57,9 @@ namespace Practice_Store.Application.ServiceCollection
             IRefreshTokenRepo refreshTokenRepo,
             ISaveTokenRepo saveTokenRepo,
             IRegisterUserRepo registerUserRepo,
-
-            IDatabaseContext databaseContext,
-            UserManager<IdtUser> userManager,
-            RoleManager<IdtRole> roleManager,
+            IGetRolesRepo getRolesRepo,
+            IGetUsersRepo getUsersRepo,
+            IRoleManagementRepo roleManagementRepo,
             IGenerateToken generateToken)
         {
             _userRepoFinder = userRepoFinder;
@@ -80,10 +75,9 @@ namespace Practice_Store.Application.ServiceCollection
             _refreshTokenRepo = refreshTokenRepo;
             _saveTokenRepo = saveTokenRepo;
             _registerUserRepo = registerUserRepo;
-
-            _databaseContext = databaseContext;
-            _userManager = userManager;
-            _roleManager = roleManager;
+            _getRolesRepo = getRolesRepo;
+            _getUsersRepo = getUsersRepo;
+            _roleManagementRepo = roleManagementRepo;
             _generateToken = generateToken;
         }
 
@@ -164,7 +158,7 @@ namespace Practice_Store.Application.ServiceCollection
         {
             get
             {
-                return _getAdminDetail = _getAdminDetail ?? new GetAdminDetailService(_userManager);
+                return _getAdminDetail = _getAdminDetail ?? new GetAdminDetailService(_userRepoFinder);
             }
         }
 
@@ -173,7 +167,7 @@ namespace Practice_Store.Application.ServiceCollection
         {
             get
             {
-                return _getRoles = _getRoles ?? new GetRolesService(_databaseContext);
+                return _getRoles = _getRoles ?? new GetRolesService(_getRolesRepo);
             }
         }
 
@@ -182,7 +176,7 @@ namespace Practice_Store.Application.ServiceCollection
         {
             get
             {
-                return _getUserDetail_Site = _getUserDetail_Site ?? new GetUserDetail_SiteService(_userManager);
+                return _getUserDetail_Site = _getUserDetail_Site ?? new GetUserDetail_SiteService(_userRepoFinder);
             }
         }
 
@@ -191,7 +185,7 @@ namespace Practice_Store.Application.ServiceCollection
         {
             get
             {
-                return _getUsers = _getUsers ?? new GetUsersService(_userManager, _databaseContext);
+                return _getUsers = _getUsers ?? new GetUsersService(_userRepoFinder, _getUsersRepo);
             }
         }
 
@@ -209,7 +203,7 @@ namespace Practice_Store.Application.ServiceCollection
         {
             get
             {
-                return _getUserRoles = _getUserRoles ?? new GetUserRolesService(_userManager);
+                return _getUserRoles = _getUserRoles ?? new GetUserRolesService(_userRepoFinder);
             }
         }
 
@@ -218,7 +212,7 @@ namespace Practice_Store.Application.ServiceCollection
         {
             get
             {
-                return _roleManagement = _roleManagement ?? new RoleManagementService(_roleManager);
+                return _roleManagement = _roleManagement ?? new RoleManagementService(_roleManagementRepo);
             }
         }
 

@@ -29,7 +29,7 @@ namespace Practice_Store.Application.Services.Users.Commands.EditUserRole
                 };
             }
 
-            var _UserRoles = _editUserRoleRepo.GetRoles(_User);
+            var _UserRoles = _userRepoFinder.GetRoles(_User);
             Request.Roles = Request.Roles.Except(_UserRoles).ToList();
 
             if (Request.Roles.Count == 0)

@@ -71,7 +71,7 @@ namespace Practice_Store.Application.Services.Users.Commands.LogInUsers
                 };
             }
 
-            List<string> Roles = _logInUserRepo.GetRoles(_User);
+            List<string> Roles = _userRepoFinder.GetRoles(_User);
             _logInUserRepo.Save();
 
             return new ResultDto<ResultLogInUserDto>()

@@ -12,11 +12,6 @@ namespace Practice_Store.Persistence.RepositoryManager.Users.Commands
             _userManager = userManager;
         }
 
-        public IList<string>? GetRoles(IdtUser user)
-        {
-            return _userManager.GetRolesAsync(user).Result;
-        }
-
         public IdentityResult RemoveFromRole(IdtUser user, IList<string> Roles)
         {
             return _userManager.RemoveFromRolesAsync(user, Roles).Result;

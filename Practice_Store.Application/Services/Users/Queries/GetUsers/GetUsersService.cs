@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Practice_Store.Application.Interfaces.Contexts;
+using Practice_Store.Application.Interfaces.RepositoryManager;
+using Practice_Store.Application.Interfaces.RepositoryManager.Users.Queries;
 using Practice_Store.Common;
 using Practice_Store.Domain.Entities.Users;
 using System.Data;
@@ -11,37 +10,22 @@ namespace Practice_Store.Application.Services.Users.Queries.GetUsers
 {
     public class GetUsersService : IGetUsers
     {
-        private readonly UserManager<IdtUser> _userManager;
-        private readonly IDatabaseContext _databaseContext;
-        public GetUsersService(UserManager<IdtUser> userManager, IDatabaseContext databaseContext)
+        private readonly IUserRepoFinder _userRepoFinder;
+        private readonly IGetUsersRepo _getUsersRepo;
+        public GetUsersService(IUserRepoFinder userRepoFinder,
+            IGetUsersRepo getUsersRepo)
         {
-            _userManager = userManager;
-            _databaseContext = databaseContext;
+            _userRepoFinder = userRepoFinder;
+            _getUsersRepo = getUsersRepo;
         }
 
         public ResultDto<ResultGetUsersDTO> GetUsers(RequestGetUsersDto Request)
         {
             try
             {
-                var _UserRoles = _databaseContext.UserRoles
-                    .AsNoTracking()
-                    .Join(_databaseContext.Roles
-                    .AsNoTracking(),
-                    userRole => userRole.RoleId,
-                    role => role.Id,
-                    (userRole, role) => new { userRole.UserId, role.Name })
-                    .Where(role => role.Name.Contains(Request.SearchKey));
+                var _UserRoles = _getUsersRepo.SearchRoles(Request.SearchKey ?? "");
 
-                var _UserList = _databaseContext.Users
-                    .AsNoTracking()
-                    .Where(u => string.IsNullOrEmpty(Request.SearchKey) ||
-                    u.Name.Contains(Request.SearchKey) ||
-                    u.LastName.Contains(Request.SearchKey) ||
-                    u.Email.Contains(Request.SearchKey) ||
-                    u.Address.Contains(Request.SearchKey) ||
-                    u.PhoneNumber.Contains(Request.SearchKey) ||
-                    _UserRoles.Any(ur => ur.UserId == u.Id))
-                    .ToPaged(Request.Page ?? 1, Request.PageSize ?? 20)
+                var _UserList = _getUsersRepo.GetUsers(Request, _UserRoles)
                     .Select(user => new IdtUser
                     {
                         Id = user.Id,
@@ -62,7 +46,7 @@ namespace Practice_Store.Application.Services.Users.Queries.GetUsers
                 var _UserListWithRole = new List<UserWithRoles>();
                 foreach (var user in _UserList)
                 {
-                    var _Roles = _userManager.GetRolesAsync(user).Result.ToList();
+                    var _Roles = _userRepoFinder.GetRoles(user);
 
                     _UserListWithRole.Add(new UserWithRoles
                     {

@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
+using Practice_Store.Application.Interfaces.RepositoryManager.Users.Queries;
 using Practice_Store.Common;
 using Practice_Store.Domain.Entities.Users;
 
@@ -7,10 +7,10 @@ namespace Practice_Store.Application.Services.Users.Queries.RoleManagement
 {
     public class RoleManagementService : IRoleManagement
     {
-        private readonly RoleManager<IdtRole> _roleManager;
-        public RoleManagementService(RoleManager<IdtRole> roleManager)
+        private readonly IRoleManagementRepo _roleManagementRepo;
+        public RoleManagementService(IRoleManagementRepo roleManagementRepo)
         {
-            _roleManager = roleManager;
+            _roleManagementRepo = roleManagementRepo;
         }
 
         public ResultDto AddRole(string RoleName)
@@ -20,7 +20,7 @@ namespace Practice_Store.Application.Services.Users.Queries.RoleManagement
                 InsertTime = DateTime.Now,
                 Name = RoleName,
             };
-            var _AddRole = _roleManager.CreateAsync(_Role).Result;
+            var _AddRole = _roleManagementRepo.CreateRole(_Role);
 
             if (!_AddRole.Succeeded)
             {
@@ -42,7 +42,7 @@ namespace Practice_Store.Application.Services.Users.Queries.RoleManagement
 
         public ResultDto DeleteRole(string RoleName)
         {
-            var _Role = _roleManager.FindByNameAsync(RoleName).Result;
+            var _Role = _roleManagementRepo.FindByName(RoleName);
 
             if (_Role == null)
             {
@@ -54,7 +54,7 @@ namespace Practice_Store.Application.Services.Users.Queries.RoleManagement
                 };
             }
 
-            var _Delete = _roleManager.DeleteAsync(_Role).Result;
+            var _Delete = _roleManagementRepo.DeleteRole(_Role);
 
             if (!_Delete.Succeeded)
             {
@@ -76,7 +76,7 @@ namespace Practice_Store.Application.Services.Users.Queries.RoleManagement
 
         public ResultDto EditRole(string RoleName, string NewRoleName)
         {
-            var _Role = _roleManager.FindByNameAsync(RoleName).Result;
+            var _Role = _roleManagementRepo.FindByName(RoleName);
 
             if (_Role == null)
             {
@@ -92,7 +92,7 @@ namespace Practice_Store.Application.Services.Users.Queries.RoleManagement
             _Role.NormalizedName = NewRoleName.ToUpper();
             _Role.UpdateTime = DateTime.UtcNow;
 
-            var Update = _roleManager.UpdateAsync(_Role).Result;
+            var Update = _roleManagementRepo.UpdateRole(_Role);
 
             if (!Update.Succeeded)
             {
@@ -114,7 +114,7 @@ namespace Practice_Store.Application.Services.Users.Queries.RoleManagement
 
         public ResultDto<RoleManagement_RoleDto> GetRoleDetail(string RoleName)
         {
-            var _Role = _roleManager.FindByNameAsync(RoleName).Result;
+            var _Role = _roleManagementRepo.FindByName(RoleName);
 
             if (_Role == null)
             {
@@ -141,11 +141,7 @@ namespace Practice_Store.Application.Services.Users.Queries.RoleManagement
 
         public ResultDto<ResultRoleManagement_GetRolesDto> GetRoles(RequestRoleManagement_GetRolesDto Request)
         {
-            var _Roles = _roleManager.Roles
-                .Where(r => string.IsNullOrEmpty(Request.SearchKey) ||
-                r.Name.Contains(Request.SearchKey) ||
-                r.NormalizedName.Contains(Request.SearchKey))
-                .ToPaged(Request.Page ?? 1, Request.PageSize ?? 20)
+            var _Roles = _roleManagementRepo.SearchRoles(Request)
                 .Select(r => new RoleManagement_RoleDto
                 {
                     RoleId = r.Id,

@@ -17,8 +17,4 @@
     <ProjectReference Include="..\Practice_Store.Domain\Practice_Store.Domain.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Interfaces\RepositoryManager\Users\Queries\" />
-  </ItemGroup>
-
 </Project>

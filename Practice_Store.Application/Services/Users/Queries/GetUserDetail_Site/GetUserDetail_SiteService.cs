@@ -1,21 +1,20 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
+using Practice_Store.Application.Interfaces.RepositoryManager;
 using Practice_Store.Common;
-using Practice_Store.Domain.Entities.Users;
 
 namespace Practice_Store.Application.Services.Users.Queries.GetUserDetail_Site
 {
     public class GetUserDetail_SiteService : IGetUserDetail_Site
     {
-        private readonly UserManager<IdtUser> _userManager;
-        public GetUserDetail_SiteService(UserManager<IdtUser> userManager)
+        private readonly IUserRepoFinder _userRepoFinder;
+        public GetUserDetail_SiteService(IUserRepoFinder userRepoFinder)
         {
-            _userManager = userManager;
+            _userRepoFinder = userRepoFinder;
         }
 
         public ResultDto<GetUserDetail_SiteDto> GetUser(string UserId)
         {
-            var _User = _userManager.FindByIdAsync(UserId).Result;
+            var _User = _userRepoFinder.FindUserById(UserId);
             if (_User == null)
             {
                 return new ResultDto<GetUserDetail_SiteDto>()
