@@ -1,21 +1,23 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
+using Practice_Store.Application.Interfaces.RepositoryManager;
+using Practice_Store.Application.Interfaces.RepositoryManager.Users.Commands;
 using Practice_Store.Common;
-using Practice_Store.Domain.Entities.Users;
 
 namespace Practice_Store.Application.Services.Users.Commands.EditUser_Admin
 {
     public class EditUser_AdminService : IEditUser_Admin
     {
-        private readonly UserManager<IdtUser> _userManager;
-        public EditUser_AdminService(UserManager<IdtUser> userManager)
+        private readonly IUserRepoFinder _userRepoFinder;
+        private readonly IEditUser_AdminRepo _editUser_AdminRepo;
+        public EditUser_AdminService(IUserRepoFinder userRepoFinder,
+            IEditUser_AdminRepo editUser_AdminRepo)
         {
-            _userManager = userManager;
+            _userRepoFinder = userRepoFinder;
+            _editUser_AdminRepo = editUser_AdminRepo;
         }
         public ResultDto EditUser(RequestEditUser_AdminDto Request)
         {
-            var _User = _userManager.FindByIdAsync(Request.UserId).Result;
+            var _User = _userRepoFinder.FindUserById(Request.UserId);
 
             if (_User == null)
             {
@@ -40,7 +42,7 @@ namespace Practice_Store.Application.Services.Users.Commands.EditUser_Admin
 
             if (!string.IsNullOrEmpty(Request.Email))
             {
-                var CheckEmailExist = _userManager.Users.IgnoreQueryFilters().Where(u => u.Email.ToLower() == Request.Email.ToLower()).FirstOrDefault();
+                var CheckEmailExist = _editUser_AdminRepo.EmailExist(Request.Email);
                 if (CheckEmailExist != null)
                 {
                     return new ResultDto()
@@ -55,8 +57,16 @@ namespace Practice_Store.Application.Services.Users.Commands.EditUser_Admin
 
             if (!string.IsNullOrEmpty(Request.Password))
             {
-                var ResetToken = _userManager.GeneratePasswordResetTokenAsync(_User).Result;
-                _userManager.ResetPasswordAsync(_User, ResetToken, Request.Password);
+                var ResetPassword = _editUser_AdminRepo.ResetPassword(_User, Request.Password);
+                if (!ResetPassword.Succeeded)
+                {
+                    return new ResultDto()
+                    {
+                        IsSuccess = false,
+                        Message = "خطایی رخ داد",
+                        StatusCode = StatusCodes.Status500InternalServerError,
+                    };
+                }
             }
 
             if (!string.IsNullOrEmpty(Request.Name))
@@ -87,7 +97,8 @@ namespace Practice_Store.Application.Services.Users.Commands.EditUser_Admin
 
             _User.UpdateTime = DateTime.UtcNow;
 
-            var Update = _userManager.UpdateAsync(_User).Result;
+            var Update = _userRepoFinder.UpdateUser(_User);
+
             if (!Update.Succeeded)
             {
                 return new ResultDto()

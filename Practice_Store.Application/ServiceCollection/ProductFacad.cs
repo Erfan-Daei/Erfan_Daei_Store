@@ -26,7 +26,7 @@ namespace Practice_Store.Application.ServiceCollection
     public class ProductFacad : IProductFacad
     {
         private readonly IDatabaseContext _databaseContext;
-        private readonly IManageUserRepository _manageUserRepository;
+        private readonly IUserRepoFinder _userRepoFinder;
         private readonly IProductRepoFinders _productRepoFinders;
         private readonly IAddCategoryRepo _addCategoryRepo;
         private readonly IAddproductRepo _addproductRepo;
@@ -46,7 +46,7 @@ namespace Practice_Store.Application.ServiceCollection
         private readonly IGetProductList_SiteRepo _getProductList_SiteRepo;
         public ProductFacad(
         IDatabaseContext databaseContext,
-        IManageUserRepository manageUserRepository,
+        IUserRepoFinder manageUserRepository,
         IProductRepoFinders productRepoFinders,
         IAddCategoryRepo addCategoryRepo,
         IAddproductRepo addProductRepo,
@@ -66,7 +66,7 @@ namespace Practice_Store.Application.ServiceCollection
         IGetProductList_SiteRepo getProductList_SiteRepo)
         {
             _databaseContext = databaseContext;
-            _manageUserRepository = manageUserRepository;
+            _userRepoFinder = manageUserRepository;
             _productRepoFinders = productRepoFinders;
             _addCategoryRepo = addCategoryRepo;
             _addproductRepo = addProductRepo;
@@ -208,7 +208,7 @@ namespace Practice_Store.Application.ServiceCollection
         {
             get
             {
-                return _addReview = _addReview ?? new AddReviewService(_addreviewRepo, _productRepoFinders, _manageUserRepository);
+                return _addReview = _addReview ?? new AddReviewService(_addreviewRepo, _productRepoFinders, _userRepoFinder);
             }
         }
 
@@ -226,7 +226,7 @@ namespace Practice_Store.Application.ServiceCollection
         {
             get
             {
-                return _addReplyToReview = _addReplyToReview ?? new AddReplyToReviewService(_manageUserRepository, _addreplyRepo);
+                return _addReplyToReview = _addReplyToReview ?? new AddReplyToReviewService(_userRepoFinder, _addreplyRepo);
             }
         }
     }

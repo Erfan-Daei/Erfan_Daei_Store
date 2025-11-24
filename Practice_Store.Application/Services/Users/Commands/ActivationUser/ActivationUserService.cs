@@ -1,19 +1,23 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Practice_Store.Application.Interfaces.RepositoryManager;
+using Practice_Store.Application.Interfaces.RepositoryManager.Users.Commands;
 using Practice_Store.Common;
 
 namespace Practice_Store.Application.Services.Users.Commands.ActivationUser
 {
     public class ActivationUserService : IActivationUser
     {
-        private readonly IManageUserRepository _manageUserRepository;
-        public ActivationUserService(IManageUserRepository manageUserRepository)
+        private readonly IUserRepoFinder _userRepoFinder;
+        private readonly IActivationUserRepo _activationUserRepo;
+        public ActivationUserService(IUserRepoFinder userRepoFinder,
+            IActivationUserRepo activationUserRepo)
         {
-            _manageUserRepository = manageUserRepository;
+            _userRepoFinder = userRepoFinder;
+            _activationUserRepo = activationUserRepo;
         }
         public ResultDto<ResultActivationUserDto> ChangeActivationState(string UserId)
         {
-            var _User = _manageUserRepository.FindUserById(UserId);
+            var _User = _userRepoFinder.FindUserById(UserId);
             if (_User == null)
             {
                 return new ResultDto<ResultActivationUserDto>()
@@ -24,7 +28,7 @@ namespace Practice_Store.Application.Services.Users.Commands.ActivationUser
                 };
             }
 
-            var Change = _manageUserRepository.ChangeUserActivation(_User);
+            var Change = _activationUserRepo.ChangeUserActivation(_User);
             if (!Change)
             {
                 return new ResultDto<ResultActivationUserDto>()

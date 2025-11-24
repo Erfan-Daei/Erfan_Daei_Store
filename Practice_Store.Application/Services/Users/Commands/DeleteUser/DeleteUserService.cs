@@ -1,21 +1,23 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
-using Practice_Store.Application.Interfaces.Contexts;
+using Practice_Store.Application.Interfaces.RepositoryManager;
+using Practice_Store.Application.Interfaces.RepositoryManager.Users.Commands;
 using Practice_Store.Common;
-using Practice_Store.Domain.Entities.Users;
 
 namespace Practice_Store.Application.Services.Users.Commands.DeleteUser
 {
     public class DeleteUserService : IDeleteUser
     {
-        private readonly UserManager<IdtUser> _userManager;
-        public DeleteUserService(UserManager<IdtUser> userManager)
+        private readonly IUserRepoFinder _userRepoFinder;
+        private readonly IDeleteUserRepo _deleteUserRepo;
+        public DeleteUserService(IUserRepoFinder userRepoFinder,
+            IDeleteUserRepo deleteUserRepo)
         {
-            _userManager = userManager;
+            _userRepoFinder = userRepoFinder;
+            _deleteUserRepo = deleteUserRepo;
         }
         public ResultDto DeleteUser(string UserId)
         {
-            var _User = _userManager.FindByIdAsync(UserId).Result;
+            var _User = _userRepoFinder.FindUserById(UserId);
             if (_User == null)
             {
                 return new ResultDto()
@@ -25,12 +27,12 @@ namespace Practice_Store.Application.Services.Users.Commands.DeleteUser
                     StatusCode = StatusCodes.Status404NotFound,
                 };
             }
-            var _UserRoles = _userManager.GetRolesAsync(_User).Result;
-            var _DeleteRoles = _userManager.RemoveFromRolesAsync(_User, _UserRoles).Result;
+            var _UserRoles = _deleteUserRepo.GetRoles(_User);
+            var _DeleteRoles = _deleteUserRepo.RemoveFromRole(_User, _UserRoles);
             _User.DeletedTime = DateTime.UtcNow;
-            _User.IsDeleted = true ;
-            _User.LockoutEnabled = true ;
-            var Delete = _userManager.UpdateAsync(_User).Result;
+            _User.IsDeleted = true;
+            _User.LockoutEnabled = true;
+            var Delete = _userRepoFinder.UpdateUser(_User);
             if (!Delete.Succeeded)
             {
                 return new ResultDto()

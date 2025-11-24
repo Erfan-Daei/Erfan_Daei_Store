@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Practice_Store.Application.Interfaces.Contexts;
 using Practice_Store.Application.Interfaces.RepositoryManager;
 using Practice_Store.Application.Interfaces.RepositoryManager.Products;
 using Practice_Store.Application.Interfaces.RepositoryManager.Products.Commands;
@@ -12,10 +11,10 @@ namespace Practice_Store.Application.Services.Products.Commands.AddReview
     {
         private readonly IAddReviewRepo _addReviewRepo;
         private readonly IProductRepoFinders _productRepoFinders;
-        private readonly IManageUserRepository _manageUserRepository;
+        private readonly IUserRepoFinder _manageUserRepository;
         public AddReviewService(IAddReviewRepo addReviewRepo,
             IProductRepoFinders productRepoFinders,
-            IManageUserRepository manageUserRepository)
+            IUserRepoFinder manageUserRepository)
         {
             _addReviewRepo = addReviewRepo;
             _productRepoFinders = productRepoFinders;

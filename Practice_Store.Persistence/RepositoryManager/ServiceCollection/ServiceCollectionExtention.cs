@@ -9,6 +9,8 @@ using Practice_Store.Application.Interfaces.RepositoryManager.Orders.Queries;
 using Practice_Store.Application.Interfaces.RepositoryManager.Products;
 using Practice_Store.Application.Interfaces.RepositoryManager.Products.Commands;
 using Practice_Store.Application.Interfaces.RepositoryManager.Products.Queries;
+using Practice_Store.Application.Interfaces.RepositoryManager.Users;
+using Practice_Store.Application.Interfaces.RepositoryManager.Users.Commands;
 using Practice_Store.Persistence.RepositoryManager.Carts.Commands;
 using Practice_Store.Persistence.RepositoryManager.Carts.Queries;
 using Practice_Store.Persistence.RepositoryManager.LandingPage.Commands;
@@ -18,20 +20,33 @@ using Practice_Store.Persistence.RepositoryManager.Orders.Queries;
 using Practice_Store.Persistence.RepositoryManager.Products;
 using Practice_Store.Persistence.RepositoryManager.Products.Commands;
 using Practice_Store.Persistence.RepositoryManager.Products.Queries;
+using Practice_Store.Persistence.RepositoryManager.Users;
+using Practice_Store.Persistence.RepositoryManager.Users.Commands;
 
 namespace Practice_Store.Persistence.RepositoryManager.ServiceCollection
 {
     public static class ServiceCollectionExtention
     {
-        public static IServiceCollection RepositoriesServices(this IServiceCollection services)
+        public static IServiceCollection UserRepositoryServices(this IServiceCollection services)
         {
-            services.AddScoped<IManageRepository, ManageRepository>();
-            services.AddScoped<IManageUserRepository, ManageUserRepository>();
+            services.AddScoped<IUserRepoFinder, UserRepoFinder>();
+            services.AddScoped<IActivationUserRepo, ActivationUserRepo>();
+            services.AddScoped<IChangeUserEmail_SiteRepo, ChangeUserEmail_SiteRepo>();
+            services.AddScoped<IConfirmEmailRepo, ConfirmEmailRepo>();
+            services.AddScoped<IDeleteUserRepo, DeleteUserRepo>();
+            services.AddScoped<IEditUser_AdminRepo, EditUser_AdminRepo>();
+            services.AddScoped<IEditUserRoleRepo, EditUserRoleRepo>();
+            services.AddScoped<IForgetPasswordRepo, ForgetPasswordRepo>();
+            services.AddScoped<ILogInUserRepo, LogInUserRepo>();
+            services.AddScoped<ILogOutRepo, LogOutRepo>();
+            services.AddScoped<IRefreshTokenRepo, RefreshTokenRepo>();
+            services.AddScoped<ISaveTokenRepo, SaveTokenRepo>();
+            services.AddScoped<IRegisterUserRepo, RegisterUserRepo>();
 
             return services;
         }
 
-        public static IServiceCollection ProductRepositiryServices(this IServiceCollection services)
+        public static IServiceCollection ProductRepositoryServices(this IServiceCollection services)
         {
             services.AddScoped<IProductRepoFinders, ProductRepoFinders>();
             services.AddScoped<IAddCategoryRepo, AddCategoryRepo>();

@@ -1,20 +1,23 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
+using Practice_Store.Application.Interfaces.RepositoryManager;
+using Practice_Store.Application.Interfaces.RepositoryManager.Users.Commands;
 using Practice_Store.Common;
-using Practice_Store.Domain.Entities.Users;
 
 namespace Practice_Store.Application.Services.Users.Commands.ConfirmEmail
 {
     public class ConfirmEmailService : IConfirmEmail
     {
-        private readonly UserManager<IdtUser> _userManager;
-        public ConfirmEmailService(UserManager<IdtUser> userManager)
+        private readonly IUserRepoFinder _userRepoFinder;
+        private readonly IConfirmEmailRepo _confirmEmailRepo;
+        public ConfirmEmailService(IUserRepoFinder userRepoFinder,
+            IConfirmEmailRepo confirmEmailRepo)
         {
-            _userManager = userManager;
+            _userRepoFinder = userRepoFinder;
+            _confirmEmailRepo = confirmEmailRepo;
         }
         public ResultDto ConfirmEmail(string UserId, string Token)
         {
-            var _User = _userManager.FindByIdAsync(UserId).Result;
+            var _User = _userRepoFinder.FindUserById(UserId);
 
             if (_User == null)
             {
@@ -25,9 +28,9 @@ namespace Practice_Store.Application.Services.Users.Commands.ConfirmEmail
                 };
             }
 
-            var Confirm = _userManager.ConfirmEmailAsync(_User, Token).Result;
+            var Confirm = _confirmEmailRepo.ConfirmEmail(_User, Token);
 
-            if (!Confirm.Succeeded)
+            if (!Confirm)
             {
                 return new ResultDto()
                 {
@@ -47,7 +50,7 @@ namespace Practice_Store.Application.Services.Users.Commands.ConfirmEmail
 
         public ResultDto<string> GenerateToken(string UserId)
         {
-            var _User = _userManager.FindByIdAsync(UserId).Result;
+            var _User = _userRepoFinder.FindUserById(UserId);
 
             if (_User == null)
             {
@@ -59,7 +62,7 @@ namespace Practice_Store.Application.Services.Users.Commands.ConfirmEmail
                 };
             }
 
-            var Token = _userManager.GenerateEmailConfirmationTokenAsync(_User).Result;
+            var Token = _confirmEmailRepo.GenerateToken(_User);
 
             return new ResultDto<string>()
             {

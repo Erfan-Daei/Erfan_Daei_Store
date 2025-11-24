@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Practice_Store.Application.JWTToken;
+using Practice_Store.Common;
+using Practice_Store.Domain.Entities.Users;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -46,6 +48,23 @@ namespace Practice_Store.Infrastructure.JWTToken
             var _RefreshToken = Guid.NewGuid().ToString();
 
             return (_JWTToken,_RefreshToken);
+        }
+
+        public IdtUsertokens GenerateIdtUserToken(string UserId, string Value, string RefreshToken)
+        {
+            var JwtToken = new IdtUsertokens
+            {
+                TokenId = Guid.NewGuid(),
+                LoginProvider = "Internal",
+                Name = nameof(TokenType.AccessToken),
+                TokenExpireDate = DateTime.UtcNow.AddMinutes(Convert.ToInt16(_configuration["JWTConfig:expire"])),
+                UserId = UserId,
+                Value = HashHelper.Hash(Value),
+                RefreshToken = HashHelper.Hash(RefreshToken),
+                RefreshTokenExpireDate = DateTime.UtcNow.AddMinutes(Convert.ToInt16(_configuration["JWTConfig:refreshExpire"])),
+            };
+
+            return JwtToken;
         }
     }
 }

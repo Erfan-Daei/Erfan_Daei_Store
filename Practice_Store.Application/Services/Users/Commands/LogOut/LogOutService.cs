@@ -1,23 +1,29 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Practice_Store.Application.Interfaces.Contexts;
+using Practice_Store.Application.Interfaces.RepositoryManager.Users.Commands;
 using Practice_Store.Common;
 
 namespace Practice_Store.Application.Services.Users.Commands.LogOut
 {
     public class LogOutService : ILogOut
     {
-        private readonly IDatabaseContext _databaseContext;
-
-        public LogOutService(IDatabaseContext databaseContext)
+        private readonly ILogOutRepo _logOutRepo;
+        public LogOutService(ILogOutRepo logOutRepo)
         {
-            _databaseContext = databaseContext;
+            _logOutRepo = logOutRepo;
         }
 
         public ResultDto Execute(string UserId)
         {
-            var Token = _databaseContext.UserTokens.Where(t => t.UserId == UserId && t.Name == nameof(TokenType.AccessToken)).ToList();
-            _databaseContext.UserTokens.RemoveRange(Token);
-            _databaseContext.SaveChanges();
+            var DeleteToken = _logOutRepo.RemoveUserToken(UserId);
+            if (!DeleteToken)
+            {
+                return new ResultDto
+                {
+                    IsSuccess = true,
+                    Message = "اروری رخ داد",
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                };
+            }
 
             return new ResultDto
             {

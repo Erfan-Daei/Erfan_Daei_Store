@@ -1,24 +1,24 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
+using Practice_Store.Application.Interfaces.RepositoryManager;
+using Practice_Store.Application.Interfaces.RepositoryManager.Users.Commands;
 using Practice_Store.Common;
-using Practice_Store.Domain.Entities.Users;
-using System.Data;
 
 namespace Practice_Store.Application.Services.Users.Commands.EditUserRole
 {
     public class EditUserRoleService : IEditUserRole
     {
-        private readonly UserManager<IdtUser> _userManager;
-        private readonly RoleManager<IdtRole> _roleManager;
-        public EditUserRoleService(UserManager<IdtUser> userManager, RoleManager<IdtRole> roleManager)
+        private readonly IUserRepoFinder _userRepoFinder;
+        private readonly IEditUserRoleRepo _editUserRoleRepo;
+        public EditUserRoleService(IUserRepoFinder userRepoFinder,
+            IEditUserRoleRepo editUserRoleRepo)
         {
-            _userManager = userManager;
-            _roleManager = roleManager;
+            _userRepoFinder = userRepoFinder;
+            _editUserRoleRepo = editUserRoleRepo;
         }
 
         public ResultDto AddRoles(RequestEditUserRole Request)
         {
-            var _User = _userManager.FindByIdAsync(Request.UserId).Result;
+            var _User = _userRepoFinder.FindUserById(Request.UserId);
             if (_User == null)
             {
                 return new ResultDto()
@@ -29,7 +29,7 @@ namespace Practice_Store.Application.Services.Users.Commands.EditUserRole
                 };
             }
 
-            var _UserRoles = _userManager.GetRolesAsync(_User).Result.ToList();
+            var _UserRoles = _editUserRoleRepo.GetRoles(_User);
             Request.Roles = Request.Roles.Except(_UserRoles).ToList();
 
             if (Request.Roles.Count == 0)
@@ -44,7 +44,7 @@ namespace Practice_Store.Application.Services.Users.Commands.EditUserRole
 
             foreach (var role in Request.Roles)
             {
-                var CheckRole = _roleManager.RoleExistsAsync(role).Result;
+                var CheckRole = _editUserRoleRepo.RoleExist(role);
                 if (!CheckRole)
                 {
                     return new ResultDto()
@@ -56,7 +56,7 @@ namespace Practice_Store.Application.Services.Users.Commands.EditUserRole
                 }
             }
 
-            var AddRoles = _userManager.AddToRolesAsync(_User, Request.Roles).Result;
+            var AddRoles = _editUserRoleRepo.AddToRoles(_User, Request.Roles);
             if (!AddRoles.Succeeded)
             {
                 return new ResultDto()
@@ -77,7 +77,7 @@ namespace Practice_Store.Application.Services.Users.Commands.EditUserRole
 
         public ResultDto DeleteRoles(RequestEditUserRole Request)
         {
-            var _User = _userManager.FindByIdAsync(Request.UserId).Result;
+            var _User = _userRepoFinder.FindUserById(Request.UserId);
             if (_User == null)
             {
                 return new ResultDto()
@@ -90,7 +90,7 @@ namespace Practice_Store.Application.Services.Users.Commands.EditUserRole
 
             foreach (var role in Request.Roles)
             {
-                var CheckRole = _roleManager.RoleExistsAsync(role).Result;
+                var CheckRole = _editUserRoleRepo.RoleExist(role);
                 if (!CheckRole)
                 {
                     return new ResultDto()
@@ -102,7 +102,7 @@ namespace Practice_Store.Application.Services.Users.Commands.EditUserRole
                 }
             }
 
-            var DeleteRole = _userManager.RemoveFromRolesAsync(_User, Request.Roles).Result;
+            var DeleteRole = _editUserRoleRepo.RemoveFromRoles(_User, Request.Roles);
             if (!DeleteRole.Succeeded)
             {
                 return new ResultDto()

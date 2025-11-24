@@ -1,20 +1,19 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
+using Practice_Store.Application.Interfaces.RepositoryManager;
 using Practice_Store.Common;
-using Practice_Store.Domain.Entities.Users;
 
 namespace Practice_Store.Application.Services.Users.Commands.EditUser
 {
     public class EditUser_SiteService : IEditUser_Site
     {
-        private readonly UserManager<IdtUser> _userManager;
-        public EditUser_SiteService(UserManager<IdtUser> userManager)
+        private readonly IUserRepoFinder _userRepoFinder;
+        public EditUser_SiteService(IUserRepoFinder userRepoFinder)
         {
-            _userManager = userManager;
+            _userRepoFinder = userRepoFinder;
         }
         public ResultDto EditUser(RequestEditUser_SiteDto Request)
         {
-            var _User = _userManager.FindByIdAsync(Request.UserId).Result;
+            var _User = _userRepoFinder.FindUserById(Request.UserId);
 
             if (_User == null)
             {
@@ -51,17 +50,17 @@ namespace Practice_Store.Application.Services.Users.Commands.EditUser
             {
                 Request.Address = "-";
             }
-            
+
             if (!string.IsNullOrEmpty(Request.Address))
             {
                 _User.Address = Request.Address;
             }
-            
+
             if (!string.IsNullOrEmpty(Request.PostCode))
             {
                 _User.PostCode = Convert.ToInt64(Request.PostCode);
             }
-            
+
             if (!string.IsNullOrEmpty(Request.Mobile))
             {
                 _User.PhoneNumber = Request.Mobile;
@@ -70,7 +69,7 @@ namespace Practice_Store.Application.Services.Users.Commands.EditUser
 
             _User.UpdateTime = DateTime.UtcNow;
 
-            var Update = _userManager.UpdateAsync(_User).Result;
+            var Update = _userRepoFinder.UpdateUser(_User);
             if (!Update.Succeeded)
             {
                 return new ResultDto()

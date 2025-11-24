@@ -1,23 +1,24 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Practice_Store.Application.Interfaces.RepositoryManager;
-using Practice_Store.Domain.Entities.Users;
+using Practice_Store.Application.Interfaces.RepositoryManager.Users.Commands;
 using System.Text.RegularExpressions;
 
 namespace Practice_Store.Application.Services.Users.Commands.ChangeUserEmail_Site
 {
     public class ChangeUserEmail_SiteService : IChangeUserEmail_Site
     {
-        private readonly IManageUserRepository _manageUserRepository;
-        public ChangeUserEmail_SiteService(IManageUserRepository manageUserRepository)
+        private readonly IUserRepoFinder _userRepoFinder;
+        private readonly IChangeUserEmail_SiteRepo _changeUserEmail_SiteRepo;
+        public ChangeUserEmail_SiteService(IUserRepoFinder userRepoFinder,
+            IChangeUserEmail_SiteRepo changeUserEmail_SiteRepo)
         {
-            _manageUserRepository = manageUserRepository;
+            _userRepoFinder = userRepoFinder;
+            _changeUserEmail_SiteRepo = changeUserEmail_SiteRepo;
         }
 
         public ResultChangeUserEmail_SiteDto CheckEmailValidation(string UserId, string LastEmail, string NewEmail)
         {
-            var _User = _manageUserRepository.FindUserById(UserId);
+            var _User = _userRepoFinder.FindUserById(UserId);
             if (_User == null)
             {
                 return new ResultChangeUserEmail_SiteDto
@@ -50,7 +51,7 @@ namespace Practice_Store.Application.Services.Users.Commands.ChangeUserEmail_Sit
                 };
             }
 
-            var _GetEmail = _manageUserRepository.EmailExist(NewEmail);
+            var _GetEmail = _changeUserEmail_SiteRepo.EmailExist(NewEmail);
             if (_GetEmail != null)
             {
                 return new ResultChangeUserEmail_SiteDto
@@ -63,8 +64,8 @@ namespace Practice_Store.Application.Services.Users.Commands.ChangeUserEmail_Sit
             _User.Email = NewEmail;
             _User.UserName = NewEmail;
             _User.EmailConfirmed = false;
-            var Update = _manageUserRepository.UpdateUser(_User);
-            if (!Update)
+            var Update = _userRepoFinder.UpdateUser(_User);
+            if (!Update.Succeeded)
             {
                 return new ResultChangeUserEmail_SiteDto
                 {
@@ -74,7 +75,7 @@ namespace Practice_Store.Application.Services.Users.Commands.ChangeUserEmail_Sit
                 };
             }
 
-            var Token = _manageUserRepository.GenerateChangeEmailToken(_User);
+            var Token = _changeUserEmail_SiteRepo.GenerateChangeEmailToken(_User);
 
             return new ResultChangeUserEmail_SiteDto
             {

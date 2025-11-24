@@ -1,26 +1,19 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
-using Practice_Store.Application.Interfaces.Contexts;
-using Practice_Store.Application.JWTToken;
+using Practice_Store.Application.Interfaces.RepositoryManager;
+using Practice_Store.Application.Interfaces.RepositoryManager.Users.Commands;
 using Practice_Store.Common;
-using Practice_Store.Domain.Entities.Users;
 
 namespace Practice_Store.Application.Services.Users.Commands.LogInUsers
 {
     public class LogInUserService : ILogInUser
     {
-        private readonly UserManager<IdtUser> _userManager;
-        private readonly IDatabaseContext _databaseContext;
-        private readonly IConfiguration _configuration;
-        public LogInUserService(UserManager<IdtUser> userManager,
-            IGenerateToken generateToken,
-            IDatabaseContext databaseContext,
-            IConfiguration configuration)
+        private readonly IUserRepoFinder _userRepoFinder;
+        private readonly ILogInUserRepo _logInUserRepo;
+        public LogInUserService(IUserRepoFinder userRepoFinder,
+            ILogInUserRepo logInUserRepo)
         {
-            _userManager = userManager;
-            _databaseContext = databaseContext;
-            _configuration = configuration;
+            _userRepoFinder = userRepoFinder;
+            _logInUserRepo = logInUserRepo;
         }
 
         public ResultDto<ResultLogInUserDto> Execute(string Email, string Password)
@@ -35,7 +28,7 @@ namespace Practice_Store.Application.Services.Users.Commands.LogInUsers
                 };
             }
 
-            var _User = _userManager.FindByEmailAsync(Email).Result;
+            var _User = _userRepoFinder.FindUserByEmail(Email);
 
             if (_User == null)
             {
@@ -55,7 +48,7 @@ namespace Practice_Store.Application.Services.Users.Commands.LogInUsers
                     StatusCode = StatusCodes.Status403Forbidden,
                 };
             }
-            var VerifiedPassword = _userManager.CheckPasswordAsync(_User, Password).Result;
+            var VerifiedPassword = _logInUserRepo.CheckPassword(_User, Password);
 
             if (!VerifiedPassword)
             {
@@ -67,12 +60,19 @@ namespace Practice_Store.Application.Services.Users.Commands.LogInUsers
                 };
             }
 
-            var PreviousToken = _databaseContext.UserTokens.Where(t => t.Name == nameof(TokenType.AccessToken) && t.UserId == _User.Id).ToList();
-            _databaseContext.UserTokens.RemoveRange(PreviousToken);
+            var DeletePreviousTokens = _logInUserRepo.DeletePreviousTokens(_User.Id);
+            if (!DeletePreviousTokens)
+            {
+                return new ResultDto<ResultLogInUserDto>()
+                {
+                    IsSuccess = false,
+                    Message = "خطایی رخ داد",
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                };
+            }
 
-            List<string> Roles = _userManager.GetRolesAsync(_User).Result.ToList();
-
-            _databaseContext.SaveChanges();
+            List<string> Roles = _logInUserRepo.GetRoles(_User);
+            _logInUserRepo.Save();
 
             return new ResultDto<ResultLogInUserDto>()
             {

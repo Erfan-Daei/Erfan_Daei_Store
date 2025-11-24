@@ -8,9 +8,9 @@ namespace Practice_Store.Application.Services.Products.Commands.AddReplyToReview
 {
     public class AddReplyToReviewService : IAddReplyToReview
     {
-        private readonly IManageUserRepository _manageUserRepository;
+        private readonly IUserRepoFinder _manageUserRepository;
         private readonly IAddReplyRepo _addReplyRepo;
-        public AddReplyToReviewService(IManageUserRepository manageUserRepository, IAddReplyRepo addReplyRepo)
+        public AddReplyToReviewService(IUserRepoFinder manageUserRepository, IAddReplyRepo addReplyRepo)
         {
             _manageUserRepository = manageUserRepository;
             _addReplyRepo = addReplyRepo;

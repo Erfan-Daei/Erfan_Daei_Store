@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
 using Practice_Store.Application.Interfaces.Contexts;
 using Practice_Store.Application.Interfaces.FacadPatterns;
 using Practice_Store.Application.Interfaces.RepositoryManager;
+using Practice_Store.Application.Interfaces.RepositoryManager.Users.Commands;
 using Practice_Store.Application.JWTToken;
 using Practice_Store.Application.Services.Users.Commands.ActivationUser;
 using Practice_Store.Application.Services.Users.Commands.ChangeUserEmail_Site;
@@ -29,25 +29,62 @@ namespace Practice_Store.Application.ServiceCollection
 {
     public class UserFacad : IUserFacad
     {
-        private readonly IManageUserRepository _manageUserRepository;
+        private readonly IUserRepoFinder _userRepoFinder;
+        private readonly IActivationUserRepo _activationUserRepo;
+        private readonly IChangeUserEmail_SiteRepo _changeUserEmail_SiteRepo;
+        private readonly IConfirmEmailRepo _confirmEmailRepo;
+        private readonly IDeleteUserRepo _deleteUserRepo;
+        private readonly IEditUser_AdminRepo _editUser_AdminRepo;
+        private readonly IEditUserRoleRepo _editUserRoleRepo;
+        private readonly IForgetPasswordRepo _forgetPasswordRepo;
+        private readonly ILogInUserRepo _logInUserRepo;
+        private readonly ILogOutRepo _logOutRepo;
+        private readonly IRefreshTokenRepo _refreshTokenRepo;
+        private readonly ISaveTokenRepo _saveTokenRepo;
+        private readonly IRegisterUserRepo _registerUserRepo;
+
+
         private readonly IDatabaseContext _databaseContext;
         private readonly UserManager<IdtUser> _userManager;
         private readonly RoleManager<IdtRole> _roleManager;
         private readonly IGenerateToken _generateToken;
-        private readonly IConfiguration _configuration;
-        public UserFacad(IManageUserRepository manageUserRepository,
+        public UserFacad(IUserRepoFinder userRepoFinder,
+            IActivationUserRepo activationUserRepo,
+            IChangeUserEmail_SiteRepo changeUserEmail_SiteRepo,
+            IConfirmEmailRepo confirmEmailRepo,
+            IDeleteUserRepo deleteUserRepo,
+            IEditUser_AdminRepo editUser_AdminRepo,
+            IEditUserRoleRepo editUserRoleRepo,
+            IForgetPasswordRepo forgetPasswordRepo,
+            ILogInUserRepo logInUserRepo,
+            ILogOutRepo logOutRepo,
+            IRefreshTokenRepo refreshTokenRepo,
+            ISaveTokenRepo saveTokenRepo,
+            IRegisterUserRepo registerUserRepo,
+
             IDatabaseContext databaseContext,
             UserManager<IdtUser> userManager,
             RoleManager<IdtRole> roleManager,
-            IGenerateToken generateToken,
-            IConfiguration configuration)
+            IGenerateToken generateToken)
         {
-            _manageUserRepository = manageUserRepository;
+            _userRepoFinder = userRepoFinder;
+            _activationUserRepo = activationUserRepo;
+            _changeUserEmail_SiteRepo = changeUserEmail_SiteRepo;
+            _confirmEmailRepo = confirmEmailRepo;
+            _deleteUserRepo = deleteUserRepo;
+            _editUser_AdminRepo = editUser_AdminRepo;
+            _editUserRoleRepo = editUserRoleRepo;
+            _forgetPasswordRepo = forgetPasswordRepo;
+            _logInUserRepo = logInUserRepo;
+            _logOutRepo = logOutRepo;
+            _refreshTokenRepo = refreshTokenRepo;
+            _saveTokenRepo = saveTokenRepo;
+            _registerUserRepo = registerUserRepo;
+
             _databaseContext = databaseContext;
             _userManager = userManager;
             _roleManager = roleManager;
             _generateToken = generateToken;
-            _configuration = configuration;
         }
 
         private IActivationUser _activationUser;
@@ -55,7 +92,7 @@ namespace Practice_Store.Application.ServiceCollection
         {
             get
             {
-                return _activationUser = _activationUser ?? new ActivationUserService(_manageUserRepository);
+                return _activationUser = _activationUser ?? new ActivationUserService(_userRepoFinder, _activationUserRepo);
             }
         }
 
@@ -64,7 +101,7 @@ namespace Practice_Store.Application.ServiceCollection
         {
             get
             {
-                return _deleteUser = _deleteUser ?? new DeleteUserService(_userManager);
+                return _deleteUser = _deleteUser ?? new DeleteUserService(_userRepoFinder, _deleteUserRepo);
             }
         }
 
@@ -73,7 +110,7 @@ namespace Practice_Store.Application.ServiceCollection
         {
             get
             {
-                return _editUser_Site = _editUser_Site ?? new EditUser_SiteService(_userManager);
+                return _editUser_Site = _editUser_Site ?? new EditUser_SiteService(_userRepoFinder);
             }
         }
 
@@ -82,7 +119,7 @@ namespace Practice_Store.Application.ServiceCollection
         {
             get
             {
-                return _editUser_Admin = _editUser_Admin ?? new EditUser_AdminService(_userManager);
+                return _editUser_Admin = _editUser_Admin ?? new EditUser_AdminService(_userRepoFinder, _editUser_AdminRepo);
             }
         }
 
@@ -91,7 +128,7 @@ namespace Practice_Store.Application.ServiceCollection
         {
             get
             {
-                return _editUserRole = _editUserRole ?? new EditUserRoleService(_userManager, _roleManager);
+                return _editUserRole = _editUserRole ?? new EditUserRoleService(_userRepoFinder, _editUserRoleRepo);
             }
         }
 
@@ -100,7 +137,7 @@ namespace Practice_Store.Application.ServiceCollection
         {
             get
             {
-                return _forgetPassword = _forgetPassword ?? new ForgetPasswordService(_userManager);
+                return _forgetPassword = _forgetPassword ?? new ForgetPasswordService(_userRepoFinder, _forgetPasswordRepo);
             }
         }
 
@@ -109,7 +146,7 @@ namespace Practice_Store.Application.ServiceCollection
         {
             get
             {
-                return _logInUser = _logInUser ?? new LogInUserService(_userManager, _generateToken, _databaseContext, _configuration);
+                return _logInUser = _logInUser ?? new LogInUserService(_userRepoFinder, _logInUserRepo);
             }
         }
 
@@ -118,7 +155,7 @@ namespace Practice_Store.Application.ServiceCollection
         {
             get
             {
-                return _registerUser = _registerUser ?? new RegisterUserService(_userManager, _roleManager);
+                return _registerUser = _registerUser ?? new RegisterUserService(_userRepoFinder, _registerUserRepo);
             }
         }
 
@@ -163,7 +200,7 @@ namespace Practice_Store.Application.ServiceCollection
         {
             get
             {
-                return _changeUserEmail_Site = _changeUserEmail_Site ?? new ChangeUserEmail_SiteService(_manageUserRepository);
+                return _changeUserEmail_Site = _changeUserEmail_Site ?? new ChangeUserEmail_SiteService(_userRepoFinder, _changeUserEmail_SiteRepo);
             }
         }
 
@@ -190,7 +227,7 @@ namespace Practice_Store.Application.ServiceCollection
         {
             get
             {
-                return _refreshToken = _refreshToken ?? new RefreshTokenService(_databaseContext, _configuration, _userManager, _generateToken);
+                return _refreshToken = _refreshToken ?? new RefreshTokenService(_userRepoFinder, _refreshTokenRepo, _generateToken);
             }
         }
 
@@ -199,7 +236,7 @@ namespace Practice_Store.Application.ServiceCollection
         {
             get
             {
-                return _logOut = _logOut ?? new LogOutService(_databaseContext);
+                return _logOut = _logOut ?? new LogOutService(_logOutRepo);
             }
         }
 
@@ -208,7 +245,7 @@ namespace Practice_Store.Application.ServiceCollection
         {
             get
             {
-                return _saveToken = _saveToken ?? new SaveTokenService(_generateToken, _databaseContext, _configuration);
+                return _saveToken = _saveToken ?? new SaveTokenService(_saveTokenRepo, _generateToken);
             }
         }
 
@@ -217,7 +254,7 @@ namespace Practice_Store.Application.ServiceCollection
         {
             get
             {
-                return _confirmEmail = _confirmEmail ?? new ConfirmEmailService(_userManager);
+                return _confirmEmail = _confirmEmail ?? new ConfirmEmailService(_userRepoFinder, _confirmEmailRepo);
             }
         }
     }

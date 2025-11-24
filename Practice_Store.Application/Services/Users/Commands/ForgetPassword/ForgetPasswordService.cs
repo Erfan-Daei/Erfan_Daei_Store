@@ -1,19 +1,20 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Practice_Store.Application.Interfaces.Contexts;
+using Practice_Store.Application.Interfaces.RepositoryManager;
+using Practice_Store.Application.Interfaces.RepositoryManager.Users.Commands;
 using Practice_Store.Common;
-using Practice_Store.Domain.Entities.Users;
 using System.Text.RegularExpressions;
 
 namespace Practice_Store.Application.Services.Users.Commands.ForgetPassword
 {
     public partial class ForgetPasswordService : IForgetPassword
     {
-        private readonly UserManager<IdtUser> _userManager;
-        public ForgetPasswordService(UserManager<IdtUser> userManager)
+        private readonly IUserRepoFinder _userRepoFinder;
+        private readonly IForgetPasswordRepo _forgetPasswordRepo;
+        public ForgetPasswordService(IUserRepoFinder userRepoFinder,
+            IForgetPasswordRepo forgetPasswordRepo)
         {
-            _userManager = userManager;
+            _userRepoFinder = userRepoFinder;
+            _forgetPasswordRepo = forgetPasswordRepo;
         }
         public ResultForgetPasswordDto CheckPassword(string UserId, string NewPassword)
         {
@@ -29,7 +30,7 @@ namespace Practice_Store.Application.Services.Users.Commands.ForgetPassword
                 };
             }
 
-            var _User = _userManager.FindByIdAsync(UserId).Result;
+            var _User = _userRepoFinder.FindUserById(UserId);
             if (_User == null)
             {
                 return new ResultForgetPasswordDto
@@ -50,7 +51,7 @@ namespace Practice_Store.Application.Services.Users.Commands.ForgetPassword
                 };
             }
 
-            var Token = _userManager.GeneratePasswordResetTokenAsync(_User).Result;
+            var Token = _forgetPasswordRepo.GeneratePasswordResetToken(_User);
 
             return new ResultForgetPasswordDto
             {
@@ -64,7 +65,7 @@ namespace Practice_Store.Application.Services.Users.Commands.ForgetPassword
 
         public ResultDto UpdatePassword(string UserId, string Token, string NewPassword)
         {
-            
+
             string PasswordPattern = @"^(?=.*\b\w+\b){8,}(?=.*[0-9])(?=.*[A-Z])(?=.*[a-z])(?=.*[!@#$%^&*(),.?"":{}|<>]).+$";
             var MatchPassword = Regex.Match(NewPassword, PasswordPattern);
             if (!MatchPassword.Success)
@@ -77,7 +78,7 @@ namespace Practice_Store.Application.Services.Users.Commands.ForgetPassword
                 };
             }
 
-            var _User = _userManager.FindByIdAsync(UserId).Result;
+            var _User = _userRepoFinder.FindUserById(UserId);
             if (_User == null)
             {
                 return new ResultForgetPasswordDto
@@ -88,7 +89,7 @@ namespace Practice_Store.Application.Services.Users.Commands.ForgetPassword
                 };
             }
 
-            var CheckToken = _userManager.ResetPasswordAsync(_User, Token, NewPassword).Result;
+            var CheckToken = _forgetPasswordRepo.ResetPassword(_User, Token, NewPassword);
             if (!CheckToken.Succeeded)
             {
                 return new ResultForgetPasswordDto

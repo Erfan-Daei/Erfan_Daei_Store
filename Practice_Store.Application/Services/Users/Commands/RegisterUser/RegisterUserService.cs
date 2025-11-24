@@ -1,20 +1,19 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Practice_Store.Common;
+using Practice_Store.Application.Interfaces.RepositoryManager;
+using Practice_Store.Application.Interfaces.RepositoryManager.Users.Commands;
 using Practice_Store.Domain.Entities.Users;
 
 namespace Practice_Store.Application.Services.Users.Commands.RegisterUser
 {
     public class RegisterUserService : IRegisterUser
     {
-
-        private readonly UserManager<IdtUser> _userManager;
-        private readonly RoleManager<IdtRole> _roleManager;
-        public RegisterUserService(UserManager<IdtUser> userManager, RoleManager<IdtRole> roleManager)
+        private readonly IUserRepoFinder _userRepoFinder;
+        private readonly IRegisterUserRepo _registerUserRepo;
+        public RegisterUserService(IUserRepoFinder userRepoFinder,
+            IRegisterUserRepo registerUserRepo)
         {
-            _userManager = userManager;
-            _roleManager = roleManager;
+            _userRepoFinder = userRepoFinder;
+            _registerUserRepo = registerUserRepo;
         }
 
         public ResultRegisterUserDto ValidateUser(RequestRegisterUserDto Request)
@@ -30,7 +29,7 @@ namespace Practice_Store.Application.Services.Users.Commands.RegisterUser
                         StatusCode = ValidationResult.StatusCode
                     };
 
-                var GetEmail = _userManager.Users.IgnoreQueryFilters().Where(u => u.Email.ToLower() == Request.Email.ToLower()).FirstOrDefault();
+                var GetEmail = _userRepoFinder.EmailExist(Request.Email);
                 if (GetEmail != null)
                 {
                     return new ResultRegisterUserDto
@@ -43,7 +42,7 @@ namespace Practice_Store.Application.Services.Users.Commands.RegisterUser
 
                 foreach (var role in Request.Roles)
                 {
-                    var CheckRole = _roleManager.FindByNameAsync(role).Result;
+                    var CheckRole = _registerUserRepo.FindRole(role);
                     if (CheckRole == null)
                     {
                         return new ResultRegisterUserDto
@@ -66,7 +65,7 @@ namespace Practice_Store.Application.Services.Users.Commands.RegisterUser
                     InsertTime = DateTime.UtcNow,
                     UserName = Request.Email
                 };
-                var Result = _userManager.CreateAsync(User, Request.Password).Result;
+                var Result = _registerUserRepo.CreateUser(User, Request.Password);
 
                 if (!Result.Succeeded)
                 {
@@ -82,15 +81,15 @@ namespace Practice_Store.Application.Services.Users.Commands.RegisterUser
                     };
                 };
 
-                var Acivate = _userManager.SetLockoutEnabledAsync(User, false).Result;
+                var Acivate = _registerUserRepo.ActivateUser(User);
 
-                var AddRole = _userManager.AddToRolesAsync(User, Request.Roles).Result;
+                var AddRole = _registerUserRepo.AddToRole(User, Request.Roles);
                 if (!AddRole.Succeeded)
                 {
-                    var _user = _userManager.FindByIdAsync(User.Id).Result;
+                    var _user = _userRepoFinder.FindUserById(User.Id);
                     if (_user != null)
                     {
-                        var Delete = _userManager.DeleteAsync(_user).Result;
+                        var Delete = _registerUserRepo.DeleteUser(User);
                     }
                     return new ResultRegisterUserDto
                     {
@@ -100,7 +99,7 @@ namespace Practice_Store.Application.Services.Users.Commands.RegisterUser
                     };
                 }
 
-                var Token = _userManager.GenerateEmailConfirmationTokenAsync(User).Result;
+                var Token = _registerUserRepo.GenerateEmailConfirmationToken(User);
                 return new ResultRegisterUserDto
                 {
                     IsSuccess = true,
@@ -114,10 +113,10 @@ namespace Practice_Store.Application.Services.Users.Commands.RegisterUser
 
             catch (Exception)
             {
-                var _user = _userManager.FindByEmailAsync(Request.Email).Result;
+                var _user = _userRepoFinder.FindUserByEmail(Request.Email);
                 if (_user != null)
                 {
-                    var Delete = _userManager.DeleteAsync(_user).Result;
+                    var Delete = _registerUserRepo.DeleteUser(_user);
                 }
                 return new ResultRegisterUserDto
                 {
@@ -132,7 +131,7 @@ namespace Practice_Store.Application.Services.Users.Commands.RegisterUser
         {
             try
             {
-                var User = _userManager.FindByIdAsync(UserId).Result;
+                var User = _userRepoFinder.FindUserById(UserId);
                 if (User == null)
                 {
                     return new ResultRegisterUserDto
@@ -142,7 +141,7 @@ namespace Practice_Store.Application.Services.Users.Commands.RegisterUser
                         StatusCode = StatusCodes.Status400BadRequest,
                     };
                 }
-                var ConfEmail = _userManager.ConfirmEmailAsync(User, EmailValidationToken).Result;
+                var ConfEmail = _registerUserRepo.ConfirmEmail(User, EmailValidationToken);
                 if (!ConfEmail.Succeeded)
                 {
                     return new ResultRegisterUserDto

@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
-using Practice_Store.Application.Interfaces.Contexts;
+using Practice_Store.Application.Interfaces.RepositoryManager;
+using Practice_Store.Application.Interfaces.RepositoryManager.Users.Commands;
 using Practice_Store.Application.JWTToken;
 using Practice_Store.Common;
 using Practice_Store.Domain.Entities.Users;
@@ -10,25 +9,22 @@ namespace Practice_Store.Application.Services.Users.Commands.RefreshToken
 {
     public class RefreshTokenService : IRefreshToken
     {
-        private readonly IDatabaseContext _databaseContext;
-        private readonly IConfiguration _configuration;
-        private readonly UserManager<IdtUser> _userManager;
+        private readonly IRefreshTokenRepo _refreshTokenRepo;
+        private readonly IUserRepoFinder _userRepoFinder;
         private readonly IGenerateToken _generateToken;
 
-        public RefreshTokenService(IDatabaseContext databaseContext,
-            IConfiguration configuration,
-            UserManager<IdtUser> userManager,
+        public RefreshTokenService(IUserRepoFinder userRepoFinder,
+            IRefreshTokenRepo refreshTokenRepo,
             IGenerateToken generateToken)
         {
-            _databaseContext = databaseContext;
-            _configuration = configuration;
-            _userManager = userManager;
-            _generateToken = generateToken; 
+            _userRepoFinder = userRepoFinder;
+            _refreshTokenRepo = refreshTokenRepo;
+            _generateToken = generateToken;
         }
 
         public ResultDto<(string, string)> Execute(string RefreshToken)
         {
-            var Token = _databaseContext.UserTokens.FirstOrDefault(x => x.RefreshToken == HashHelper.Hash(RefreshToken));
+            var Token = _refreshTokenRepo.ChechRefreshToken(RefreshToken);
             if (Token == null)
             {
                 return new ResultDto<(string, string)>()
@@ -38,7 +34,7 @@ namespace Practice_Store.Application.Services.Users.Commands.RefreshToken
                     StatusCode = StatusCodes.Status401Unauthorized,
                 };
             }
-            
+
             if (Token.RefreshTokenExpireDate < DateTime.UtcNow)
             {
                 return new ResultDto<(string, string)>()
@@ -49,30 +45,17 @@ namespace Practice_Store.Application.Services.Users.Commands.RefreshToken
                 };
             }
 
-            var PreviousToken = _databaseContext.UserTokens.Where(t => t.Name == nameof(TokenType.AccessToken) && t.UserId == Token.UserId).ToList();
-            _databaseContext.UserTokens.RemoveRange(PreviousToken);
-            _databaseContext.SaveChanges();
+            var RemovePreviousToken = _refreshTokenRepo.RemovePreviousToken(Token.UserId);
 
-            var _User = _userManager.FindByIdAsync(Token.UserId).Result;
-            List<string> Roles = _userManager.GetRolesAsync(_User).Result.ToList();
+            var _User = _userRepoFinder.FindUserById(Token.UserId);
+            List<string> Roles = _userRepoFinder.GetRoles(_User);
 
             (string, string) Tokens = _generateToken.GenerateToken(_User.Id, _User.Email, Roles);
 
 
-            var JwtToken = new IdtUsertokens
-            {
-                TokenId = Guid.NewGuid(),
-                LoginProvider = "Internal",
-                Name = nameof(TokenType.AccessToken),
-                TokenExpireDate = DateTime.UtcNow.AddMinutes(Convert.ToInt16(_configuration["JWTConfig:expire"])),
-                UserId = _User.Id,
-                Value = HashHelper.Hash(Tokens.Item1),
-                RefreshToken = HashHelper.Hash(Tokens.Item2),
-                RefreshTokenExpireDate = DateTime.UtcNow.AddMinutes(Convert.ToInt16(_configuration["JWTConfig:refreshExpire"])),
-            };
+            IdtUsertokens DatabaseJwtToken = _generateToken.GenerateIdtUserToken(_User.Id, Tokens.Item1, Tokens.Item2);
 
-            _databaseContext.UserTokens.Add(JwtToken);
-            _databaseContext.SaveChanges();
+            var AddToken = _refreshTokenRepo.AddToken(DatabaseJwtToken);
 
             return new ResultDto<(string, string)>()
             {
