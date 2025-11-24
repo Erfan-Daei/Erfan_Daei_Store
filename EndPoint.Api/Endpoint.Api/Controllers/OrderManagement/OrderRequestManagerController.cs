@@ -1,13 +1,11 @@
 ﻿using Endpoint.Api.Model.OrderManagement;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using Practice_Store.Application.Interfaces.Cookie;
 using Practice_Store.Application.Interfaces.FacadPatterns;
 using Practice_Store.Application.Interfaces.JWTToken;
 using Practice_Store.Application.Services.Orders.Commands.AddOrder;
 using Practice_Store.Application.Services.Orders.Commands.RequestOrder;
-using System.Text;
 
 namespace Endpoint.Api.Controllers.OrderManagement
 {
@@ -21,7 +19,6 @@ namespace Endpoint.Api.Controllers.OrderManagement
         private readonly ICartFacad _cartFacad;
         private readonly IUserFacad _userFacad;
         private readonly IManageCookie _cookieManager;
-        private readonly HttpClient client;
         public OrderRequestManagerController(IOrderFacad orderFacad,
             IReadToken readToken,
             ICartFacad cartServices,
@@ -33,7 +30,6 @@ namespace Endpoint.Api.Controllers.OrderManagement
             _cartFacad = cartServices;
             _userFacad = userFacad;
             _cookieManager = cookieManager;
-            client = new HttpClient();
         }
 
         [HttpGet]
@@ -88,23 +84,9 @@ namespace Endpoint.Api.Controllers.OrderManagement
                 return Problem(OrderRequest.Message, "", Convert.ToInt16(OrderRequest.StatusCode));
             }
 
-            //درگاه پرداخت
-            var requestUrl = "https://sandbox.zarinpal.com/pg/v4/payment/request.json";
-            var jsonContent = JsonConvert.SerializeObject(new
+            if (OrderRequest.Data.Authority != null)
             {
-                merchant_id = "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX",
-                amount = OrderRequest.Data.TotalSum + _Request.Shipping,
-                description = $"خرید پوشاک از سایت به شماره",
-                callback_url = $"http://localhost:5215/order/ValidateRequestOrder?Guid={OrderRequest.Data.Guid}&Shipping={_Request.Shipping}",
-            });
-            var httpContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
-            var response = await client.PostAsync(requestUrl, httpContent);
-            var responseContent = await response.Content.ReadAsStringAsync();
-            var responseJson = JsonConvert.DeserializeObject<dynamic>(responseContent);
-
-            if (responseJson.data.authority != null)
-            {
-                return Ok(new { isSuccess = true, data = new { authority = (string)responseJson.data.authority } });
+                return Ok(new { isSuccess = true, data = new { authority = OrderRequest.Data.Authority } });
             }
             else
             {
@@ -116,26 +98,13 @@ namespace Endpoint.Api.Controllers.OrderManagement
         [Route("ValidateOrderRequest")]
         public async Task<IActionResult> GET([FromQuery] ValidateOrderRequestDto _Request)
         {
-            var OrderRequest = _orderFacad.GetRequestOrderService.Execute(_Request.Guid).Data;
-            var requestUrl = "https://sandbox.zarinpal.com/pg/v4/payment/verify.json";
-            var jsonContent = JsonConvert.SerializeObject(new
-            {
-                merchant_id = "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX",
-                amount = OrderRequest.TotalSum + OrderRequest.Shipping,
-                authority = _Request.authority,
-            });
-            var httpContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
-            var response = await client.PostAsync(requestUrl, httpContent);
-            var responseContent = await response.Content.ReadAsStringAsync();
-            var responseJson = JsonConvert.DeserializeObject<dynamic>(responseContent);
-            int Code = responseJson.data?.code ?? responseJson.errors.code;
-
+            var OrderRequest = _orderFacad.GetRequestOrderService.Execute(_Request.Guid, _Request.authority).Data;
             return await POST(new AddOrderDto
             {
                 Authority = _Request.authority,
-                RefId = responseJson.data?.ref_id ?? 0,
+                RefId = OrderRequest.RefId,
                 OrderRequestId = OrderRequest.Id,
-                Code = Code,
+                Code = OrderRequest.Code,
                 Shipping = _Request.Shipping
             });
         }

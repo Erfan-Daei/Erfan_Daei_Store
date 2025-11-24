@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Practice_Store.Application.Interfaces.RepositoryManager.Orders.Commands;
+using Practice_Store.Application.Interfaces.ZarinPal;
 using Practice_Store.Common;
 using Practice_Store.Domain.Entities.Orders;
 using System.Text.RegularExpressions;
@@ -9,9 +10,12 @@ namespace Practice_Store.Application.Services.Orders.Commands.RequestOrder
     public class AddRequestOrderService : IAddRequestOreder
     {
         private readonly IAddRequestOrderRepo _addRequestOrderRepo;
-        public AddRequestOrderService(IAddRequestOrderRepo addRequestOrderRepo)
+        private readonly IManageZarinPal _manageZarinPal;
+        public AddRequestOrderService(IAddRequestOrderRepo addRequestOrderRepo,
+            IManageZarinPal manageZarinPal)
         {
             _addRequestOrderRepo = addRequestOrderRepo;
+            _manageZarinPal = manageZarinPal;
         }
 
         public ResultDto<ResultAddRequestOrder> Execute(RequestAddRequestOrder Request)
@@ -114,6 +118,14 @@ namespace Practice_Store.Application.Services.Orders.Commands.RequestOrder
             var AddExtraInfo = _addRequestOrderRepo.AddExtraInfo(extraInfo);
             orderRequest.OrderRequestExtraInfo = extraInfo;
             _addRequestOrderRepo.Save();
+
+            var RequestToZarinPal = _manageZarinPal.RequestToZarinPal(new RequestToZarinPalDto
+            {
+                Amount = orderRequest.TotalSum + Request.Shipping,
+               OrderRequestGuid = orderRequest.Guid,
+               Shipping = Request.Shipping
+            });
+
             return new ResultDto<ResultAddRequestOrder>()
             {
                 Data = new ResultAddRequestOrder()
@@ -123,6 +135,7 @@ namespace Practice_Store.Application.Services.Orders.Commands.RequestOrder
                     Mobile = _User.PhoneNumber,
                     TotalSum = orderRequest.TotalSum,
                     OrderId = orderRequest.Id,
+                    Authority = RequestToZarinPal.Result.Authority,
                 },
                 IsSuccess = true,
                 StatusCode = StatusCodes.Status201Created,

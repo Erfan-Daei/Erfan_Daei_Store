@@ -4,12 +4,14 @@ using Microsoft.EntityFrameworkCore;
 using Practice_Store.Application.Interfaces.Contexts;
 using Practice_Store.Application.Interfaces.Cookie;
 using Practice_Store.Application.Interfaces.JWTToken;
+using Practice_Store.Application.Interfaces.ZarinPal;
 using Practice_Store.Application.JWTToken;
 using Practice_Store.Application.ServiceCollection;
 using Practice_Store.Common;
 using Practice_Store.Domain.Entities.Users;
 using Practice_Store.Infrastructure.Cookie;
 using Practice_Store.Infrastructure.JWTToken;
+using Practice_Store.Infrastructure.ZarinPal;
 using Practice_Store.Persistence.Contexts;
 using Practice_Store.Persistence.RepositoryManager.ServiceCollection;
 
@@ -57,6 +59,7 @@ builder.Services.AddScoped<IDatabaseContext, DatabaseContext>();
 builder.Services.AddScoped<IGenerateToken, Generatetoken>();
 builder.Services.AddScoped<IReadToken, ReadToken>();
 builder.Services.AddScoped<IManageCookie, ManageCookie>();
+builder.Services.AddScoped<IManageZarinPal, ManageZarinPal>();
 builder.Services.UserManagementServices().ProductManagementServices().LandingPageManagementServices().CartManagementServices().OrderManagementServices();
 builder.Services.UserRepositoryServices().ProductRepositoryServices().CartRepositoryServices().LandingPageRepositoryServices().OrderRepositoryServices();
 

@@ -7,5 +7,6 @@
         public string Email { get; set; }
         public string Mobile { get; set; }
         public int TotalSum { get; set; }
+        public string Authority { get; set; }
     }
 }

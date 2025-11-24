@@ -4,6 +4,6 @@ namespace Practice_Store.Application.Services.Orders.Queries.GetRequestOrder
 {
     public interface IGetRequestOrder
     {
-        ResultDto<ResultGetRequestOrder> Execute(Guid Guid);
+        ResultDto<ResultGetRequestOrder> Execute(Guid Guid, string Authority);
     }
 }

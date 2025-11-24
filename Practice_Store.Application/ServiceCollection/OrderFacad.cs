@@ -1,6 +1,7 @@
 ﻿using Practice_Store.Application.Interfaces.FacadPatterns;
 using Practice_Store.Application.Interfaces.RepositoryManager.Orders.Commands;
 using Practice_Store.Application.Interfaces.RepositoryManager.Orders.Queries;
+using Practice_Store.Application.Interfaces.ZarinPal;
 using Practice_Store.Application.Services.Orders.Commands.AddOrder;
 using Practice_Store.Application.Services.Orders.Commands.ChangeOrderState_Admin;
 using Practice_Store.Application.Services.Orders.Commands.ChangeOrderState_User;
@@ -26,6 +27,7 @@ namespace Practice_Store.Application.ServiceCollection
         private readonly IGetOrders_AdminRepo _getOrders_AdminRepo;
         private readonly IGetRequestOrderRepo _getRequestOrderRepo;
         private readonly IGetUserOrdersRepo _getUserOrdersRepo;
+        private readonly IManageZarinPal _manageZarinPal;
         public OrderFacad(IAddOrderRepo addOrderRepo,
             IChangeOrderState_AdminRepo changeOrderState_AdminRepo,
             IChangeOrderState_UserRepo changeOrderState_UserRepo,
@@ -35,7 +37,8 @@ namespace Practice_Store.Application.ServiceCollection
             IGetOrderRequest_AdminRepo getOrderRequest_AdminRepo,
             IGetOrders_AdminRepo getOrders_AdminRepo,
             IGetRequestOrderRepo getRequestOrderRepo,
-            IGetUserOrdersRepo getUserOrdersRepo)
+            IGetUserOrdersRepo getUserOrdersRepo,
+            IManageZarinPal manageZarinPal)
         {
             _addOrderRepo = addOrderRepo;
             _changeOrderState_AdminRepo = changeOrderState_AdminRepo;
@@ -47,6 +50,7 @@ namespace Practice_Store.Application.ServiceCollection
             _getUserOrdersRepo = getUserOrdersRepo;
             _getOrders_AdminRepo = getOrders_AdminRepo;
             _getRequestOrderRepo = getRequestOrderRepo;
+            _manageZarinPal = manageZarinPal;
         }
 
         private IAddRequestOreder _addRequestOreder;
@@ -54,7 +58,7 @@ namespace Practice_Store.Application.ServiceCollection
         {
             get
             {
-                return _addRequestOreder = _addRequestOreder ?? new AddRequestOrderService(_addRequestOrderRepo);
+                return _addRequestOreder = _addRequestOreder ?? new AddRequestOrderService(_addRequestOrderRepo, _manageZarinPal);
             }
         }
 
@@ -63,7 +67,7 @@ namespace Practice_Store.Application.ServiceCollection
         {
             get
             {
-                return _getRequestOrder = _getRequestOrder ?? new GetRequestOrderService(_getRequestOrderRepo);
+                return _getRequestOrder = _getRequestOrder ?? new GetRequestOrderService(_getRequestOrderRepo, _manageZarinPal);
             }
         }
 
