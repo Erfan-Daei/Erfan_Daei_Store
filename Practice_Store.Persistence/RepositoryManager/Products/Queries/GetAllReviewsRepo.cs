@@ -17,20 +17,9 @@ namespace Practice_Store.Persistence.RepositoryManager.Products.Queries
             return _databaseContext.Reviews.Where(p => p.ProductId == ProductId && p.ReplyedReviewId == null).ToList();
         }
 
-        public List<Review> GetReplies(List<Review> Reviews)
+        public Review? GetReplies(long Id)
         {
-            List<Review> result = new List<Review>();
-            foreach (var review in Reviews)
-            {
-                var Reply = _databaseContext.Reviews.FirstOrDefault(p => p.ReplyedReviewId == review.Id);
-                if (Reply == null)
-                {
-                    continue;
-                }
-
-                result.Add(review);
-            }
-            return result;
+            return _databaseContext.Reviews.FirstOrDefault(p => p.ReplyedReviewId == Id);
         }
     }
 }

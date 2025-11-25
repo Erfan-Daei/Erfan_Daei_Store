@@ -36,18 +36,22 @@ namespace Practice_Store.Application.Services.Products.Queries.GetProductDetails
                 ReviewDetail = p.ReviewDetail,
                 ReviewTime = p.InsertTime,
             }).ToList();
-            var Replies = _getProductDetails_SiteRepo.GetReplies(_Product);
-            foreach (var review in Replies)
+            
+            foreach (var review in _Review)
             {
-                var Review = _Review.Find(p => p.ReviewId == review.ReplyedReviewId);
+                var Reply = _getProductDetails_SiteRepo.GetReplies(_Product, review.ReviewId);
 
+                if (Reply == null)
+                {
+                    continue;
+                }
 
-                _Review.FirstOrDefault(p => p.ReviewId == review.ReplyedReviewId)
+                _Review.FirstOrDefault(p => p.ReviewId == Reply.ReplyedReviewId)
                     .Reply = new GetProductList_SiteReplyDto
                     {
                         DisplayName = "ادمین",
-                        ReplyTime = Review.ReviewTime,
-                        ReviewDetail = Review.ReviewDetail,
+                        ReplyTime = Reply.InsertTime,
+                        ReviewDetail = Reply.ReviewDetail,
                     };
             }
 

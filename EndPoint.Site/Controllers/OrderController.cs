@@ -2,11 +2,9 @@
 using EndPoint.Site.Utilities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using Practice_Store.Application.Interfaces.FacadPatterns;
 using Practice_Store.Application.Services.Orders.Commands.AddOrder;
 using Practice_Store.Application.Services.Orders.Commands.RequestOrder;
-using System.Text;
 
 namespace EndPoint.Site.Controllers
 {
@@ -17,7 +15,6 @@ namespace EndPoint.Site.Controllers
         private readonly IUserFacad _userFacad;
         private readonly IOrderFacad _orderFacad;
         private readonly CookieManager cookieManager;
-        private readonly HttpClient client;
 
         public OrderController(ICartFacad cartFacad, IUserFacad userFacad,
             IOrderFacad orderFacad)
@@ -26,7 +23,6 @@ namespace EndPoint.Site.Controllers
             _userFacad = userFacad;
             _orderFacad = orderFacad;
             cookieManager = new CookieManager();
-            client = new HttpClient();
         }
 
         [HttpGet]
@@ -67,23 +63,9 @@ namespace EndPoint.Site.Controllers
                 return Json(OrderRequest);
             }
 
-            //درگاه پرداخت
-            var requestUrl = "https://sandbox.zarinpal.com/pg/v4/payment/request.json";
-            var jsonContent = JsonConvert.SerializeObject(new
+            if (OrderRequest.Data.Authority != null)
             {
-                merchant_id = "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX",
-                amount = OrderRequest.Data.TotalSum + Request.Shipping,
-                description = $"خرید پوشاک از سایت به شماره",
-                callback_url = $"http://localhost:5215/order/ValidateRequestOrder?Guid={OrderRequest.Data.Guid}&Shipping={Request.Shipping}",
-            });
-            var httpContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
-            var response = await client.PostAsync(requestUrl, httpContent);
-            var responseContent = await response.Content.ReadAsStringAsync();
-            var responseJson = JsonConvert.DeserializeObject<dynamic>(responseContent);
-
-            if (responseJson.data.authority != null)
-            {
-                return Json(new { isSuccess = true, data = new { authority = (string)responseJson.data.authority } });
+                return Json(new { isSuccess = true, data = new { authority = (string)OrderRequest.Data.Authority } });
             }
             else
             {
@@ -94,26 +76,14 @@ namespace EndPoint.Site.Controllers
         [HttpGet]
         public async Task<IActionResult> ValidateRequestOrder(Guid Guid, int Shipping, string authority, string status)
         {
-            var OrderRequest = _orderFacad.GetRequestOrderService.Execute(Guid).Data;
-            var requestUrl = "https://sandbox.zarinpal.com/pg/v4/payment/verify.json";
-            var jsonContent = JsonConvert.SerializeObject(new
-            {
-                merchant_id = "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX",
-                amount = OrderRequest.TotalSum + OrderRequest.Shipping,
-                authority = authority,
-            });
-            var httpContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
-            var response = await client.PostAsync(requestUrl, httpContent);
-            var responseContent = await response.Content.ReadAsStringAsync();
-            var responseJson = JsonConvert.DeserializeObject<dynamic>(responseContent);
-            int Code = responseJson.data?.code ?? responseJson.errors.code;
+            var OrderRequest = _orderFacad.GetRequestOrderService.Execute(Guid, authority).Data;
 
             return await AddOrder(new RequestAddOrder
             {
                 Authority = authority,
-                RefId = responseJson.data?.ref_id ?? 0,
+                RefId = OrderRequest.RefId,
                 OrderRequestId = OrderRequest.Id,
-            }, Code, Shipping);
+            }, OrderRequest.Code, Shipping);
         }
 
         [HttpPost]

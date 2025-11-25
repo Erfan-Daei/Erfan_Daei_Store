@@ -6,6 +6,6 @@ namespace Practice_Store.Application.Interfaces.RepositoryManager.Products.Queri
     {
         List<Review> GetReviews(long ProductId);
 
-        List<Review> GetReplies(List<Review> Reviews);
+        Review? GetReplies(long Id);
     }
 }

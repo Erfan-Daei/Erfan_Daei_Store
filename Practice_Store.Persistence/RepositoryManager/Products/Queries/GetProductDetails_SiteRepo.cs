@@ -31,22 +31,12 @@ namespace Practice_Store.Persistence.RepositoryManager.Products.Queries
                 .FirstOrDefault();
         }
 
-        public List<Review> GetReplies(Product product)
+        public Review? GetReplies(Product product, long Id)
         {
-            List<Review> result = new List<Review>();
-            foreach (var review in product.Reviews)
-            {
-                var Reply = _databaseContext.Reviews.FirstOrDefault(p => p.ReplyedReviewId == review.Id);
-                if (Reply == null)
-                {
-                    continue;
-                }
-
-                result.Add(review);
-            }
+            var Reply =_databaseContext.Reviews.FirstOrDefault(p => p.ReplyedReviewId == Id);
             product.ViewCount++;
             _databaseContext.SaveChanges();
-            return result;
+            return Reply;
         }
     }
 }

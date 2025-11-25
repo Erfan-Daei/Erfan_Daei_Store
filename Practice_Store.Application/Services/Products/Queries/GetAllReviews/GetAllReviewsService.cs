@@ -27,19 +27,21 @@ namespace Practice_Store.Application.Services.Products.Queries.GetAllReviews
                 ReviewTime = p.InsertTime,
             }).ToList();
 
-            var Replies = _getAllReviewsRepo.GetReplies(_ProductReviews);
-            foreach (var reply in Replies)
+            foreach (var reply in _ProductReviews)
 
             {
-                var _Review = _ProductReviewsList.Find(p => p.ReviewId == reply.ReplyedReviewId);
+                var Reply = _getAllReviewsRepo.GetReplies(reply.Id);
 
-
+                if (Reply == null)
+                {
+                    continue;
+                }
                 _ProductReviewsList.FirstOrDefault(p => p.ReviewId == reply.ReplyedReviewId)
                     .Reply = new GetAllReviewsReplyDto
                 {
                     DisplayName = "ادمین",
-                    ReplyTime = _Review.ReviewTime,
-                    ReviewDetail = _Review.ReviewDetail,
+                    ReplyTime = Reply.InsertTime,
+                    ReviewDetail = Reply.ReviewDetail,
                 };
             }
 

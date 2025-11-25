@@ -5,6 +5,6 @@ namespace Practice_Store.Application.Interfaces.RepositoryManager.Products.Queri
     public interface IGetProductDetails_SiteRepo
     {
         Product GetProduct(long Id);
-        List<Review> GetReplies(Product product);
+        Review? GetReplies(Product product, long Id);
     }
 }
