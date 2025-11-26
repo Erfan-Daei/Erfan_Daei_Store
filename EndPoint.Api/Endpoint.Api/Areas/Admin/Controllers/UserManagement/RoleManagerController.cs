@@ -1,5 +1,4 @@
-﻿using Endpoint.Api.Areas.Admin.Model.UserManagement;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Practice_Store.Application.Interfaces.FacadPatterns;
 using Practice_Store.Application.Services.Users.Queries.RoleManagement;
@@ -20,18 +19,13 @@ namespace Endpoint.Api.Areas.Admin.Controllers.UserManagement
         }
 
         [HttpGet]
-        public IActionResult GET(string? SearchKey, int? Page, int? PageSize)
+        public IActionResult GET(RequestRoleManagement_GetRolesDto _Request)
         {
-            var Result = _userFacad.RoleManagementService.GetRoles(new RequestRoleManagement_GetRolesDto
-            {
-                SearchKey = SearchKey,
-                PageSize = PageSize,
-                Page = Page
-            });
+            var Result = _userFacad.RoleManagementService.GetRoles(_Request);
 
             if (!Result.IsSuccess)
             {
-                return Problem(Result.Message, SearchKey, Convert.ToInt16(Result.StatusCode));
+                return Problem(Result.Message, _Request.SearchKey, Convert.ToInt16(Result.StatusCode));
             }
 
             dynamic Output = new
@@ -72,9 +66,9 @@ namespace Endpoint.Api.Areas.Admin.Controllers.UserManagement
         }
 
         [HttpGet("Name")]
-        public IActionResult GET(string RoleName)
+        public IActionResult GET(RequestRoleManagementDto _Request)
         {
-            var Result = _userFacad.RoleManagementService.GetRoleDetail(RoleName);
+            var Result = _userFacad.RoleManagementService.GetRoleDetail(_Request);
 
             if (!Result.IsSuccess)
             {
@@ -111,9 +105,9 @@ namespace Endpoint.Api.Areas.Admin.Controllers.UserManagement
         }
 
         [HttpPost]
-        public IActionResult POST([FromBody] string RoleName)
+        public IActionResult POST([FromBody] RequestRoleManagementDto _Request)
         {
-            var Result = _userFacad.RoleManagementService.AddRole(RoleName);
+            var Result = _userFacad.RoleManagementService.AddRole(_Request);
 
             if (!Result.IsSuccess)
             {
@@ -127,7 +121,7 @@ namespace Endpoint.Api.Areas.Admin.Controllers.UserManagement
                 {
                     new Link()
                     {
-                        Href = Url.Action("GET", "RoleManager", new { Area = "Admin", RoleName = RoleName }, Request.Scheme) ?? "",
+                        Href = Url.Action("GET", "RoleManager", new { Area = "Admin", RoleName = _Request.RoleName }, Request.Scheme) ?? "",
                         Rel = "RoleDetail",
                         Method = "GET"
                     },
@@ -151,9 +145,9 @@ namespace Endpoint.Api.Areas.Admin.Controllers.UserManagement
         }
 
         [HttpPut]
-        public IActionResult PUT([FromBody] EditRoleDto _Request)
+        public IActionResult PUT([FromBody] RequestRoleManagementDto _Request)
         {
-            var Result = _userFacad.RoleManagementService.EditRole(_Request.RoleName, _Request.NewRoleName);
+            var Result = _userFacad.RoleManagementService.EditRole(_Request);
 
             if (!Result.IsSuccess)
             {
@@ -184,9 +178,9 @@ namespace Endpoint.Api.Areas.Admin.Controllers.UserManagement
         }
 
         [HttpDelete]
-        public IActionResult DELETE([FromBody] string RoleName)
+        public IActionResult DELETE([FromBody] RequestRoleManagementDto _Request)
         {
-            var Result = _userFacad.RoleManagementService.DeleteRole(RoleName);
+            var Result = _userFacad.RoleManagementService.DeleteRole(_Request);
 
             if (!Result.IsSuccess)
             {

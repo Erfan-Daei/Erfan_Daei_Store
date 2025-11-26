@@ -29,14 +29,9 @@ namespace Endpoint.Api.Areas.Admin.Controllers.UserManagement
         }
 
         [HttpGet]
-        public IActionResult GET([FromQuery] PaginationDto _Request)
+        public IActionResult GET([FromQuery] RequestGetUsersDto _Request)
         {
-            var Result = _userFacad.GetUsersService.GetUsers(new RequestGetUsersDto
-            {
-                SearchKey = _Request.SearchKey,
-                Page = _Request.Page == 0 ? 1 : _Request.Page,
-                PageSize = _Request.PageSize,
-            });
+            var Result = _userFacad.GetUsersService.GetUsers(_Request);
 
             if (!Result.IsSuccess)
             {
@@ -134,22 +129,9 @@ namespace Endpoint.Api.Areas.Admin.Controllers.UserManagement
         }
 
         [HttpPost]
-        public IActionResult POST([FromBody] Admin_SignUpDto _Request)
+        public IActionResult POST([FromBody] RequestRegisterUserDto _Request)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            var Result = _userFacad.RegisterUserService.ValidateUser(new RequestRegisterUserDto
-            {
-                Name = _Request.Name,
-                LastName = _Request.LastName,
-                Email = _Request.Email,
-                Address = _Request.Address,
-                PostCode = _Request.PostCode,
-                Password = _Request.Password,
-                ConPassword = _Request.ConPassword,
-                Roles = _Request.Roles
-            });
+            var Result = _userFacad.RegisterUserService.ValidateUser(_Request);
 
             if (!Result.IsSuccess)
                 return Problem(Result.Message, "", Convert.ToInt16(Result.StatusCode));
@@ -202,24 +184,9 @@ namespace Endpoint.Api.Areas.Admin.Controllers.UserManagement
         }
 
         [HttpPut]
-        public IActionResult PUT([FromBody] Admin_EditUserDto _Request)
+        public IActionResult PUT([FromBody] RequestEditUser_AdminDto _Request)
         {
-            if (_Request.Password != _Request.ConPassword)
-            {
-                return BadRequest("رمز عبور و تکرار آن برابر نیست");
-            }
-
-            var Result = _userFacad.EditUser_AdminService.EditUser(new RequestEditUser_AdminDto
-            {
-                UserId = _Request.UserId,
-                Name = _Request.Name,
-                LastName = _Request.LastName,
-                Address = _Request.Address,
-                PostCode = _Request.PostCode,
-                PhoneNumber = _Request.PhoneNumber,
-                Email = _Request.Email,
-                Password = _Request.Password,
-            });
+            var Result = _userFacad.EditUser_AdminService.EditUser(_Request);
 
             if (!Result.IsSuccess)
             {

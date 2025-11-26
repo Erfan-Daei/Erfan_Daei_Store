@@ -20,15 +20,6 @@ namespace Practice_Store.Application.Services.Users.Commands.RegisterUser
         {
             try
             {
-                var ValidationResult = RegisterUserValidation.CheckValidation(Request);
-                if (!ValidationResult.IsSuccess)
-                    return new ResultRegisterUserDto
-                    {
-                        IsSuccess = false,
-                        Message = ValidationResult.Message,
-                        StatusCode = ValidationResult.StatusCode
-                    };
-
                 var GetEmail = _userRepoFinder.EmailExist(Request.Email);
                 if (GetEmail != null)
                 {
@@ -79,7 +70,8 @@ namespace Practice_Store.Application.Services.Users.Commands.RegisterUser
                         Message = ErrorMessage,
                         StatusCode = StatusCodes.Status400BadRequest
                     };
-                };
+                }
+                ;
 
                 var Acivate = _registerUserRepo.ActivateUser(User);
 

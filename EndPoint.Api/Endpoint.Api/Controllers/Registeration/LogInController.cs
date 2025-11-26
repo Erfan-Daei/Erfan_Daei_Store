@@ -1,13 +1,9 @@
 ﻿using Endpoint.Api.Model.Registeration;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 using Practice_Store.Application.Interfaces.FacadPatterns;
 using Practice_Store.Application.Interfaces.JWTToken;
-using Practice_Store.Application.JWTToken;
 using Practice_Store.Common;
-using Practice_Store.Infrastructure.JWTToken;
-using System.Data;
 
 namespace Endpoint.Api.Controllers.Registeration
 {
@@ -41,7 +37,7 @@ namespace Endpoint.Api.Controllers.Registeration
 
             dynamic Output = new
             {
-                Message = "حساب با موفقیت ثبت شد . تاییدیه برای ایمیل شما ارسال گردید",
+                Message = "ورود موفق",
                 StatusCode = StatusCodes.Status202Accepted,
                 JwtToken = SaveToken.Data.Item1,
                 RefreshToken = SaveToken.Data.Item2,

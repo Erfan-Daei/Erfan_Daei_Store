@@ -1,3 +1,5 @@
+using FluentValidation.AspNetCore;
+using FluentValidation;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -7,6 +9,7 @@ using Practice_Store.Application.Interfaces.JWTToken;
 using Practice_Store.Application.Interfaces.ZarinPal;
 using Practice_Store.Application.JWTToken;
 using Practice_Store.Application.ServiceCollection;
+using Practice_Store.Application.Services.Users.Commands.RegisterUser;
 using Practice_Store.Common;
 using Practice_Store.Domain.Entities.Users;
 using Practice_Store.Infrastructure.Cookie;
@@ -54,7 +57,6 @@ builder.Services.AddAuthentication(options =>
     options.ExpireTimeSpan = TimeSpan.FromMinutes(5.0);
 });
 
-
 builder.Services.AddScoped<IDatabaseContext, DatabaseContext>();
 builder.Services.AddScoped<IGenerateToken, Generatetoken>();
 builder.Services.AddScoped<IReadToken, ReadToken>();
@@ -72,6 +74,11 @@ builder.WebHost.ConfigureKestrel(serverOptions =>
 });
 
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddFluentValidationClientsideAdapters();
+builder.Services.UserServicesValidators();
+
 
 var app = builder.Build();
 

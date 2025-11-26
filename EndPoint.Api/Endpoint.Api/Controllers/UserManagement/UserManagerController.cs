@@ -77,7 +77,7 @@ namespace Endpoint.Api.Controllers.UserManagement
         }
 
         [HttpPut]
-        public IActionResult PUT([FromBody] EditUserDto _Request)
+        public IActionResult PUT([FromBody] RequestEditUser_SiteDto _Request)
         {
             var UserId = _readToken.GetUserId(User);
             var Result = _userFacad.EditUser_SiteService.EditUser(new RequestEditUser_SiteDto
@@ -87,7 +87,7 @@ namespace Endpoint.Api.Controllers.UserManagement
                 LastName = _Request.LastName,
                 Address = _Request.Address,
                 PostCode = _Request?.PostCode,
-                Mobile = _Request.PhoneNumber,
+                Mobile = _Request.Mobile,
             });
 
             if (!Result.IsSuccess)

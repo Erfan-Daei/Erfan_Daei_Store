@@ -1,5 +1,4 @@
-﻿using Endpoint.Api.Areas.Admin.Model.AdminManagement;
-using Endpoint.Api.Areas.Admin.Model.UserManagement;
+﻿using Endpoint.Api.Areas.Admin.Model.UserManagement;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Practice_Store.Application.Interfaces.FacadPatterns;
@@ -80,7 +79,7 @@ namespace Endpoint.Api.Areas.Admin.Controllers.AdminManagement
         }
 
         [HttpPut]
-        public IActionResult PUT([FromBody] EditAdminDto _Request)
+        public IActionResult PUT([FromBody] RequestEditUser_SiteDto _Request)
         {
             var UserId = _readToken.GetUserId(User);
             var Result = _userFacad.EditUser_SiteService.EditUser(new RequestEditUser_SiteDto

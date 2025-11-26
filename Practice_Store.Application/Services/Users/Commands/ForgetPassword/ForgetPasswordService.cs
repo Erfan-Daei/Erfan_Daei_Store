@@ -16,21 +16,9 @@ namespace Practice_Store.Application.Services.Users.Commands.ForgetPassword
             _userRepoFinder = userRepoFinder;
             _forgetPasswordRepo = forgetPasswordRepo;
         }
-        public ResultForgetPasswordDto CheckPassword(string UserId, string NewPassword)
+        public ResultForgetPasswordDto CheckPassword(RequestForgetPasswordDto Request)
         {
-            string PasswordPattern = @"^(?=.*\b\w+\b){8,}(?=.*[0-9])(?=.*[A-Z])(?=.*[a-z])(?=.*[!@#$%^&*(),.?"":{}|<>]).+$";
-            var MatchPassword = Regex.Match(NewPassword, PasswordPattern);
-            if (!MatchPassword.Success)
-            {
-                return new ResultForgetPasswordDto
-                {
-                    IsSuccess = false,
-                    Message = "رمز عبور باید حداقل شامل 8 حرف، یک حرف بزرگ، یک حرف کوچک، یک عدد و یک حرف خاص باشد",
-                    StatusCode = StatusCodes.Status400BadRequest,
-                };
-            }
-
-            var _User = _userRepoFinder.FindUserById(UserId);
+            var _User = _userRepoFinder.FindUserById(Request.UserId);
             if (_User == null)
             {
                 return new ResultForgetPasswordDto
@@ -65,19 +53,6 @@ namespace Practice_Store.Application.Services.Users.Commands.ForgetPassword
 
         public ResultDto UpdatePassword(string UserId, string Token, string NewPassword)
         {
-
-            string PasswordPattern = @"^(?=.*\b\w+\b){8,}(?=.*[0-9])(?=.*[A-Z])(?=.*[a-z])(?=.*[!@#$%^&*(),.?"":{}|<>]).+$";
-            var MatchPassword = Regex.Match(NewPassword, PasswordPattern);
-            if (!MatchPassword.Success)
-            {
-                return new ResultDto
-                {
-                    IsSuccess = false,
-                    Message = "رمز عبور باید حداقل شامل 8 حرف، یک حرف بزرگ، یک حرف کوچک، یک عدد و یک حرف خاص باشد",
-                    StatusCode = StatusCodes.Status400BadRequest,
-                };
-            }
-
             var _User = _userRepoFinder.FindUserById(UserId);
             if (_User == null)
             {

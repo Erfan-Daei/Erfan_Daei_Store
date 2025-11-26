@@ -1,5 +1,4 @@
-﻿using Endpoint.Api.Model.Registeration;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Practice_Store.Application.Interfaces.FacadPatterns;
 using Practice_Store.Application.Services.Users.Commands.RegisterUser;
 using Practice_Store.Common;
@@ -23,21 +22,12 @@ namespace Endpoint.Api.Controllers.Registeration
         }
 
         [HttpPost]
-        public IActionResult POST([FromBody] SignUpDto _Request)
+        public IActionResult POST([FromBody] RequestRegisterUserDto _Request)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var Result = _userFacad.RegisterUserService.ValidateUser(new RequestRegisterUserDto
-            {
-                Name = _Request.Name,
-                LastName = _Request.LastName,
-                Email = _Request.Email,
-                Address = _Request.Address,
-                PostCode = _Request.PostCode,
-                Password = _Request.Password,
-                ConPassword = _Request.ConPassword,
-            });
+            var Result = _userFacad.RegisterUserService.ValidateUser(_Request);
 
             if (!Result.IsSuccess)
                 return Problem(Result.Message, "", Convert.ToInt16(Result.StatusCode));

@@ -25,17 +25,6 @@ namespace Practice_Store.Application.Services.Users.Commands.EditUser
                 };
             }
 
-            var Validate = EditUser_AdminValidation.Validate(Request);
-            if (!Validate.IsSuccess)
-            {
-                return new ResultDto()
-                {
-                    IsSuccess = false,
-                    Message = Validate.Message,
-                    StatusCode = Validate.StatusCode,
-                };
-            }
-
             if (!string.IsNullOrEmpty(Request.Name))
             {
                 _User.Name = Request.Name;
@@ -56,9 +45,9 @@ namespace Practice_Store.Application.Services.Users.Commands.EditUser
                 _User.Address = Request.Address;
             }
 
-            if (!string.IsNullOrEmpty(Request.PostCode))
+            if (Request.PostCode.HasValue)
             {
-                _User.PostCode = Convert.ToInt64(Request.PostCode);
+                _User.PostCode = Request.PostCode;
             }
 
             if (!string.IsNullOrEmpty(Request.Mobile))

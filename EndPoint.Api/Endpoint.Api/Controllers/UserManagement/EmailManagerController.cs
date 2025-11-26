@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Practice_Store.Application.Interfaces.FacadPatterns;
 using Practice_Store.Application.Interfaces.JWTToken;
+using Practice_Store.Application.Services.Users.Commands.ChangeUserEmail_Site;
 using Practice_Store.Common;
 
 namespace Endpoint.Api.Controllers.UserManagement
@@ -29,7 +30,7 @@ namespace Endpoint.Api.Controllers.UserManagement
         }
 
         [HttpPost]
-        public IActionResult POST([FromBody] UpdateEmailDto _Request)
+        public IActionResult POST([FromBody] RequestChangeUserEmail_SiteDto _Request)
         {
             var UserId = _readToken.GetUserId(User);
             var Email = _readToken.GetUserEmail(User);
@@ -39,7 +40,13 @@ namespace Endpoint.Api.Controllers.UserManagement
                 return BadRequest();
             }
 
-            var Result = _userFacad.ChangeUserEmail_SiteService.CheckEmailValidation(UserId, Email, _Request.NewEmail);
+            var Result = _userFacad.ChangeUserEmail_SiteService.CheckEmailValidation(new RequestChangeUserEmail_SiteDto
+            {
+                UserId = UserId,
+                LastEmail = Email,
+                NewEmail = _Request.NewEmail
+            });
+
             if (!Result.IsSuccess)
                 return Problem(Result.Message, "", Convert.ToInt16(Result.StatusCode));
 

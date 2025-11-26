@@ -1,4 +1,6 @@
-﻿@{
+﻿@using Practice_Store.Application.Services.Users.Commands.RegisterUser
+@model RequestRegisterUserDto
+@{
     Layout = null;
 }
 
@@ -31,28 +33,28 @@
                                 <div class="auth-form">
                                     <div class="text-center mb-3"><a href="index.html"><img src="/user_template/assets/img/logo.svg" alt=""></a></div>
                                     <h4 class="text-center mb-4">حساب کاربری خود را ثبت کنید</h4>
-                                    <div>
+                                    <form asp-action="Register">
                                         <div class="row">
                                             <div class="col-md-6 mb-3">
-                                                <label class="mb-1"><strong>نام</strong></label><input type="text" class="form-control" id="Name">
+                                                <label class="mb-1"><strong>نام</strong></label><input type="text" class="form-control" id="Name" asp-for="@Model.Name"><span asp-validation-for="@Model.Name" class="text-danger"></span>
                                             </div>
                                             <div class="col-md-6 mb-3">
-                                                <label class="mb-1"><strong>نام خانوادگی</strong></label><input type="text" class="form-control" id="LastName">
+                                                <label class="mb-1"><strong>نام خانوادگی</strong></label><input type="text" class="form-control" id="LastName" asp-for="LastName"><span asp-validation-for="LastName" class="text-danger"></span>
                                             </div>
                                         </div>
                                         <div class="mb-3">
-                                            <label class="mb-1"><strong>پست الکترونیک*</strong></label><input type="email" class="form-control" placeholder="user@example.com" id="Email">
+                                            <label class="mb-1"><strong>پست الکترونیک*</strong></label><input type="email" class="form-control" placeholder="user@example.com" id="Email" asp-for="Email"><span asp-validation-for="Email" class="text-danger"></span>
                                         </div>
                                         <div class="row">
                                             <div class="col-md-6 mb-3">
-                                                <label class="mb-1"><strong>کلمه عبور*</strong></label><input type="password" class="form-control" id="Password">
+                                                <label class="mb-1"><strong>کلمه عبور*</strong></label><input type="password" class="form-control" id="Password" asp-for="Password"><span asp-validation-for="Password" class="text-danger"></span>
                                             </div>
                                             <div class="col-md-6 mb-3">
-                                                <label class="mb-1"><strong>تکرار کلمه عبور*</strong></label><input type="password" class="form-control" id="ConPassword">
+                                                <label class="mb-1"><strong>تکرار کلمه عبور*</strong></label><input type="password" class="form-control" id="ConPassword" asp-for="ConPassword"><span asp-validation-for="ConPassword" class="text-danger"></span>
                                             </div>
                                         </div>
-                                        <div class="text-center mt-4"><button type="submit" class="btn btn-success btn-block" onclick="RegisterUserValidationFunc()">من را ثبت نام کن</button></div>
-                                    </div>
+                                        <div class="text-center mt-4"><button type="submit" class="btn btn-success btn-block" >من را ثبت نام کن</button></div>
+                                    </form>
                                     <div class="new-account mt-3"><p>از قبل حساب کاربری دارید؟<a class="text-primary" href="http://localhost:5215/Register/LogIn">ورود</a></p></div>
                                 </div>
                             </div>
@@ -67,8 +69,10 @@
     <script src="~/Admin_Template/js/deznav-init.js"></script>
     <link href="~/sweetalert2/sweetalert2.min.css" rel="stylesheet" />
     <script src="~/sweetalert2/sweetalert2.min.js"></script>
+    <partial name="_ValidationScriptsPartial" />
 
     <script>
+        
         function RegisterUserValidationFunc() {
             var Name = $("#Name").val();
                     var LastName = $("#LastName").val();

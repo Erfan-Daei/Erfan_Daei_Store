@@ -15,13 +15,17 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.0-rc.2.24474.1" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.7" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.1" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\Practice_Store.Application\Practice_Store.Application.csproj" />
     <ProjectReference Include="..\..\Practice_Store.Infrastructure\Practice_Store.Infrastructure.csproj" />
     <ProjectReference Include="..\..\Practice_Store.Persistence\Practice_Store.Persistence.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Areas\Admin\Model\AdminManagement\" />
   </ItemGroup>
 
 </Project>

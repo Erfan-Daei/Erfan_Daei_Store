@@ -1,7 +1,9 @@
-﻿using EndPoint.Site.Utilities;
+﻿using Azure.Core;
+using EndPoint.Site.Utilities;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Practice_Store.Application.Interfaces.FacadPatterns;
 using Practice_Store.Application.Services.Users.Commands.RegisterUser;
 using Practice_Store.Common;
@@ -46,7 +48,7 @@ namespace EndPoint.Site.Controllers
         }
 
         [HttpGet]
-        public IActionResult SignUp(string UserId, string Token)
+        public IActionResult SignUps(string UserId, string Token)
         {
             return Json(_userFacad.RegisterUserService.ValidateEmail(UserId, Token));
         }

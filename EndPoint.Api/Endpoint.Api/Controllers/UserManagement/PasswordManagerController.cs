@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Practice_Store.Application.Interfaces.FacadPatterns;
 using Practice_Store.Application.Interfaces.JWTToken;
+using Practice_Store.Application.Services.Users.Commands.ForgetPassword;
 using Practice_Store.Common;
 
 namespace Endpoint.Api.Controllers.UserManagement
@@ -16,7 +17,7 @@ namespace Endpoint.Api.Controllers.UserManagement
         private readonly EmailSender _emailSender;
         private readonly IReadToken _readToken;
 
-        public PasswordManagerController(IUserFacad userFacad , IReadToken readToken)
+        public PasswordManagerController(IUserFacad userFacad, IReadToken readToken)
         {
             _userFacad = userFacad;
 
@@ -29,16 +30,11 @@ namespace Endpoint.Api.Controllers.UserManagement
         }
 
         [HttpPost]
-        public IActionResult POST([FromBody] ChangePasswordDto _Request)
+        public IActionResult POST([FromBody] RequestForgetPasswordDto _Request)
         {
             var UserId = _readToken.GetUserId(User);
 
-            if (_Request.NewPassword != _Request.ConPassword)
-            {
-                return BadRequest("رمز عبور و تایید آن برابر نیست");
-            }
-
-            var Result = _userFacad.ForgetPasswordService.CheckPassword(UserId, _Request.NewPassword);
+            var Result = _userFacad.ForgetPasswordService.CheckPassword(_Request);
 
             if (!Result.IsSuccess)
             {

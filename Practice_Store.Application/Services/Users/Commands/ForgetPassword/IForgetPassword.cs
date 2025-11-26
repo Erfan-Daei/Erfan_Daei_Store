@@ -5,7 +5,7 @@ namespace Practice_Store.Application.Services.Users.Commands.ForgetPassword
 {
     public interface IForgetPassword
     {
-        ResultForgetPasswordDto CheckPassword(string UserId , string NewPassword);
+        ResultForgetPasswordDto CheckPassword(RequestForgetPasswordDto Request);
         ResultDto UpdatePassword(string UserId, string Token, string NewPassword);
     }
 

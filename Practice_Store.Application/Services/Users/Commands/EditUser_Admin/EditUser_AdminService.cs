@@ -29,17 +29,6 @@ namespace Practice_Store.Application.Services.Users.Commands.EditUser_Admin
                 };
             }
 
-            var Validate = EditUser_AdminValidation.Validate(Request);
-            if (!Validate.IsSuccess)
-            {
-                return new ResultDto()
-                {
-                    IsSuccess = false,
-                    Message = Validate.Message,
-                    StatusCode = Validate.StatusCode,
-                };
-            }
-
             if (!string.IsNullOrEmpty(Request.Email))
             {
                 var CheckEmailExist = _editUser_AdminRepo.EmailExist(Request.Email);
@@ -84,15 +73,15 @@ namespace Practice_Store.Application.Services.Users.Commands.EditUser_Admin
                 _User.Address = Request.Address;
             }
 
-            if (!string.IsNullOrEmpty(Request.PhoneNumber))
+            if (!string.IsNullOrEmpty(Request.Mobile))
             {
-                _User.PhoneNumber = Request.PhoneNumber;
+                _User.PhoneNumber = Request.Mobile;
                 _User.PhoneNumberConfirmed = false;
             }
 
-            if (!string.IsNullOrEmpty(Request.PostCode))
+            if (Request.PostCode.HasValue)
             {
-                _User.PostCode = Convert.ToInt64(Request.PostCode);
+                _User.PostCode = Request.PostCode;
             }
 
             _User.UpdateTime = DateTime.UtcNow;

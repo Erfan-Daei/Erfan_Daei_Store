@@ -13,12 +13,12 @@ namespace Practice_Store.Application.Services.Users.Queries.RoleManagement
             _roleManagementRepo = roleManagementRepo;
         }
 
-        public ResultDto AddRole(string RoleName)
+        public ResultDto AddRole(RequestRoleManagementDto Request)
         {
             var _Role = new IdtRole
             {
                 InsertTime = DateTime.Now,
-                Name = RoleName,
+                Name = Request.RoleName,
             };
             var _AddRole = _roleManagementRepo.CreateRole(_Role);
 
@@ -40,9 +40,9 @@ namespace Practice_Store.Application.Services.Users.Queries.RoleManagement
             };
         }
 
-        public ResultDto DeleteRole(string RoleName)
+        public ResultDto DeleteRole(RequestRoleManagementDto Request)
         {
-            var _Role = _roleManagementRepo.FindByName(RoleName);
+            var _Role = _roleManagementRepo.FindByName(Request.RoleName);
 
             if (_Role == null)
             {
@@ -74,9 +74,9 @@ namespace Practice_Store.Application.Services.Users.Queries.RoleManagement
             };
         }
 
-        public ResultDto EditRole(string RoleName, string NewRoleName)
+        public ResultDto EditRole(RequestRoleManagementDto Request)
         {
-            var _Role = _roleManagementRepo.FindByName(RoleName);
+            var _Role = _roleManagementRepo.FindByName(Request.RoleName);
 
             if (_Role == null)
             {
@@ -88,8 +88,18 @@ namespace Practice_Store.Application.Services.Users.Queries.RoleManagement
                 };
             }
 
-            _Role.Name = NewRoleName;
-            _Role.NormalizedName = NewRoleName.ToUpper();
+            if (string.IsNullOrEmpty(Request.NewRoleName))
+            {
+                return new ResultDto
+                {
+                    IsSuccess = false,
+                    Message = "نام جدید نقش نمی تواند خالی باشد",
+                    StatusCode = StatusCodes.Status400BadRequest,
+                };
+            }
+
+            _Role.Name = Request.NewRoleName;
+            _Role.NormalizedName = Request.NewRoleName.ToUpper();
             _Role.UpdateTime = DateTime.UtcNow;
 
             var Update = _roleManagementRepo.UpdateRole(_Role);
@@ -112,9 +122,9 @@ namespace Practice_Store.Application.Services.Users.Queries.RoleManagement
             };
         }
 
-        public ResultDto<RoleManagement_RoleDto> GetRoleDetail(string RoleName)
+        public ResultDto<RoleManagement_RoleDto> GetRoleDetail(RequestRoleManagementDto Request)
         {
-            var _Role = _roleManagementRepo.FindByName(RoleName);
+            var _Role = _roleManagementRepo.FindByName(Request.RoleName);
 
             if (_Role == null)
             {

@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Practice_Store.Application.Interfaces.RepositoryManager;
 using Practice_Store.Application.Interfaces.RepositoryManager.Users.Commands;
-using System.Text.RegularExpressions;
 
 namespace Practice_Store.Application.Services.Users.Commands.ChangeUserEmail_Site
 {
@@ -16,9 +15,9 @@ namespace Practice_Store.Application.Services.Users.Commands.ChangeUserEmail_Sit
             _changeUserEmail_SiteRepo = changeUserEmail_SiteRepo;
         }
 
-        public ResultChangeUserEmail_SiteDto CheckEmailValidation(string UserId, string LastEmail, string NewEmail)
+        public ResultChangeUserEmail_SiteDto CheckEmailValidation(RequestChangeUserEmail_SiteDto Request)
         {
-            var _User = _userRepoFinder.FindUserById(UserId);
+            var _User = _userRepoFinder.FindUserById(Request.UserId);
             if (_User == null)
             {
                 return new ResultChangeUserEmail_SiteDto
@@ -29,29 +28,7 @@ namespace Practice_Store.Application.Services.Users.Commands.ChangeUserEmail_Sit
                 };
             }
 
-            if (LastEmail.ToLower() == NewEmail.ToLower())
-            {
-                return new ResultChangeUserEmail_SiteDto
-                {
-                    IsSuccess = false,
-                    Message = "لطفا ایمیل جدید را وارد کنید",
-                    StatusCode = StatusCodes.Status400BadRequest,
-                };
-            }
-
-            string EmailPattern = @"^[\w\.-]+@[a-zA-Z\d\.-]+\.[a-zA-Z]{2,}$";
-            var MatchEmail = Regex.Match(NewEmail, EmailPattern);
-            if (!MatchEmail.Success)
-            {
-                return new ResultChangeUserEmail_SiteDto
-                {
-                    IsSuccess = false,
-                    Message = "لطفا پست الکترونیک را به درستی وارد کنید",
-                    StatusCode = StatusCodes.Status400BadRequest,
-                };
-            }
-
-            var _GetEmail = _changeUserEmail_SiteRepo.EmailExist(NewEmail);
+            var _GetEmail = _changeUserEmail_SiteRepo.EmailExist(Request.NewEmail);
             if (_GetEmail != null)
             {
                 return new ResultChangeUserEmail_SiteDto
@@ -61,8 +38,8 @@ namespace Practice_Store.Application.Services.Users.Commands.ChangeUserEmail_Sit
                     StatusCode = StatusCodes.Status400BadRequest,
                 };
             }
-            _User.Email = NewEmail;
-            _User.UserName = NewEmail;
+            _User.Email = Request.NewEmail;
+            _User.UserName = Request.NewEmail;
             _User.EmailConfirmed = false;
             var Update = _userRepoFinder.UpdateUser(_User);
             if (!Update.Succeeded)
