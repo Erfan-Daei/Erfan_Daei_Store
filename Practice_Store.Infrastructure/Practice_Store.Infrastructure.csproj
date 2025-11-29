@@ -13,7 +13,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Practice_Store.Domain\Practice_Store.Domain.csproj" />
-    <ProjectReference Include="..\Practice_Store.Persistence\Practice_Store.Persistence.csproj" />
   </ItemGroup>
 
 </Project>

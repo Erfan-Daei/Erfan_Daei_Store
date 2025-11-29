@@ -1,4 +1,5 @@
-﻿using Practice_Store.Application.Interfaces.RepositoryManager.Products.Queries;
+﻿using Microsoft.AspNetCore.Http;
+using Practice_Store.Application.Interfaces.RepositoryManager.Products.Queries;
 using Practice_Store.Common;
 
 namespace Practice_Store.Application.Services.Products.Queries.GetAllSubCategories
@@ -28,7 +29,7 @@ namespace Practice_Store.Application.Services.Products.Queries.GetAllSubCategori
             {
                 Data = _Categories,
                 IsSuccess = true,
-                Status_Code = Status_Code.OK,
+                StatusCode = StatusCodes.Status200OK,
             };
         }
     }

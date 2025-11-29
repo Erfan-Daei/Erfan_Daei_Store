@@ -1,4 +1,5 @@
-﻿using Practice_Store.Application.Interfaces.RepositoryManager.Orders.Commands;
+﻿using Microsoft.AspNetCore.Http;
+using Practice_Store.Application.Interfaces.RepositoryManager.Orders.Commands;
 using Practice_Store.Common;
 
 namespace Practice_Store.Application.Services.Orders.Commands.FailedRequestOrder
@@ -21,7 +22,7 @@ namespace Practice_Store.Application.Services.Orders.Commands.FailedRequestOrder
             return new ResultDto
             {
                 IsSuccess = true,
-                Status_Code = Status_Code.OK,
+                StatusCode = StatusCodes.Status200OK,
             };
         }
     }
