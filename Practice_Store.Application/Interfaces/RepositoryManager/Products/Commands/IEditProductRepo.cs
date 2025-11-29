@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Practice_Store.Domain.Entities.Products;
+﻿using Practice_Store.Domain.Entities.Products;
 
 namespace Practice_Store.Application.Interfaces.RepositoryManager.Products.Commands
 {
@@ -17,6 +16,8 @@ namespace Practice_Store.Application.Interfaces.RepositoryManager.Products.Comma
 
         bool RemovePastImage(long productId);
 
-        bool AddNewImages(Product product, List<IFormFile> images, string _Name);
+        bool AddNewImages(List<ProductImages> productImages);
+
+        void SaveChanges();
     }
 }

@@ -57,7 +57,7 @@ namespace Endpoint.Api.Controllers.OrderManagement
 
         [HttpPost]
         [Route("AddOrderRequest")]
-        public async Task<IActionResult> POST([FromBody] AddOrderRequestDto _Request)
+        public async Task<IActionResult> POST([FromBody] RequestAddRequestOrderDto _Request)
         {
             var UserId = _readToken.GetUserId(User);
             var _Cart = _cartFacad.GetCartService.GetCart(_cookieManager.GetBrowserId(HttpContext), UserId).Data;
@@ -67,7 +67,7 @@ namespace Endpoint.Api.Controllers.OrderManagement
                 return StatusCode(404, "سبد شما خالی است");
             }
 
-            var OrderRequest = _orderFacad.AddRequestOrederService.Execute(new RequestAddRequestOrder
+            var OrderRequest = _orderFacad.AddRequestOrederService.Execute(new RequestAddRequestOrderDto
             {
                 UserId = UserId,
                 TotalSum = _Cart.TotalSum,

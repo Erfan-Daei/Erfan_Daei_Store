@@ -3,7 +3,6 @@ using Practice_Store.Application.Interfaces.RepositoryManager.Products;
 using Practice_Store.Application.Interfaces.RepositoryManager.Products.Commands;
 using Practice_Store.Common;
 using Practice_Store.Domain.Entities.Products;
-using System.Text.RegularExpressions;
 
 namespace Practice_Store.Application.Services.Products.Commands.AddProduct
 {
@@ -22,66 +21,6 @@ namespace Practice_Store.Application.Services.Products.Commands.AddProduct
         {
             try
             {
-                if (string.IsNullOrEmpty(Request.Name))
-                {
-                    return new ResultDto<long>()
-                    {
-                        IsSuccess = false,
-                        Message = "لطفا نام محصول را وارد کنید",
-                        StatusCode = StatusCodes.Status400BadRequest
-                    };
-                }
-                if (string.IsNullOrEmpty(Request.Brand))
-                {
-                    return new ResultDto<long>()
-                    {
-                        IsSuccess = false,
-                        Message = "لطفا برند محصول را وارد کنید",
-                        StatusCode = StatusCodes.Status400BadRequest
-                    };
-                }
-                if (string.IsNullOrEmpty(Request.Description))
-                {
-                    Request.Description = "-";
-                }
-
-                var PricePattern = @"^\d+$";
-                if (Request.Price == 0 || !Regex.Match(Request.Price.ToString(), PricePattern).Success)
-                {
-                    return new ResultDto<long>()
-                    {
-                        IsSuccess = false,
-                        Message = "لطفا قیمت را وارد کنید\nقیمت نمیتواند از حروف تشکیل شود",
-                        StatusCode = StatusCodes.Status400BadRequest
-                    };
-                }
-                if (Request.CategoryId == 0)
-                {
-                    return new ResultDto<long>()
-                    {
-                        IsSuccess = false,
-                        Message = "لطفا دسته بندی محصول را انتخاب کنید",
-                        StatusCode = StatusCodes.Status400BadRequest
-                    };
-                }
-                if (Request.Images.Count == 0)
-                {
-                    return new ResultDto<long>()
-                    {
-                        IsSuccess = false,
-                        Message = "لطفا حداقل یک عکس را برای محصول انتخاب کنید",
-                        StatusCode = StatusCodes.Status400BadRequest
-                    };
-                }
-                if (Request.Sizes.Count == 0)
-                {
-                    return new ResultDto<long>()
-                    {
-                        IsSuccess = false,
-                        Message = "لطفا حداقل یک سایز را برای محصول انتخاب کنید",
-                        StatusCode = StatusCodes.Status400BadRequest
-                    };
-                }
                 var _Category = _productRepoFinders.FindCategory(Request.CategoryId);
 
                 Product Product = new Product()
@@ -107,7 +46,7 @@ namespace Practice_Store.Application.Services.Products.Commands.AddProduct
                 ProductOff Off = new ProductOff()
                 {
                     Product = Product,
-                    Percentage = Request.OffPercentage
+                    Percentage = Request.OffPercentage ?? 0
                 };
                 var AddOff = _addProductRepo.AddOff(Off);
                 if (!AddOff)
@@ -119,8 +58,16 @@ namespace Practice_Store.Application.Services.Products.Commands.AddProduct
                         StatusCode = StatusCodes.Status500InternalServerError
                     };
                 }
-
-                var AddImage = _addProductRepo.AddImages(Product, Request.Images, Request.Name);
+                var productImages = new List<ProductImages>();
+                foreach (var image in Request.ImageSrc)
+                {
+                    productImages.Add(new ProductImages()
+                    {
+                        Product = Product,
+                        Src = image.Src
+                    });
+                }
+                var AddImage = _addProductRepo.AddImages(productImages);
                 if (!AddImage)
                 {
                     return new ResultDto<long>()

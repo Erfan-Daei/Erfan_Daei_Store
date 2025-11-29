@@ -1,5 +1,4 @@
 ﻿using Endpoint.Api.Areas.Admin.Model.Common;
-using Endpoint.Api.Areas.Admin.Model.ProductManagement;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Practice_Store.Application.Interfaces.FacadPatterns;
@@ -86,7 +85,7 @@ namespace Endpoint.Api.Areas.Admin.Controllers.ProductManagement
                 StatusCode = Result.StatusCode,
                 Links = new List<Link>()
                 {
-                    
+
                     new Link()
                     {
                         Href = Url.Action(nameof(POST), "ProductManager", new { Area = "Admin" }, Request.Scheme) ?? "",
@@ -112,31 +111,9 @@ namespace Endpoint.Api.Areas.Admin.Controllers.ProductManagement
         }
 
         [HttpPost]
-        public IActionResult POST([FromBody] AddProductDto _Request)
+        public IActionResult POST([FromBody] RequestAddProductDto _Request)
         {
-            List<IFormFile> Images = new List<IFormFile>();
-            foreach (var image in _Request.ImageSrc)
-            {
-                IFormFile FormFile = CreateIFormFile(image);
-                Images.Add(FormFile);
-            }
-
-            var Result = _productFacad.AddProductService.Execute(new RequestAddProductDto
-            {
-                Brand = _Request.Brand,
-                CategoryId = _Request.CategoryId,
-                Description = _Request.Description,
-                Displayed = _Request.Displayed,
-                Images = Images,
-                Name = _Request.Name,
-                OffPercentage = _Request.OffPercentage,
-                Price = _Request.Price,
-                Sizes = _Request.Sizes.Select(p => new ProductSizeDto
-                {
-                    Size = p.Size,
-                    Inventory = p.Inventory,
-                }).ToList()
-            });
+            var Result = _productFacad.AddProductService.Execute(_Request);
 
             dynamic Output = new
             {
@@ -169,32 +146,9 @@ namespace Endpoint.Api.Areas.Admin.Controllers.ProductManagement
         }
 
         [HttpPut]
-        public IActionResult PUT([FromBody] EditProductDto _Request)
+        public IActionResult PUT([FromBody] RequestEditProductDto _Request)
         {
-            List<IFormFile> Images = new List<IFormFile>();
-            foreach (var image in _Request.ImageSrc)
-            {
-                IFormFile FormFile = CreateIFormFile(image);
-                Images.Add(FormFile);
-            }
-
-            var Result = _productFacad.EditProductService.Execute(new RequestEditProductDto
-            {
-                Brand = _Request.Brand,
-                CategoryId = _Request.CategoryId,
-                Description = _Request.Description,
-                Displayed = _Request.Displayed,
-                Id = _Request.Id,
-                Images = Images,
-                Name = _Request.Name,
-                OffPercentage = _Request.OffPercentage,
-                Price = _Request.Price,
-                Sizes = _Request.Sizes.Select(p => new EditProductSizeDto
-                {
-                    Size = p.Size,
-                    Inventory = p.Inventory,
-                }).ToList()
-            });
+            var Result = _productFacad.EditProductService.Execute(_Request);
 
             dynamic Output = new
             {
@@ -264,21 +218,6 @@ namespace Endpoint.Api.Areas.Admin.Controllers.ProductManagement
             };
 
             return Ok(Output);
-        }
-
-        private IFormFile CreateIFormFile(string path)
-        {
-            var fileName = Path.GetFileName(path);
-            var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read);
-            var memoryStream = new MemoryStream();
-            fileStream.CopyTo(memoryStream);
-            fileStream.Close();
-            memoryStream.Position = 0;
-            return new FormFile(memoryStream, 0, memoryStream.Length, fileName, fileName)
-            {
-                Headers = new HeaderDictionary(),
-                ContentType = "application/octet-stream"
-            };
         }
     }
 }

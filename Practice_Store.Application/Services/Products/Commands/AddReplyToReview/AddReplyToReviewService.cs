@@ -16,9 +16,9 @@ namespace Practice_Store.Application.Services.Products.Commands.AddReplyToReview
             _addReplyRepo = addReplyRepo;
         }
 
-        public ResultDto<long> Execute(long ReviewId, string UserId, string ReplyDetail)
+        public ResultDto<long> Execute(RequestAddReplyToReviewDto Request)
         {
-            var _Review = _addReplyRepo.FindReview(ReviewId);
+            var _Review = _addReplyRepo.FindReview(Request.ReviewId);
             if (_Review == null)
             {
                 return new ResultDto<long>
@@ -29,7 +29,7 @@ namespace Practice_Store.Application.Services.Products.Commands.AddReplyToReview
                 };
             }
 
-            var _User = _manageUserRepository.FindUserById(UserId);
+            var _User = _manageUserRepository.FindUserById(Request.UserId);
             if (_User == null)
             {
                 return new ResultDto<long>
@@ -50,7 +50,7 @@ namespace Practice_Store.Application.Services.Products.Commands.AddReplyToReview
                 UserLastName = _User.LastName,
                 ReplyedReview = _Review,
                 ReplyedReviewId = _Review.Id,
-                ReviewDetail = ReplyDetail,
+                ReviewDetail = Request.ReplyDetail,
             };
             var AddReply = _addReplyRepo.AddReply(Review);
             if (!AddReply)

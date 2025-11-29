@@ -4,6 +4,6 @@ namespace Practice_Store.Application.Services.Orders.Commands.RequestOrder
 {
     public interface IAddRequestOreder
     {
-        ResultDto<ResultAddRequestOrder> Execute(RequestAddRequestOrder Request);
+        ResultDto<ResultAddRequestOrder> Execute(RequestAddRequestOrderDto Request);
     }
 }

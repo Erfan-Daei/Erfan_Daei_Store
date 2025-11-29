@@ -1,17 +1,15 @@
-﻿using Microsoft.AspNetCore.Http;
-
-namespace Practice_Store.Application.Services.Products.Commands.AddProduct
+﻿namespace Practice_Store.Application.Services.Products.Commands.AddProduct
 {
     public class RequestAddProductDto
     {
         public string Name { get; set; }
         public string Brand { get; set; }
-        public string Description { get; set; }
+        public string Description { get; set; } = "-";
         public int Price { get; set; }
         public bool Displayed { get; set; }
         public long CategoryId { get; set; }
-        public List<IFormFile> Images { get; set; }
+        public List<AddProductImageSrcDto> ImageSrc { get; set; }
         public List<ProductSizeDto> Sizes { get; set; }
-        public byte OffPercentage { get; set; }
+        public byte? OffPercentage { get; set; } = 0;
     }
 }

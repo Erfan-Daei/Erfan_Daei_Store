@@ -1,11 +1,6 @@
 ﻿using Practice_Store.Application.Interfaces.Contexts;
 using Practice_Store.Application.Interfaces.RepositoryManager.Products.Commands;
 using Practice_Store.Domain.Entities.Products;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Practice_Store.Persistence.RepositoryManager.Products.Commands
 {
@@ -23,11 +18,7 @@ namespace Practice_Store.Persistence.RepositoryManager.Products.Commands
             try
             {
                 var images = _databaseContext.ProductImages.Where(p => p.ProductId == productId).ToList();
-                foreach (var image in images)
-                {
-                    _databaseContext.ProductImages.Remove(image);
-                    File.Delete(@"G:\Practice_Store\EndPoint.Site\wwwroot\" + image.Src);
-                }
+                _databaseContext.ProductImages.RemoveRange(images);
                 return true;
             }
             catch

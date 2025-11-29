@@ -71,7 +71,6 @@ namespace Practice_Store.Application.Services.LandingPage.Commands.DeleteImage
                     StatusCode = StatusCodes.Status400BadRequest,
                 };
             }
-            File.Delete("G:\\Practice_Store\\EndPoint.Site\\wwwroot\\" + Image.Src);
             var Delete = _deleteImage_LandingPageRepo.DeleteImage(Image);
             if (Delete)
                 return new ResultDto()

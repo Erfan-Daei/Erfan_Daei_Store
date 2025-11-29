@@ -1,20 +1,16 @@
-﻿using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Practice_Store.Application.Interfaces.RepositoryManager.LandingPage.Commands;
 using Practice_Store.Common;
 using Practice_Store.Domain.Entities.LandingPage;
-using static Practice_Store.Common.UploadFile;
 
 namespace Practice_Store.Application.Services.LandingPage.Commands.EditImages
 {
     public class EditImage_LandingPageService : IEditImage_LandingPage
     {
         private readonly IEditImages_LandingPageRepo _editImages_LandingPageRepo;
-        private readonly IHostingEnvironment _hostingEnvironment;
-        public EditImage_LandingPageService(IEditImages_LandingPageRepo editImages_LandingPageRepo, IHostingEnvironment hostingEnvironment)
+        public EditImage_LandingPageService(IEditImages_LandingPageRepo editImages_LandingPageRepo)
         {
             _editImages_LandingPageRepo = editImages_LandingPageRepo;
-            _hostingEnvironment = hostingEnvironment;
         }
 
         public ResultDto Execute(RequestEditImage_LandingPageDto Request)
@@ -99,39 +95,7 @@ namespace Practice_Store.Application.Services.LandingPage.Commands.EditImages
                     };
                 }
             }
-
-            if (_Image == null)
-            {
-                return new ResultDto()
-                {
-                    IsSuccess = false,
-                    Message = "تصویر یافت نشد",
-                    StatusCode = StatusCodes.Status404NotFound,
-                };
-            }
-            if (Request.Title == null)
-            {
-                return new ResultDto()
-                {
-                    IsSuccess = false,
-                    Message = "لطفا عنوان را وارد کنید",
-                    StatusCode = StatusCodes.Status400BadRequest,
-                };
-            }
-
-            if (Request.Image != null)
-            {
-                var ImageUrl = UploadImageFile(new RequestUploadImageFile
-                {
-                    File = Request.Image,
-                    Name = Request.ImageLocation.ToString(),
-                    _hostingEnvironment = _hostingEnvironment,
-                    FolderPath = $@"images\LandingPageImages\",
-                });
-                File.Delete("G:\\Practice_Store\\EndPoint.Site\\wwwroot\\" + _Image.Src);
-                _Image.Src = ImageUrl.FileNameAddress;
-            }
-
+            _Image.Src = Request.ImageSrc;
             _Image.ImageLocation = Request.ImageLocation;
             _Image.Title = Request.Title;
             _Image.Link = Request.Link;

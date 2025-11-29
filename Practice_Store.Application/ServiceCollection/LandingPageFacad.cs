@@ -13,20 +13,17 @@ namespace Practice_Store.Application.ServiceCollection
     public class LandingPageFacad : ILandingPageFacad
     {
         private readonly IAddImage_LandingPageRepo _addImageRepo;
-        private readonly IHostingEnvironment _hostingEnvironment;
         private readonly IDeleteImage_LandingPageRepo _deleteImage_LandingPageRepo;
         private readonly IEditImages_LandingPageRepo _editImages_LandingPageRepo;
         private readonly IGetImage_SiteRepo _getImage_SiteRepo;
         private readonly IGetProductMenuRepo _getProductMenuRepo;
         public LandingPageFacad(IAddImage_LandingPageRepo addImageRepo,
-            IHostingEnvironment hostingEnvironment,
             IDeleteImage_LandingPageRepo deleteImage_LandingPageRepo,
             IEditImages_LandingPageRepo editImages_LandingPageRepo,
             IGetImage_SiteRepo getImage_SiteRepo,
             IGetProductMenuRepo getProductMenuRepo)
         {
             _addImageRepo = addImageRepo;
-            _hostingEnvironment = hostingEnvironment;
             _deleteImage_LandingPageRepo = deleteImage_LandingPageRepo;
             _editImages_LandingPageRepo = editImages_LandingPageRepo;
             _getImage_SiteRepo = getImage_SiteRepo;
@@ -38,7 +35,7 @@ namespace Practice_Store.Application.ServiceCollection
         {
             get
             {
-                return _addImageLandingPage = _addImageLandingPage ?? new AddImage_LandingPageService(_addImageRepo, _hostingEnvironment);
+                return _addImageLandingPage = _addImageLandingPage ?? new AddImage_LandingPageService(_addImageRepo);
             }
         }
 
@@ -56,7 +53,7 @@ namespace Practice_Store.Application.ServiceCollection
         {
             get
             {
-                return _editImage = _editImage ?? new EditImage_LandingPageService(_editImages_LandingPageRepo, _hostingEnvironment);
+                return _editImage = _editImage ?? new EditImage_LandingPageService(_editImages_LandingPageRepo);
             }
         }
 

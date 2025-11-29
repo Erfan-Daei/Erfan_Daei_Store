@@ -1,5 +1,4 @@
-﻿using Endpoint.Api.Model.ProductManagement;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Practice_Store.Application.Interfaces.FacadPatterns;
 using Practice_Store.Application.Interfaces.JWTToken;
@@ -57,7 +56,7 @@ namespace Endpoint.Api.Controllers.ProductManagement
 
         [HttpPost]
         [Authorize(Policy = "Customer&Admin")]
-        public IActionResult POST([FromBody] AddReviewDto _Request)
+        public IActionResult POST([FromBody] RequestAddReview _Request)
         {
             var UserId = _readToken.GetUserId(User);
             var Result = _productFacad.AddReviewService.Execute(new RequestAddReview

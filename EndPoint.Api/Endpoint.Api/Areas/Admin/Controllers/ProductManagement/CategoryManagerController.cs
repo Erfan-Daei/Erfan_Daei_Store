@@ -1,7 +1,8 @@
-﻿using Endpoint.Api.Areas.Admin.Model.ProductManagement;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Practice_Store.Application.Interfaces.FacadPatterns;
+using Practice_Store.Application.Services.Products.Commands.AddCategory;
+using Practice_Store.Application.Services.Products.Commands.EditCategory;
 using Practice_Store.Common;
 
 namespace Endpoint.Api.Areas.Admin.Controllers.ProductManagement
@@ -59,9 +60,9 @@ namespace Endpoint.Api.Areas.Admin.Controllers.ProductManagement
         }
 
         [HttpPost]
-        public IActionResult POST([FromBody] CategoryDto _Request)
+        public IActionResult POST([FromBody] RequestAddCategoryDto _Request)
         {
-            var Result = _productFacad.AddCategoryService.Execute(_Request.Id, _Request.Name);
+            var Result = _productFacad.AddCategoryService.Execute(_Request);
 
             if (!Result.IsSuccess)
             {
@@ -101,9 +102,9 @@ namespace Endpoint.Api.Areas.Admin.Controllers.ProductManagement
         }
 
         [HttpPut]
-        public IActionResult PUT([FromBody] CategoryDto _Request)
+        public IActionResult PUT([FromBody] RequestEditCategoryDto _Request)
         {
-            var Result = _productFacad.EditCategoryService.Execute((int)_Request.Id, _Request.Name);
+            var Result = _productFacad.EditCategoryService.Execute(_Request);
 
             if (!Result.IsSuccess)
             {

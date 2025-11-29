@@ -3,7 +3,6 @@ using Practice_Store.Application.Interfaces.RepositoryManager.Products;
 using Practice_Store.Application.Interfaces.RepositoryManager.Products.Commands;
 using Practice_Store.Common;
 using Practice_Store.Domain.Entities.Products;
-using System.Text.RegularExpressions;
 
 namespace Practice_Store.Application.Services.Products.Commands.AddCategory
 {
@@ -17,34 +16,12 @@ namespace Practice_Store.Application.Services.Products.Commands.AddCategory
             _productRepoFinders = productRepoFinders;
         }
 
-        public ResultDto<long> Execute(long? ParentId, string Name)
+        public ResultDto<long> Execute(RequestAddCategoryDto Request)
         {
-            if (string.IsNullOrWhiteSpace(Name))
-            {
-                return new ResultDto<long>()
-                {
-                    IsSuccess = false,
-                    Message = "لطفا نام دسته بندی را وارد نمایید",
-                    StatusCode = StatusCodes.Status400BadRequest,
-                };
-            }
-
-            string NamePattern = @"^[\u0621-\u0628\u062A-\u063A\u0641-\u0642\u0644-\u0648\u064A\u067E\u0686\u0698\u06A9\u06AF\u06BE\u06CC\s]+$";
-            var MatchName = Regex.Match(Name, NamePattern);
-            if (!MatchName.Success)
-            {
-                return new ResultDto<long>()
-                {
-                    IsSuccess = false,
-                    Message = "نام دسته بندی نمیتواند شامل اعداد و حروف انگلیسی باشد",
-                    StatusCode = StatusCodes.Status400BadRequest
-                };
-            }
-
             Category Category = new Category()
             {
-                Name = Name,
-                ParentCategory = GetParent(ParentId)
+                Name = Request.Name,
+                ParentCategory = GetParent(Request.ParentId)
             };
 
             var result = _addCategoryRepo.AddCategory(Category);
@@ -67,7 +44,7 @@ namespace Practice_Store.Application.Services.Products.Commands.AddCategory
             };
 
         }
-        private Category GetParent(long? ParentId)
+        private Category? GetParent(long? ParentId)
         {
             return _productRepoFinders.FindCategory(ParentId);
         }

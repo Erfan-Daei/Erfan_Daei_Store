@@ -4,6 +4,6 @@ namespace Practice_Store.Application.Services.Products.Commands.AddCategory
 {
     public interface IAddCategory
     {
-        ResultDto<long> Execute(long? ParentId, string Name);
+        ResultDto<long> Execute(RequestAddCategoryDto Request);
     }
 }

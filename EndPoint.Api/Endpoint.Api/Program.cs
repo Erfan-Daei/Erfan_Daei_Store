@@ -85,7 +85,7 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddFluentValidationAutoValidation();
-builder.Services.UserServicesValidators();
+builder.Services.UserServicesValidators().ProductServicesValidators().LandingPageServicesValidators().OrderServicesValidators();
 
 
 builder.Services.AddEndpointsApiExplorer();

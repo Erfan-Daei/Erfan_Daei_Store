@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Practice_Store.Domain.Entities.Products;
+﻿using Practice_Store.Domain.Entities.Products;
 
 namespace Practice_Store.Application.Interfaces.RepositoryManager.Products.Commands
 {
@@ -9,7 +8,7 @@ namespace Practice_Store.Application.Interfaces.RepositoryManager.Products.Comma
 
         bool AddOff(ProductOff off);
 
-        bool AddImages(Product product, List<IFormFile> images, string _Name);
+        bool AddImages(List<ProductImages> productImages);
 
         bool AddSizes(IEnumerable<ProductSizes> sizes);
     }

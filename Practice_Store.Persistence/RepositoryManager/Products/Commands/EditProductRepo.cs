@@ -1,45 +1,22 @@
-﻿using Azure.Core;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Practice_Store.Application.Interfaces.Contexts;
+﻿using Practice_Store.Application.Interfaces.Contexts;
 using Practice_Store.Application.Interfaces.RepositoryManager.Products.Commands;
-using Practice_Store.Application.Services.Products.Commands.EditProduct;
 using Practice_Store.Domain.Entities.Products;
-using static Practice_Store.Common.UploadFile;
 
 namespace Practice_Store.Persistence.RepositoryManager.Products.Commands
 {
     public class EditProductRepo : IEditProductRepo
     {
         private readonly IDatabaseContext _databaseContext;
-        private readonly IHostingEnvironment _hostingEnvironment;
-        public EditProductRepo(IDatabaseContext databaseContext, IHostingEnvironment hostingEnvironment)
+        public EditProductRepo(IDatabaseContext databaseContext)
         {
             _databaseContext = databaseContext;
-            _hostingEnvironment = hostingEnvironment;
         }
 
-        public bool AddNewImages(Product product, List<IFormFile> images, string _Name)
+        public bool AddNewImages(List<ProductImages> productImages)
         {
             try
             {
-                List<ProductImages> ProductImages = new List<ProductImages>();
-                foreach (var item in images)
-                {
-                    var UploadResult = UploadImageFile(new RequestUploadImageFile
-                    {
-                        File = item,
-                        Name = _Name,
-                        _hostingEnvironment = _hostingEnvironment,
-                        FolderPath = $@"images\ProductImages\",
-                    });
-                    ProductImages.Add(new ProductImages()
-                    {
-                        Product = product,
-                        Src = UploadResult.FileNameAddress,
-                    });
-                }
-                _databaseContext.ProductImages.AddRange(ProductImages);
+                _databaseContext.ProductImages.AddRange(productImages);
                 _databaseContext.SaveChanges();
 
                 return true;
@@ -91,11 +68,7 @@ namespace Practice_Store.Persistence.RepositoryManager.Products.Commands
             try
             {
                 var PastImages = _databaseContext.ProductImages.Where(p => p.ProductId == productId);
-                foreach (var image in PastImages)
-                {
-                    _databaseContext.ProductImages.Remove(image);
-                    File.Delete(_hostingEnvironment.WebRootPath + "\\" + image.Src);
-                }
+                _databaseContext.ProductImages.RemoveRange(PastImages);
                 return true;
             }
             catch
@@ -115,6 +88,11 @@ namespace Practice_Store.Persistence.RepositoryManager.Products.Commands
             {
                 return false;
             }
+        }
+
+        public void SaveChanges()
+        {
+            _databaseContext.SaveChanges();
         }
     }
 }

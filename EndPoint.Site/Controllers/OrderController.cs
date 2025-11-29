@@ -39,7 +39,7 @@ namespace EndPoint.Site.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddRequestOrder(RequestAddRequestOrder Request)
+        public async Task<IActionResult> AddRequestOrder(RequestAddRequestOrderDto Request)
         {
             var UserId = ClaimUtility.GetUserId(User);
             var _Cart = _cartFacad.GetCartService.GetCart(cookieManager.GetBrowserId(HttpContext), UserId).Data;
@@ -47,7 +47,7 @@ namespace EndPoint.Site.Controllers
             {
                 return Json(new { message = "سبد شما خالی است" });
             }
-            var OrderRequest = _orderFacad.AddRequestOrederService.Execute(new RequestAddRequestOrder
+            var OrderRequest = _orderFacad.AddRequestOrederService.Execute(new RequestAddRequestOrderDto
             {
                 UserId = UserId,
                 TotalSum = _Cart.TotalSum,

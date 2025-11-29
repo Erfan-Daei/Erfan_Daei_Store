@@ -1,21 +1,15 @@
-﻿using Azure.Core;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Practice_Store.Application.Interfaces.Contexts;
+﻿using Practice_Store.Application.Interfaces.Contexts;
 using Practice_Store.Application.Interfaces.RepositoryManager.Products.Commands;
 using Practice_Store.Domain.Entities.Products;
-using static Practice_Store.Common.UploadFile;
 
 namespace Practice_Store.Persistence.RepositoryManager.Products.Commands
 {
     public class AddProductRepo : IAddproductRepo
     {
         private readonly IDatabaseContext _databaseContext;
-        private readonly IHostingEnvironment _hostingEnvironment;
-        public AddProductRepo(IDatabaseContext databaseContext, IHostingEnvironment hostingEnvironment)
+        public AddProductRepo(IDatabaseContext databaseContext)
         {
             _databaseContext = databaseContext;
-            _hostingEnvironment = hostingEnvironment;
         }
 
         public bool AddProduct(Product product)
@@ -44,27 +38,11 @@ namespace Practice_Store.Persistence.RepositoryManager.Products.Commands
             }
         }
 
-        public bool AddImages(Product product, List<IFormFile> images, string _Name)
+        public bool AddImages(List<ProductImages> productImages)
         {
             try
             {
-                List<ProductImages> ProductImages = new List<ProductImages>();
-                foreach (var item in images)
-                {
-                    var UploadResult = UploadImageFile(new RequestUploadImageFile
-                    {
-                        File = item,
-                        Name = _Name,
-                        _hostingEnvironment = _hostingEnvironment,
-                        FolderPath = $@"images\ProductImages\",
-                    });
-                    ProductImages.Add(new ProductImages()
-                    {
-                        Product = product,
-                        Src = UploadResult.FileNameAddress,
-                    });
-                }
-                _databaseContext.ProductImages.AddRange(ProductImages);
+                _databaseContext.ProductImages.AddRange(productImages);
                 return true;
             }
             catch

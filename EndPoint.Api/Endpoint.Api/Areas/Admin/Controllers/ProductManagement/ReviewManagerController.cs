@@ -1,8 +1,8 @@
-﻿using Endpoint.Api.Areas.Admin.Model.ProductManagement;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Practice_Store.Application.Interfaces.FacadPatterns;
 using Practice_Store.Application.Interfaces.JWTToken;
+using Practice_Store.Application.Services.Products.Commands.AddReplyToReview;
 using Practice_Store.Common;
 
 namespace Endpoint.Api.Areas.Admin.Controllers.ProductManagement
@@ -70,10 +70,15 @@ namespace Endpoint.Api.Areas.Admin.Controllers.ProductManagement
         }
 
         [HttpPost]
-        public IActionResult POST([FromBody] ReplyToReviewDto _Request)
+        public IActionResult POST([FromBody] RequestAddReplyToReviewDto _Request)
         {
             var AdminId = _readToken.GetUserId(User);
-            var Result = _productFacad.AddReplyToReviewService.Execute(_Request.ReviewId, AdminId, _Request.ReplyDetail);
+            var Result = _productFacad.AddReplyToReviewService.Execute(new RequestAddReplyToReviewDto
+            {
+                ReviewId = _Request.ReviewId,
+                ReplyDetail = _Request.ReplyDetail,
+                UserId = AdminId
+            });
 
             dynamic Output = new
             {

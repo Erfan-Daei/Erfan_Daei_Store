@@ -1,5 +1,4 @@
-﻿using Endpoint.Api.Areas.Admin.Model.SiteManagement;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Practice_Store.Application.Interfaces.FacadPatterns;
 using Practice_Store.Application.Services.LandingPage.Commands.AddImages;
@@ -55,16 +54,9 @@ namespace Endpoint.Api.Areas.Admin.Controllers.SiteManagement
         }
 
         [HttpPost]
-        public IActionResult POST([FromBody] AddLandingPageImageDto _Request)
+        public IActionResult POST([FromBody] RequestAddImage_LandingPageDto _Request)
         {
-            var Image = CreateIFormFile(_Request.ImageLink);
-            var Result = _landingPageFacad.AddImage_LandingPageService.Execute(new RequestAddImage_LandingPageDto
-            {
-                Image = Image,
-                Title = _Request.Title,
-                Link = _Request.Link,
-                ImageLocation = _Request.Location
-            });
+            var Result = _landingPageFacad.AddImage_LandingPageService.Execute(_Request);
 
             if (!Result.IsSuccess)
                 return Problem(Result.Message, "", Convert.ToInt16(Result.StatusCode));
@@ -100,18 +92,9 @@ namespace Endpoint.Api.Areas.Admin.Controllers.SiteManagement
         }
 
         [HttpPut]
-        public IActionResult PUT([FromBody] EditLandingPageImageDto _Request)
+        public IActionResult PUT([FromBody] RequestEditImage_LandingPageDto _Request)
         {
-            var Image = CreateIFormFile(_Request.ImageLink);
-
-            var Result = _landingPageFacad.EditImageService.Execute(new RequestEditImage_LandingPageDto
-            {
-                Id = _Request.Id,
-                Image = Image,
-                Title = _Request.Title,
-                Link = _Request.Link,
-                ImageLocation = _Request.ImageLocation
-            });
+            var Result = _landingPageFacad.EditImageService.Execute(_Request);
 
             if (!Result.IsSuccess)
                 return Problem(Result.Message, "", Convert.ToInt16(Result.StatusCode));
@@ -161,21 +144,6 @@ namespace Endpoint.Api.Areas.Admin.Controllers.SiteManagement
             };
 
             return Ok(Output);
-        }
-
-        private IFormFile CreateIFormFile(string path)
-        {
-            var fileName = Path.GetFileName(path);
-            var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read);
-            var memoryStream = new MemoryStream();
-            fileStream.CopyTo(memoryStream);
-            fileStream.Close();
-            memoryStream.Position = 0;
-            return new FormFile(memoryStream, 0, memoryStream.Length, fileName, fileName)
-            {
-                Headers = new HeaderDictionary(),
-                ContentType = "application/octet-stream"
-            };
         }
     }
 }
