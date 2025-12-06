@@ -5,7 +5,9 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Practice_Store.Application.Interfaces.FacadPatterns;
+using Practice_Store.Application.Services.Users.Commands.ChangeUserEmail_Site;
 using Practice_Store.Application.Services.Users.Commands.EditUser_Admin;
+using Practice_Store.Application.Services.Users.Commands.ForgetPassword;
 using Practice_Store.Common;
 
 namespace EndPoint.Site.Areas.Admin.Controllers
@@ -43,27 +45,14 @@ namespace EndPoint.Site.Areas.Admin.Controllers
         [HttpPut]
         public IActionResult EditAdmindetail(RequestEditUser_AdminDto _Request)
         {
-            return Json(_userFacad.EditUser_AdminService.EditUser(new RequestEditUser_AdminDto
-            {
-                UserId = _Request.UserId,
-                Name = _Request.Name,
-                LastName = _Request.LastName,
-                Address = _Request.Address,
-                PostCode = _Request.PostCode,
-                PhoneNumber = _Request.PhoneNumber,
-            }));
+            return Json(_userFacad.EditUser_AdminService.EditUser(_Request));
         }
 
 
         [HttpPost]
-        public IActionResult ChangeAdminPasswordValidation(string UserId, string NewPassword, string ConPassword)
+        public IActionResult ChangeAdminPasswordValidation(RequestForgetPasswordDto _Request)
         {
-            if (NewPassword != ConPassword)
-            {
-                return BadRequest("رمز عبور و تایید آن برابر نیست");
-            }
-
-            var Result = _userFacad.ForgetPasswordService.CheckPassword(UserId, NewPassword);
+            var Result = _userFacad.ForgetPasswordService.CheckPassword(_Request);
 
             if (!Result.IsSuccess)
             {
@@ -72,9 +61,9 @@ namespace EndPoint.Site.Areas.Admin.Controllers
 
             string? CallbackUrl = Url.Action("ChangeAdminPassword", "Admin", new
             {
-                UserId = UserId,
+                UserId = _Request.UserId,
                 Token = Result.Token,
-                NewPassword = NewPassword,
+                NewPassword = _Request.NewPassword,
             }, protocol: Request.Scheme);
 
             string body = $"لطفا برای تغییر رمز عبور بر روی لینک زیر کلیک کنید!  <br/> <a href={CallbackUrl}> Link </a>";
@@ -99,15 +88,16 @@ namespace EndPoint.Site.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        public IActionResult ChangeAdminEmail(string PreviousEmail, string NewEmail)
+        public IActionResult ChangeAdminEmail(RequestChangeUserEmail_SiteDto _Request)
         {
-
-            if (string.IsNullOrEmpty(PreviousEmail) || string.IsNullOrEmpty(NewEmail))
-            {
-                return BadRequest();
-            }
             var UserId = ClaimUtility.GetUserId(HttpContext.User);
-            var Result = _userFacad.ChangeUserEmail_SiteService.CheckEmailValidation(UserId, PreviousEmail, NewEmail);
+            var LastEmail = ClaimUtility.GetEmail(HttpContext.User);
+            var Result = _userFacad.ChangeUserEmail_SiteService.CheckEmailValidation(new RequestChangeUserEmail_SiteDto
+            {
+                NewEmail = _Request.NewEmail,
+                LastEmail = LastEmail,
+                UserId = UserId
+            });
             if (!Result.IsSuccess)
                 return Problem(Result.Message, "", Convert.ToInt16(Result.StatusCode));
 
@@ -118,7 +108,7 @@ namespace EndPoint.Site.Areas.Admin.Controllers
             }, protocol: Request.Scheme);
 
             string body = $"لطفا برای تایید ایمیل بر روی لینک زیر کلیک کنید!  <br/> <a href={CallbackUrl}> Link </a>";
-            _emailSender.Execute(NewEmail, body, "تایید ایمیل کاربر");
+            _emailSender.Execute(_Request.NewEmail, body, "تایید ایمیل کاربر");
 
             return Json(Result);
         }

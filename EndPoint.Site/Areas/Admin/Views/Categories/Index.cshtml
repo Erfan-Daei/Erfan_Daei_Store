@@ -1,5 +1,7 @@
-﻿@using Practice_Store.Application.Services.Products.Queries.GetCategories;
-@model List<CategoriesDto>
+﻿@using Practice_Store.Application.Services.Products.Commands.EditCategory
+@using Practice_Store.Application.Services.Products.Queries.GetCategories;
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@model (List<CategoriesDto>, RequestEditCategoryDto)
 @{
     ViewData["Title"] = "Index";
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
@@ -17,7 +19,7 @@
         <div class="col-lg-12">
             <div class="card">
                 <div class="card-body">
-                    @if (Model.Count != 0)
+                    @if (Model.Item1.Count != 0)
                     {
                         <div class="table-responsive">
                             <table class="table table-sm mb-0 table-striped">
@@ -29,7 +31,7 @@
                                     </tr>
                                 </thead>
                                 <tbody id="customers">
-                                    @foreach (var item in Model)
+                                    @foreach (var item in Model.Item1)
                                     {
                                         <tr class="btn-reveal-trigger">
                                             <td class="py-3">
@@ -72,7 +74,7 @@
             </div>
         </div>
     </div>
-    @if (Model.Count == 0)
+    @if (Model.Item1.Count == 0)
     {
         <div class="col-lg-12">
             <div class="alert alert-danger left-icon-big alert-dismissible fade show">
@@ -102,6 +104,7 @@
 {
     <link href="~/sweetalert2/sweetalert2.min.css" rel="stylesheet" />
     <script src="~/sweetalert2/sweetalert2.min.js"></script>
+    <partial name="_ValidationScriptsPartial" />
 
     <script>
         function ShowEditUserModalFunc(Id, Name) {
@@ -204,22 +207,24 @@
     <div class="modal fade" id="EditCategoryMod" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
+                <form asp-action="EditCategory">
                 <div class="modal-header">
                     <h5 class="modal-title" id="exampleModalLongTitle">ویرایش دسته بندی</h5>
                 </div>
                 <div class="modal-body">
                     <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
                         <fieldset class="form-group">
-                            <input type="hidden" id="Edit_Id" />
+                            <input type="hidden" id="Edit_Id" name="Id" asp-for="Item2.Id"><span asp-validation-for="Item2.Id"></span>
                             <label for="basicInput">نام</label>
-                            <input type="text" class="form-control" id="Edit_Name">
+                            <input type="text" class="form-control" id="Edit_Name" asp-for="Item2.Name"><span asp-validation-for="Item2.Name" class="text-danger"></span>
                         </fieldset>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <a class="btn btn-secondary" onclick="CloseEditUserModalFunc()">انصراف</a>
-                    <a class="btn btn-primary" onclick="EditCategoryfunc()">اعمال تغییرات</a>
+                    <button class="btn btn-primary" type="submit">اعمال تغییرات</button>
                 </div>
+                </form>
             </div>
         </div>
     </div>

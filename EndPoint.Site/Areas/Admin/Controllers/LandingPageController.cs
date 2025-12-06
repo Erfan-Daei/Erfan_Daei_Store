@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using Practice_Store.Application.Interfaces.FacadPatterns;
 using Practice_Store.Application.Services.LandingPage.Commands.AddImages;
 using Practice_Store.Application.Services.LandingPage.Commands.EditImages;
-using Practice_Store.Domain.Entities.LandingPage;
 
 namespace EndPoint.Site.Areas.Admin.Controllers
 {
@@ -30,38 +29,15 @@ namespace EndPoint.Site.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        public IActionResult AddLandingPageImage(string Title, string Link, LandingPageImageLocation ImageLocation)
+        public IActionResult AddLandingPageImage(RequestAddImage_LandingPageDto _Request)
         {
-            IFormFile Image = null;
-            if (Request.Form.Files.Count >= 1)
-            {
-                Image = Request.Form.Files[0];
-            }
-            return Json(_landingPageFacad.AddImage_LandingPageService.Execute(new RequestAddImage_LandingPageDto
-            {
-                Image = Image,
-                Title = Title,
-                Link = Link,
-                ImageLocation = ImageLocation
-            }));
+            return Json(_landingPageFacad.AddImage_LandingPageService.Execute(_Request));
         }
 
         [HttpPut]
         public IActionResult EditLandingPageImage(RequestEditImage_LandingPageDto _Request)
         {
-            IFormFile Image = null;
-            if (Request.Form.Files.Count > 0)
-            {
-                Image = Request.Form.Files[0];
-            }
-            return Json(_landingPageFacad.EditImageService.Execute(new RequestEditImage_LandingPageDto
-            {
-                Id = _Request.Id,
-                Image = Image,
-                Title = _Request.Title,
-                Link = _Request.Link,
-                ImageLocation = _Request.ImageLocation
-            }));
+            return Json(_landingPageFacad.EditImageService.Execute(_Request));
         }
 
         [HttpDelete]

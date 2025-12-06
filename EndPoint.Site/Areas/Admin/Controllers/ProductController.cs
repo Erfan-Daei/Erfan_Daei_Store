@@ -4,9 +4,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Practice_Store.Application.Interfaces.FacadPatterns;
 using Practice_Store.Application.Services.Products.Commands.AddProduct;
+using Practice_Store.Application.Services.Products.Commands.AddReplyToReview;
 using Practice_Store.Application.Services.Products.Commands.EditProduct;
 using Practice_Store.Application.Services.Products.Queries.GetProductList_Admin;
-using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
+
 
 namespace EndPoint.Site.Areas.Admin.Controllers
 {
@@ -15,11 +16,9 @@ namespace EndPoint.Site.Areas.Admin.Controllers
     public class ProductController : Controller
     {
         private readonly IProductFacad _productFacad;
-        private readonly IHostingEnvironment _environment;
-        public ProductController(IProductFacad productFacad, IHostingEnvironment hostEnvironment)
+        public ProductController(IProductFacad productFacad)
         {
             _productFacad = productFacad;
-            _environment = hostEnvironment;
         }
 
         [HttpGet]
@@ -32,13 +31,6 @@ namespace EndPoint.Site.Areas.Admin.Controllers
         [HttpPost]
         public IActionResult AddProduct(RequestAddProductDto _Request, List<ProductSizeDto> _Sizes)
         {
-            List<IFormFile> Images = new List<IFormFile>();
-            for (int i = 0; i < Request.Form.Files.Count; i++)
-            {
-                var file = Request.Form.Files[i];
-                Images.Add(file);
-            }
-            _Request.Images = Images;
             _Request.Sizes = _Sizes;
             return Json(_productFacad.AddProductService.Execute(_Request));
         }
@@ -83,39 +75,9 @@ namespace EndPoint.Site.Areas.Admin.Controllers
         [HttpPut]
         public IActionResult EditProduct(RequestEditProductDto _Request, List<EditProductSizeDto> _Sizes, List<EditProductImageSrcDto> Srcs)
         {
-            List<IFormFile> Images = new List<IFormFile>();
-            _Request.ImageSrc = Srcs;
-            foreach (var image in _Request.ImageSrc)
-            {
-                if (image.Src.Contains(@"images\ProductImages\"))
-                {
-                    IFormFile FormFile = CreateIFormFile(_environment.WebRootPath + image.Src);
-                    Images.Add(FormFile);
-                }
-            }
-            for (int i = 0; i < Request.Form.Files.Count; i++)
-            {
-                var file = Request.Form.Files[i];
-                Images.Add(file);
-            }
-            _Request.Images = Images;
             _Request.Sizes = _Sizes;
+            _Request.ImageSrc = Srcs;
             return Json(_productFacad.EditProductService.Execute(_Request));
-        }
-
-        private IFormFile CreateIFormFile(string path)
-        {
-            var fileName = Path.GetFileName(path);
-            var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read);
-            var memoryStream = new MemoryStream();
-            fileStream.CopyTo(memoryStream);
-            fileStream.Close();
-            memoryStream.Position = 0;
-            return new FormFile(memoryStream, 0, memoryStream.Length, null, fileName)
-            {
-                Headers = new HeaderDictionary(),
-                ContentType = "application/octet-stream"
-            };
         }
 
         [HttpGet]
@@ -125,10 +87,11 @@ namespace EndPoint.Site.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        public IActionResult AddReplyToReview(long ReviewId, string ReplyDetail)
+        public IActionResult AddReplyToReview(RequestAddReplyToReviewDto _Request)
         {
             string UserId = ClaimUtility.GetUserId(User);
-            return Json(_productFacad.AddReplyToReviewService.Execute(ReviewId, UserId, ReplyDetail));
+            _Request.UserId = UserId;
+            return Json(_productFacad.AddReplyToReviewService.Execute(_Request));
         }
     }
 }

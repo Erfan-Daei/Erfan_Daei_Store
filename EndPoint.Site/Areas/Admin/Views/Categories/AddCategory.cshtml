@@ -1,4 +1,6 @@
-﻿@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+﻿@using Practice_Store.Application.Services.Products.Commands.AddCategory
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@model RequestAddCategoryDto
 @{
     ViewData["Title"] = "AddCategory";
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
@@ -18,16 +20,18 @@
                     <div class="card-body">
                         <div class="row">
                             <div class="col-lg-8 order-lg-1">
+                                <form asp-action="AddCategory">
                                 <h4 class="mb-3">افزودن</h4>
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <input type="hidden" id="ParentId" value="@ViewBag.ParentId" />
+                                        <input type="hidden" id="ParentId" value="@ViewBag.ParentId" asp-for="ParentId"><span asp-validation-for="ParentId" class="text-danger"></span>
                                         <label for="basicInput" class="form-label">نام دسته بندی</label>
-                                        <input type="text" class="form-control" id="Name">
+                                            <input type="text" class="form-control" id="Name" asp-for="Name"><span asp-validation-for="Name" class="text-danger"></span>
                                     </div>
                                     <hr class="mb-6">
-                                    <a onclick="AddCategory()" class="btn btn-primary btn-lg btn-block">ثبت دسته بندی</a>
+                                    <button type="submit" class="btn btn-primary btn-lg btn-block">ثبت دسته بندی</button>
                                 </div>
+                                </form>
                             </div>
                         </div>
                     </div>
@@ -41,6 +45,7 @@
 {
     <link href="~/sweetalert2/sweetalert2.min.css" rel="stylesheet" />
     <script src="~/sweetalert2/sweetalert2.min.js"></script>
+    <partial name="_ValidationScriptsPartial" />
 
     <script>
         function AddCategory(){

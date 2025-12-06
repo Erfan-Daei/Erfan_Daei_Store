@@ -1,5 +1,8 @@
-﻿@using Practice_Store.Application.Services.Users.Queries.GetAdminDetail
-@model GetAdminDetailDto
+﻿@using Practice_Store.Application.Services.Users.Commands.ChangeUserEmail_Site
+@using Practice_Store.Application.Services.Users.Commands.ForgetPassword
+@using Practice_Store.Application.Services.Users.Queries.GetAdminDetail
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@model (GetAdminDetailDto,RequestForgetPasswordDto,RequestChangeUserEmail_SiteDto)
 @{
     ViewData["Title"] = "Index";
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
@@ -26,15 +29,15 @@
                             <div class="col-xl-9 col-lg-6 col-md-6 col-xxl-7 col-sm-12">
                                 <div class="product-detail-content">
                                     <div class="new-arrival-content pr">
-                                        <h4>@Model.Name @Model.LastName</h4>
-                                        <p>تلفن : <span class="item">@Model.Mobile</span></p>
-                                        <p>آدرس : <span class="item">@Model.Address</span></p>
-                                        <p>کد پستی : <span class="item">@Model.PostCode</span></p>
+                                        <h4>@Model.Item1.Name @Model.Item1.LastName</h4>
+                                        <p>تلفن : <span class="item">@Model.Item1.Mobile</span></p>
+                                        <p>آدرس : <span class="item">@Model.Item1.Address</span></p>
+                                        <p>کد پستی : <span class="item">@Model.Item1.PostCode</span></p>
                                         <p>نقش ها : 
                                             <span class="item">
-                                                @foreach (var item in Model.Roles)
+                                                @foreach (var item in Model.Item1.Roles)
                                                 {
-                                                    if (item == Model.Roles[0])
+                                                    if (item == Model.Item1.Roles[0])
                                                     {
                                                         <strong> @item</strong>
                                                     }
@@ -65,11 +68,12 @@
 @section Scripts {
     <link href="~/sweetalert2/sweetalert2.min.css" rel="stylesheet" />
     <script src="~/sweetalert2/sweetalert2.min.js"></script>
+    <partial name="_ValidationScriptsPartial" />
 
     <script>
         @*Change Password*@
         function ForgetPasswordValidFunc() {
-            var UserId = "@Model.Id";
+            var UserId = "@Model.Item1.Id";
             var NewPassword = $("#Forget_Password").val();
             var ConPassword = $("#Forget_ConPassword").val();
             var postData = {
@@ -126,7 +130,7 @@
 
             function CheckNewEmailFunc() {
             var NewEmail = $("#NewEmail").val();
-            var LastEmail = "@Model.Email";
+            var LastEmail = "@Model.Item1.Email";
             var postData = {
                 'PreviousEmail': LastEmail,
                 'NewEmail': NewEmail,
@@ -168,23 +172,26 @@
     <div class="modal fade" id="ForgetPasswordUpdatePassword" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
+                <form asp-action="ChangeAdminPasswordValidation">
                 <div class="modal-header">
                     <h5 class="modal-title" id="exampleModalLongTitle">بروزرسانی رمزعبور</h5>
                 </div>
                 <div class="modal-body">
                     <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
                         <fieldset class="form-group">
+                            <input name="UserId" type="hidden" value="@Model.Item1.Id" disabled asp-for="Item2.UserId"><span asp-validation-for="Item2.UserId"></span>
                             <label for="basicInput">رمزعبور</label>
-                            <input name="NewPassword" type="password" class="form-control" id="Forget_Password">
+                            <input name="NewPassword" type="password" class="form-control" id="Forget_Password"asp-for="Item2.NewPassword"><span asp-validation-for="Item2.NewPassword"></span>
                             <label for="basicInput">تکرار رمزعبور</label>
-                            <input name="ConPassword" type="password" class="form-control" id="Forget_ConPassword">
+                            <input name="ConPassword" type="password" class="form-control" id="Forget_ConPassword"asp-for="Item2.ConPassword"><span asp-validation-for="Item2.ConPassword"></span>
                         </fieldset>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <a class="btn btn-secondary" onclick="CloseForgetPasswordUpdatePassword()">انصراف</a>
-                    <a class="btn btn-primary" onclick="ForgetPasswordValidFunc()">تایید</a>
+                    <button class="btn btn-primary" type="submit" >تایید</button>
                 </div>
+                </form>
             </div>
         </div>
     </div>
@@ -194,6 +201,7 @@
     <div class="modal fade" id="NewEmailModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
+                <form asp-action="ChangeAdminEmail">
                 <div class="modal-header">
                     <h5 class="modal-title" id="exampleModalLongTitle">بروزرسانی ایمیل</h5>
                 </div>
@@ -201,14 +209,15 @@
                     <div class="col-xl-12 col-lg-12 col-md-12 mb-1">
                         <fieldset class="form-group">
                             <label for="basicInput">ایمیل</label>
-                            <input type="text" class="form-control" id="NewEmail" placeholder="ایمیل جدید خود را وارد کنید">
+                            <input type="text" class="form-control" id="NewEmail" placeholder="ایمیل جدید خود را وارد کنید" asp-for="Item3.NewEmail"><span asp-validation-for="Item3.NewEmail"></span>
                         </fieldset>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <a class="btn btn-secondary" onclick="CloseNewEmailmodalFunc()">انصراف</a>
-                    <a class="btn btn-primary" onclick="CheckNewEmailFunc()">تایید</a>
+                    <button class="btn btn-primary" type="submit">تایید</button>
                 </div>
+                </form>
             </div>
         </div>
     </div>

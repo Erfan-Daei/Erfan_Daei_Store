@@ -87,7 +87,6 @@ builder.Services.AddControllers();
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.UserServicesValidators().ProductServicesValidators().LandingPageServicesValidators().OrderServicesValidators();
 
-
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(sw =>
 {

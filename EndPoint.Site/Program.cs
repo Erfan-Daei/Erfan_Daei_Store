@@ -77,8 +77,7 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddFluentValidationClientsideAdapters();
-builder.Services.UserServicesValidators();
-
+builder.Services.UserServicesValidators().ProductServicesValidators().LandingPageServicesValidators().OrderServicesValidators();
 
 var app = builder.Build();
 

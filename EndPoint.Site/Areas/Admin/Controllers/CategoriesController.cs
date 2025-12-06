@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Practice_Store.Application.Interfaces.FacadPatterns;
+using Practice_Store.Application.Services.Products.Commands.AddCategory;
+using Practice_Store.Application.Services.Products.Commands.EditCategory;
 
 namespace EndPoint.Site.Areas.Admin.Controllers
 {
@@ -27,15 +29,15 @@ namespace EndPoint.Site.Areas.Admin.Controllers
             return View();
         }
         [HttpPost]
-        public IActionResult AddCategory(long? ParentId, string Name)
+        public IActionResult AddCategory(RequestAddCategoryDto _Request)
         {
-            return Json(_productFacad.AddCategoryService.Execute(ParentId, Name));
+            return Json(_productFacad.AddCategoryService.Execute(_Request));
         }
 
         [HttpPatch]
-        public IActionResult EditCategory(long Id, string Name)
+        public IActionResult EditCategory(RequestEditCategoryDto _Request) 
         {
-            return Json(_productFacad.EditCategoryService.Execute(Id, Name));
+            return Json(_productFacad.EditCategoryService.Execute(_Request));
         }
 
         [HttpDelete]
